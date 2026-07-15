@@ -237,7 +237,7 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }
       {/* Manual Gate Modal */}
       {showManualGate && (
         <div className="fixed inset-0 bg-[#0a0d12]/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className={`w-full max-w-[480px] 2xl:max-w-[560px] h-[360px] 2xl:h-[415px] flex flex-col shadow-2xl overflow-hidden ${theme === 'light' ? (gateStep === 'history' ? 'bg-[#F7F8FC]' : 'bg-[#FFFFFF]') : 'bg-[#222426]'}`}>
+          <div className={`w-full max-w-[480px] 2xl:max-w-[560px] min-h-[360px] 2xl:min-h-[415px] h-auto flex flex-col shadow-2xl overflow-hidden ${theme === 'light' ? (gateStep === 'history' ? 'bg-[#F7F8FC]' : 'bg-[#FFFFFF]') : 'bg-[#222426]'}`}>
             {/* Modal Header */}
             <div className={`flex justify-between items-center px-6 py-5 2xl:px-8 2xl:py-6 shrink-0 ${theme === 'light' ? 'bg-[#FFFFFF]' : ''}`}>
               <h2 className={`text-[15px] 2xl:text-[17px] font-medium tracking-[0.25em] uppercase ${theme === 'light' ? 'text-[#383735]' : 'text-[#D4AF37]'}`}>
@@ -452,18 +452,18 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }
 
             {/* STEP: HISTORY */}
             {gateStep === 'history' && (
-              <div className="flex-1 flex flex-col min-h-0 px-6 2xl:px-8 pb-3 2xl:pb-4">
+              <div className="flex-1 flex flex-col px-6 2xl:px-8 pb-3 2xl:pb-4">
                 <div className="py-1.5 2xl:py-2 shrink-0">
                   <h3 className={`text-[15px] 2xl:text-[16px] font-bold tracking-wide ${theme === 'light' ? 'text-[#383735]' : 'text-white'}`}>History</h3>
                 </div>
 
-                <div className={`flex flex-col w-full flex-1 min-h-0 ${theme === 'light' ? 'bg-[#FFFFFF] border border-[#D8D8D8]' : 'bg-[#2a2d37]'}`}>
+                <div className={`flex flex-col w-full flex-1 ${theme === 'light' ? 'bg-[#FFFFFF] border border-[#D8D8D8]' : 'bg-[#2a2d37]'}`}>
                   <div className={`flex px-4 py-2.5 2xl:px-5 2xl:py-3 border-b shrink-0 ${theme === 'light' ? 'border-[#D8D8D8]' : 'border-[#D4AF37]/20'}`}>
                     <div className={`w-[45%] font-bold text-[11px] 2xl:text-[12px] tracking-wide ${theme === 'light' ? 'text-[#383735]' : 'text-slate-200'}`}>Date / Time</div>
                     <div className={`w-[55%] font-bold text-[11px] 2xl:text-[12px] tracking-wide ${theme === 'light' ? 'text-[#383735]' : 'text-slate-200'}`}>Alasan</div>
                   </div>
                   
-                  <div className="flex flex-col flex-1 pt-1 pb-1">
+                  <div className="flex flex-col flex-1 pt-1 pb-3 2xl:pb-4">
                     {historyData.map((item, idx) => (
                       <div key={idx} className="flex px-4 py-2.5 2xl:py-3.5 2xl:px-5 border-b-0">
                         <div className="w-[45%] flex flex-col gap-0.5">
