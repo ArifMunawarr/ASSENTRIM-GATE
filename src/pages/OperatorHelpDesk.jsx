@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Header from '../components/Header'
-import { Mic, Camera, X, XCircle, CheckCircle2, AlertTriangle, Square, CheckSquare } from 'lucide-react'
+import { Mic, Camera, X, XCircle, CheckCircle2, AlertTriangle, Square, CheckSquare, ShieldCheck, Info, List, Check } from 'lucide-react'
 import carImage from '../assets/mobil1.png'
 import carImage2 from '../assets/mobil2.png'
 import driverImage from '../assets/fotdriver.png'
@@ -12,6 +12,8 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
   const [isChecked, setIsChecked] = useState(false)
   const [activeRequestCount, setActiveRequestCount] = useState(7)
   const [selectedGate, setSelectedGate] = useState(1)
+  const [showAccessGranted, setShowAccessGranted] = useState(false)
+  const [showAccessDenied, setShowAccessDenied] = useState(false)
 
   // Fluid unit: 1u == 1px at the 1920x1080 baseline (see .helpdesk-root --u).
   const u = (n) => `calc(${n} * var(--u))`
@@ -59,11 +61,13 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
         </div>
         <div className="helpdesk-actions mt-auto shrink-0 bg-[#282A2C] z-10">
           <div className="helpdesk-actions-row flex items-center">
-            <button className="helpdesk-action-button flex-1 border-[2.22px] border-[#EF4444] bg-[#262A31] text-[#EF4444] font-bold tracking-wider flex items-center justify-center uppercase hover:bg-[#EF4444]/10 transition-colors rounded-sm whitespace-nowrap">
+            <button onClick={() => setShowAccessDenied(true)} className="helpdesk-action-button flex-1 border-[2.22px] border-[#EF4444] bg-[#262A31] text-[#EF4444] font-bold tracking-wider flex items-center justify-center uppercase hover:bg-[#EF4444]/10 transition-colors rounded-sm whitespace-nowrap">
               <XCircle className="helpdesk-action-icon" strokeWidth={2} />
               TOLAK AKSES
             </button>
-            <button className="helpdesk-action-button flex-1 bg-[#3B82F6] text-[#FAFAFA] font-black tracking-wider flex items-center justify-center uppercase hover:bg-[#3B82F6]/90 transition-colors shadow-lg shadow-[#3B82F6]/20 rounded-sm whitespace-nowrap">
+            <button 
+              onClick={() => setShowAccessGranted(true)}
+              className="helpdesk-action-button flex-1 bg-[#3B82F6] text-[#FAFAFA] font-black tracking-wider flex items-center justify-center uppercase hover:bg-[#3B82F6]/90 transition-colors shadow-lg shadow-[#3B82F6]/20 rounded-sm whitespace-nowrap">
               <CheckCircle2 className="helpdesk-action-icon" strokeWidth={2.5} />
               DIPERSILAHKAN MASUK
             </button>
@@ -289,11 +293,11 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
                 </div>
                 <div className="mt-auto shrink-0" style={{ paddingTop: u(16) }}>
                   <div className="flex items-center" style={{ gap: u(14) }}>
-                    <button className={`flex-1 border-[2.22px] bg-[#262A31] font-bold tracking-wider flex items-center justify-center uppercase transition-colors rounded-sm whitespace-nowrap ${theme === 'light' ? 'border-[#EF4444] text-[#EF4444] hover:bg-[#EF4444]/10' : 'border-[#FFB4AB] text-[#FFB4AB] hover:bg-[#FFB4AB]/10'}`} style={{ height: u(48), fontSize: u(11), gap: u(8), paddingLeft: u(8), paddingRight: u(8) }}>
+                    <button onClick={() => setShowAccessDenied(true)} className={`flex-1 border-[2.22px] bg-[#262A31] font-bold tracking-wider flex items-center justify-center uppercase transition-colors rounded-sm whitespace-nowrap ${theme === 'light' ? 'border-[#EF4444] text-[#EF4444] hover:bg-[#EF4444]/10' : 'border-[#FFB4AB] text-[#FFB4AB] hover:bg-[#FFB4AB]/10'}`} style={{ height: u(48), fontSize: u(11), gap: u(8), paddingLeft: u(8), paddingRight: u(8) }}>
                       <XCircle strokeWidth={2.5} style={{ width: u(20), height: u(20) }} />
                       TOLAK AKSES
                     </button>
-                    <button className={`flex-1 font-black tracking-wider flex items-center justify-center uppercase transition-colors shadow-lg rounded-sm whitespace-nowrap ${theme === 'light' ? 'bg-[#3B82F6] text-[#FAFAFA] hover:bg-[#3B82F6]/90 shadow-[#3B82F6]/20' : 'bg-[#2EAFF9] text-[#273421] hover:bg-[#2EAFF9]/90 shadow-[#2EAFF9]/20'}`} style={{ height: u(48), fontSize: u(11), gap: u(8), paddingLeft: u(8), paddingRight: u(8) }}>
+                    <button onClick={() => setShowAccessGranted(true)} className={`flex-1 font-black tracking-wider flex items-center justify-center uppercase transition-colors shadow-lg rounded-sm whitespace-nowrap ${theme === 'light' ? 'bg-[#3B82F6] text-[#FAFAFA] hover:bg-[#3B82F6]/90 shadow-[#3B82F6]/20' : 'bg-[#2EAFF9] text-[#273421] hover:bg-[#2EAFF9]/90 shadow-[#2EAFF9]/20'}`} style={{ height: u(48), fontSize: u(11), gap: u(8), paddingLeft: u(8), paddingRight: u(8) }}>
                       <CheckCircle2 strokeWidth={3} style={{ width: u(20), height: u(20) }} />
                       DIPERSILAHKAN MASUK
                     </button>
@@ -389,6 +393,212 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
         )}
 
       </div>
+
+      {/* Access Granted Popup Overlay */}
+      {showAccessGranted && (
+        <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm animate-in fade-in duration-200 ${theme === 'light' ? 'bg-[#F1F5F9]/80' : 'bg-[#121416]/80'}`}>
+          <div className={`${theme === 'light' ? 'bg-[#FFFFFF] border-[#10B981] shadow-xl' : 'bg-[#0B0D10] border-[#00DF89] shadow-[0_0_30px_rgba(0,223,137,0.15)]'} border rounded-xl p-6 w-full max-w-[420px] relative flex flex-col`}>
+            
+            {/* System State Banner */}
+            <div className={`border rounded-md px-3 py-2 mb-5 flex items-center ${theme === 'light' ? 'bg-[#10B981]/10 border-[#10B981]/30' : 'bg-[#00DF89]/[0.02] border-[#00DF89]/60 shadow-[inset_0_0_10px_rgba(0,223,137,0.05)]'}`}>
+              <div className={`w-1.5 h-1.5 rounded-full mr-2.5 ${theme === 'light' ? 'bg-[#10B981]' : 'bg-[#00DF89] shadow-[0_0_8px_#00DF89]'}`}></div>
+              <span className={`font-mono text-[8px] sm:text-[9px] tracking-[0.2em] font-bold uppercase ${theme === 'light' ? 'text-[#10B981]' : 'text-[#00DF89]'}`}>SYSTEM STATE: COMMAND EXECUTION SUCCESSFUL</span>
+            </div>
+
+            {/* Icon & Title */}
+            <div className="flex flex-col items-center justify-center mb-5">
+              <div className={`w-12 h-12 rounded-full border-[2px] flex items-center justify-center mb-3 ${theme === 'light' ? 'border-[#10B981] bg-[#10B981]/10 shadow-sm' : 'border-[#00DF89] bg-[#00DF89]/15 shadow-[0_0_20px_rgba(0,223,137,0.15)]'}`}>
+                 <ShieldCheck className={`w-6 h-6 ${theme === 'light' ? 'text-[#10B981]' : 'text-[#00DF89]'}`} strokeWidth={1.5} />
+              </div>
+              <h2 className={`text-[20px] font-black tracking-widest mb-1 ${theme === 'light' ? 'text-[#10B981]' : 'text-[#00DF89] shadow-[#00DF89]'}`}>AKSES DIBERIKAN</h2>
+              <p className={`tracking-[0.3em] text-[8px] font-medium uppercase text-center ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>ACCESS GRANTED // COMMAND SEND OK</p>
+            </div>
+
+            {/* License Plate Box */}
+            <div className={`border rounded-lg py-3 px-4 mb-5 flex flex-col items-center ${theme === 'light' ? 'bg-[#F0F9FF] border-[#E0F2FE]' : 'bg-[#16181C] border-[#2A2D32] shadow-inner'}`}>
+              <span className={`text-[8px] font-bold tracking-[0.2em] uppercase mb-1.5 text-center ${theme === 'light' ? 'text-[#0284C7]' : 'text-[#2EAFF9]'}`}>VEHICLE LICENSE PLATE</span>
+              <span className={`text-3xl font-black tracking-widest mb-2 text-center ${theme === 'light' ? 'text-[#0284C7]' : 'text-[#2EAFF9] drop-shadow-[0_0_15px_rgba(46,175,249,0.3)]'}`}>B 1234 TNI</span>
+              <div className={`flex items-center text-[8px] font-bold tracking-widest ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>
+                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1.5">
+                   <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                   <path d="M9 22v-4h6v4"></path>
+                   <path d="M8 6h.01"></path>
+                   <path d="M16 6h.01"></path>
+                   <path d="M12 6h.01"></path>
+                   <path d="M12 10h.01"></path>
+                   <path d="M12 14h.01"></path>
+                   <path d="M16 10h.01"></path>
+                   <path d="M16 14h.01"></path>
+                   <path d="M8 10h.01"></path>
+                   <path d="M8 14h.01"></path>
+                 </svg>
+                 GATE 01 - ENTRY
+              </div>
+            </div>
+
+            {/* Authorization Manifest */}
+            <div className="mb-5">
+              <span className={`text-[8px] font-bold tracking-[0.2em] uppercase mb-1.5 block ${theme === 'light' ? 'text-[#64748B]' : 'text-gray-500'}`}>AUTHORIZATION MANIFEST</span>
+              <div className={`border rounded-lg flex flex-col overflow-hidden ${theme === 'light' ? 'bg-[#F8FAFC] border-[#E2E8F0]' : 'bg-[#16181C] border-[#2A2D32]'}`}>
+                {/* Row 1 */}
+                <div className={`flex justify-between items-center px-3 py-2 border-b ${theme === 'light' ? 'border-[#E2E8F0]' : 'border-[#2A2D32]'}`}>
+                  <span className={`text-[8px] font-bold tracking-[0.15em] uppercase ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>TIPE VERIFIKASI</span>
+                  <span className={`text-[9px] font-bold text-right ${theme === 'light' ? 'text-[#0284C7]' : 'text-[#2EAFF9]'}`}>Manual Override</span>
+                </div>
+                {/* Row 2 */}
+                <div className={`flex justify-between items-center px-3 py-2 border-b ${theme === 'light' ? 'border-[#E2E8F0]' : 'border-[#2A2D32]'}`}>
+                  <span className={`text-[8px] font-bold tracking-[0.15em] uppercase ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>ALASAN</span>
+                  <span className={`text-[9px] font-bold text-right ${theme === 'light' ? 'text-[#0F172A]' : 'text-white'}`}>Ketidaksesuaian Data (Plat Berbeda)</span>
+                </div>
+                {/* Row 3 */}
+                <div className={`flex justify-between items-center px-3 py-2 border-b ${theme === 'light' ? 'border-[#E2E8F0]' : 'border-[#2A2D32]'}`}>
+                  <span className={`text-[8px] font-bold tracking-[0.15em] uppercase ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>OPERATOR</span>
+                  <span className={`text-[9px] font-bold text-right ${theme === 'light' ? 'text-[#0F172A]' : 'text-white'}`}>SGT. Ardiansyah</span>
+                </div>
+                {/* Row 4 */}
+                <div className="flex justify-between items-center px-3 py-2">
+                  <span className={`text-[8px] font-bold tracking-[0.15em] uppercase ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>TIMESTAMP</span>
+                  <span className={`text-[9px] font-bold font-mono tracking-wider text-right ${theme === 'light' ? 'text-[#0F172A]' : 'text-white'}`}>07:49:33 - 26 January 2026</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Warning Box */}
+            <div className={`border rounded-lg p-3 mb-5 flex items-center ${theme === 'light' ? 'bg-[#F1F5F9] border-[#E2E8F0]' : 'bg-[#0B0D10] border-[#2A2D32]'}`}>
+              <Info className={`w-3 h-3 mr-2 shrink-0 ${theme === 'light' ? 'text-[#0284C7]' : 'text-[#2EAFF9]'}`} />
+              <span className={`text-[8px] leading-relaxed ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>
+                <span className={`font-bold ${theme === 'light' ? 'text-[#0F172A]' : 'text-white'}`}>Catatan:</span> Akses manual telah dicatat dalam sistem audit keamanan pusat ASSENTRIM.
+              </span>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="mb-5">
+              <div className="flex justify-between items-center mb-1.5">
+                <span className={`text-[8px] font-bold tracking-[0.2em] uppercase ${theme === 'light' ? 'text-[#10B981]' : 'text-[#00DF89]'}`}>GATE OPENING ...</span>
+                <span className={`text-[8px] font-bold font-mono ${theme === 'light' ? 'text-[#10B981]' : 'text-[#00DF89]'}`}>100%</span>
+              </div>
+              <div className={`h-1 rounded-full overflow-hidden border ${theme === 'light' ? 'bg-[#E2E8F0] border-[#E2E8F0]' : 'bg-[#16181C] border-[#2A2D32]'}`}>
+                <div className={`h-full w-full ${theme === 'light' ? 'bg-[#10B981]' : 'bg-[#00DF89] shadow-[0_0_10px_#00DF89]'}`}></div>
+              </div>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex gap-3 mt-auto">
+              <button className={`flex-1 border font-bold text-[9px] tracking-[0.15em] uppercase h-[36px] rounded-md flex items-center justify-center transition-colors ${theme === 'light' ? 'bg-white hover:bg-gray-50 border-[#CBD5E1] text-[#475569]' : 'bg-[#0B0D10] hover:bg-[#16181C] border-[#2A2D32] text-white'}`}>
+                <List className="w-3.5 h-3.5 mr-1.5" />
+                LIHAT LOG
+              </button>
+              <button onClick={() => setShowAccessGranted(false)} className={`flex-1 font-black text-[9px] tracking-[0.15em] uppercase h-[36px] rounded-md flex items-center justify-center transition-colors ${theme === 'light' ? 'bg-[#10B981] hover:bg-[#10B981]/90 shadow-md shadow-[#10B981]/20' : 'bg-[#2EAFF9] hover:bg-[#2EAFF9]/90 shadow-[0_0_15px_rgba(46,175,249,0.3)]'}`} style={{ color: theme === 'light' ? '#FFFFFF' : '#0B0D10' }}>
+                <Check className="w-3.5 h-3.5 mr-1.5" strokeWidth={3} />
+                SELESAI
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Access Denied Popup Overlay */}
+      {showAccessDenied && (
+        <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm animate-in fade-in duration-200 ${theme === 'light' ? 'bg-[#F1F5F9]/80' : 'bg-[#121416]/80'}`}>
+          <div className={`${theme === 'light' ? 'bg-[#FFFFFF] border-[#EF4444] shadow-xl' : 'bg-[#0B0D10] border-[#EF4444] shadow-[0_0_30px_rgba(239,68,68,0.15)]'} border rounded-xl p-6 w-full max-w-[420px] relative flex flex-col`}>
+            
+            {/* System State Banner */}
+            <div className={`border rounded-md px-3 py-2 mb-5 flex items-center ${theme === 'light' ? 'bg-[#FEF2F2] border-[#EF4444]/30' : 'bg-[#EF4444]/[0.02] border-[#EF4444]/60 shadow-[inset_0_0_10px_rgba(239,68,68,0.05)]'}`}>
+              <div className={`w-1.5 h-1.5 rounded-full mr-2.5 ${theme === 'light' ? 'bg-[#EF4444]' : 'bg-[#EF4444] shadow-[0_0_8px_#EF4444]'}`}></div>
+              <span className={`font-mono text-[8px] sm:text-[9px] tracking-[0.2em] font-bold uppercase text-[#EF4444]`}>SYSTEM STATE: ACCESS REJECTED / LOCKED</span>
+            </div>
+
+            {/* Icon & Title */}
+            <div className="flex flex-col items-center justify-center mb-5">
+              <div className={`w-12 h-12 rounded-full border-[2px] flex items-center justify-center mb-3 ${theme === 'light' ? 'border-[#EF4444] bg-[#FEF2F2] shadow-sm' : 'border-[#EF4444] bg-[#EF4444]/15 shadow-[0_0_20px_rgba(239,68,68,0.15)]'}`}>
+                 <XCircle className={`w-6 h-6 text-[#EF4444]`} strokeWidth={1.5} />
+              </div>
+              <h2 className={`text-[20px] font-black tracking-widest mb-1 text-[#EF4444] ${theme === 'dark' ? 'shadow-[#EF4444]' : ''}`}>AKSES DITOLAK</h2>
+              <p className={`tracking-[0.3em] text-[8px] font-medium uppercase text-center ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>ACCESS DENIED // CRITICAL STOP TRIGGERED</p>
+            </div>
+
+            {/* License Plate Box */}
+            <div className={`border rounded-lg py-3 px-4 mb-5 flex flex-col items-center ${theme === 'light' ? 'bg-[#FEF2F2] border-[#FEE2E2]' : 'bg-[#16181C] border-[#2A2D32] shadow-inner'}`}>
+              <span className={`text-[8px] font-bold tracking-[0.2em] uppercase mb-1.5 text-center text-[#EF4444]`}>VEHICLE LICENSE PLATE</span>
+              <span className={`text-3xl font-black tracking-widest mb-2 text-center text-[#EF4444] ${theme === 'dark' ? 'drop-shadow-[0_0_15px_rgba(239,68,68,0.3)]' : ''}`}>B 1234 TNI</span>
+              <div className={`flex items-center text-[8px] font-bold tracking-widest ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>
+                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1.5">
+                   <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                   <path d="M9 22v-4h6v4"></path>
+                   <path d="M8 6h.01"></path>
+                   <path d="M16 6h.01"></path>
+                   <path d="M12 6h.01"></path>
+                   <path d="M12 10h.01"></path>
+                   <path d="M12 14h.01"></path>
+                   <path d="M16 10h.01"></path>
+                   <path d="M16 14h.01"></path>
+                   <path d="M8 10h.01"></path>
+                   <path d="M8 14h.01"></path>
+                 </svg>
+                 GATE 01 - ENTRY
+              </div>
+            </div>
+
+            {/* Authorization Manifest */}
+            <div className="mb-5">
+              <span className={`text-[8px] font-bold tracking-[0.2em] uppercase mb-1.5 block ${theme === 'light' ? 'text-[#64748B]' : 'text-gray-500'}`}>REJECTION MANIFEST</span>
+              <div className={`border rounded-lg flex flex-col overflow-hidden ${theme === 'light' ? 'bg-[#F8FAFC] border-[#E2E8F0]' : 'bg-[#16181C] border-[#2A2D32]'}`}>
+                {/* Row 1 */}
+                <div className={`flex justify-between items-center px-3 py-2 border-b ${theme === 'light' ? 'border-[#E2E8F0]' : 'border-[#2A2D32]'}`}>
+                  <span className={`text-[8px] font-bold tracking-[0.15em] uppercase ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>TIPE VERIFIKASI</span>
+                  <span className={`text-[9px] font-bold text-right ${theme === 'light' ? 'text-[#0F172A]' : 'text-white'}`}>Manual Override</span>
+                </div>
+                {/* Row 2 */}
+                <div className={`flex justify-between items-center px-3 py-2 border-b ${theme === 'light' ? 'border-[#E2E8F0]' : 'border-[#2A2D32]'}`}>
+                  <span className={`text-[8px] font-bold tracking-[0.15em] uppercase ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>ALASAN PENOLAKAN</span>
+                  <span className={`text-[9px] font-bold text-right text-[#EF4444]`}>Ketidaksesuaian Data (Plat Berbeda)</span>
+                </div>
+                {/* Row 3 */}
+                <div className={`flex justify-between items-center px-3 py-2 border-b ${theme === 'light' ? 'border-[#E2E8F0]' : 'border-[#2A2D32]'}`}>
+                  <span className={`text-[8px] font-bold tracking-[0.15em] uppercase ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>OPERATOR</span>
+                  <span className={`text-[9px] font-bold text-right ${theme === 'light' ? 'text-[#0F172A]' : 'text-white'}`}>SGT. Ardiansyah</span>
+                </div>
+                {/* Row 4 */}
+                <div className="flex justify-between items-center px-3 py-2">
+                  <span className={`text-[8px] font-bold tracking-[0.15em] uppercase ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>TIMESTAMP</span>
+                  <span className={`text-[9px] font-bold font-mono tracking-wider text-right ${theme === 'light' ? 'text-[#0F172A]' : 'text-white'}`}>07:49:33 - 26 January 2026</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Warning Box */}
+            <div className={`border rounded-lg p-3 mb-5 flex items-center ${theme === 'light' ? 'bg-[#FEF2F2] border-[#FEE2E2]' : 'bg-[#0B0D10] border-[#EF4444]/30'}`}>
+              <AlertTriangle className={`w-3 h-3 mr-2 shrink-0 text-[#EF4444]`} />
+              <span className={`text-[8px] leading-relaxed text-[#EF4444]`}>
+                <span className={`font-bold`}>PERINGATAN:</span> Kendaraan telah ditandai untuk pemeriksaan lebih lanjut oleh otoritas keamanan pusat ASSENTRIM.
+              </span>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="mb-5">
+              <div className="flex justify-between items-center mb-1.5">
+                <span className={`text-[8px] font-bold tracking-[0.2em] uppercase text-[#EF4444]`}>BARRIER SYSTEM: GATE LOCKED</span>
+                <span className={`text-[8px] font-bold font-mono text-[#EF4444]`}>SECURE 100%</span>
+              </div>
+              <div className={`h-1 rounded-full overflow-hidden border ${theme === 'light' ? 'bg-[#FEE2E2] border-[#FEE2E2]' : 'bg-[#16181C] border-[#2A2D32]'}`}>
+                <div className={`h-full w-full bg-[#EF4444] ${theme === 'dark' ? 'shadow-[0_0_10px_#EF4444]' : ''}`}></div>
+              </div>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex gap-3 mt-auto">
+              <button className={`flex-1 border font-bold text-[9px] tracking-[0.15em] uppercase h-[36px] rounded-md flex items-center justify-center transition-colors ${theme === 'light' ? 'bg-white hover:bg-gray-50 border-[#CBD5E1] text-[#475569]' : 'bg-[#0B0D10] hover:bg-[#16181C] border-[#2A2D32] text-white'}`}>
+                <List className="w-3.5 h-3.5 mr-1.5" />
+                LIHAT LOG
+              </button>
+              <button onClick={() => setShowAccessDenied(false)} className={`flex-1 font-black text-[9px] tracking-[0.15em] uppercase h-[36px] rounded-md flex items-center justify-center transition-colors ${theme === 'light' ? 'bg-[#EF4444] hover:bg-[#EF4444]/90 shadow-md shadow-[#EF4444]/20' : 'bg-[#EF4444] hover:bg-[#EF4444]/90 shadow-[0_0_15px_rgba(239,68,68,0.3)]'}`} style={{ color: theme === 'light' ? '#FFFFFF' : '#0B0D10' }}>
+                <Check className="w-3.5 h-3.5 mr-1.5" strokeWidth={3} />
+                SELESAI
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
