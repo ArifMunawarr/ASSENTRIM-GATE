@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard'
 import ActivityLogs from './pages/ActivityLogs'
 import OperatorHelpDesk from './pages/OperatorHelpDesk'
 import Profile from './pages/Profile'
+import ViolationPopup from './components/ViolationPopup'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -24,22 +25,47 @@ function App() {
   const pageProps = { onNavigate: setCurrentPage, theme, onToggleTheme: toggleTheme, onLogout: handleLogout }
 
   if (!isLoggedIn) {
-    return <Login onLogin={() => setIsLoggedIn(true)} theme={theme} />
+    return (
+      <>
+        <ViolationPopup />
+        <Login onLogin={() => setIsLoggedIn(true)} theme={theme} />
+      </>
+    )
   }
 
   if (currentPage === 'activitylogs') {
-    return <ActivityLogs {...pageProps} />
+    return (
+      <>
+        <ViolationPopup />
+        <ActivityLogs {...pageProps} />
+      </>
+    )
   }
 
   if (currentPage === 'helpdesk') {
-    return <OperatorHelpDesk {...pageProps} />
+    return (
+      <>
+        <ViolationPopup />
+        <OperatorHelpDesk {...pageProps} />
+      </>
+    )
   }
 
   if (currentPage === 'profile') {
-    return <Profile {...pageProps} />
+    return (
+      <>
+        <ViolationPopup />
+        <Profile {...pageProps} />
+      </>
+    )
   }
 
-  return <Dashboard {...pageProps} />
+  return (
+    <>
+      <ViolationPopup />
+      <Dashboard {...pageProps} />
+    </>
+  )
 }
 
 export default App
