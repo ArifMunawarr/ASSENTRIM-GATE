@@ -18,13 +18,73 @@ import deniedIcon from '../assets/deniedicon.svg'
 import iconTotTodayLight from '../assets/icontottoday(1).svg'
 import activeGateIconLight from '../assets/activegateicon(1).svg'
 import deniedIconLight from '../assets/deniedicon(1).svg'
+import das1 from '../assets/das1.png'
+import das2 from '../assets/das2.png'
+import das3 from '../assets/das3.png'
+import das5 from '../assets/das5.png'
+import das6 from '../assets/das6.png'
 
 const logData = [
-  { id: '22323232323', type: 'SUV', driver: 'Anton Ruman', date: '2023-10-24', time: '09:12:44', gate: 'GATE 01', plate: 'B 1234 TNI', plateColor: '#2EAFF9', rfidStatus: 'Verified', rfidOk: true, operator: 'Sgt. Pratama', status: 'DITERIMA' },
-  { id: '22323232323', type: 'TRUCK', driver: 'Tidak Dikenal', date: '2023-10-24', time: '09:08:12', gate: 'GATE 01', plate: 'AD 7749 AA', plateColor: '#2EAFF9', rfidStatus: 'No RFID', rfidOk: false, operator: 'Sgt. Pratama', status: 'DITOLAK' },
-  { id: '22323232323', type: 'MINIBUS', driver: 'Rudi Burhan', date: '2023-10-24', time: '08:55:01', gate: 'GATE 02', plate: 'L 9901 AB', plateColor: '#4ade80', rfidStatus: 'Verified', rfidOk: true, operator: 'Cpl. Santoso', status: 'DITERIMA' },
-  { id: '22323232324', type: 'SUV', driver: 'Sari Dewi', date: '2023-10-24', time: '09:15:23', gate: 'GATE 03', plate: 'B 1234 CD', plateColor: '#4ade80', rfidStatus: 'Verified', rfidOk: true, operator: 'Sgt. Hadi', status: 'DITERIMA' },
-  { id: '22323232324', type: 'SUV', driver: 'Sari Dewi', date: '2023-10-24', time: '09:15:23', gate: 'GATE 03', plate: 'B 1234 CD', plateColor: '#2EAFF9', rfidStatus: 'Verified', rfidOk: true, operator: 'Sgt. Hadi', status: 'DITERIMA' },
+  { 
+    plate: 'B 1234 TNI', 
+    type: 'SUV', 
+    driver: 'Anton Ruman', 
+    gateMasuk: 'GATE 01', 
+    fotoMasuk: das1, 
+    waktuMasuk: '09:12:44', 
+    gateKeluar: 'GATE 01', 
+    fotoKeluar: das1, 
+    waktuKeluar: '17:00:00', 
+    date: '2023-10-24', 
+    rfidStatus: 'VERIFIED', 
+    rfidOk: true, 
+    status: 'DITERIMA' 
+  },
+  { 
+    plate: 'AD 7749 AA', 
+    type: 'TRUCK', 
+    driver: 'Tidak Dikenal', 
+    gateMasuk: 'GATE 01', 
+    fotoMasuk: das2, 
+    waktuMasuk: '09:08:12', 
+    gateKeluar: 'GATE 01', 
+    fotoKeluar: das2, 
+    waktuKeluar: '17:00:00', 
+    date: '2023-10-24', 
+    rfidStatus: 'NO RFID', 
+    rfidOk: false, 
+    status: 'DITOLAK' 
+  },
+  { 
+    plate: 'L 9901 AB', 
+    type: 'MINIBUS', 
+    driver: 'Rudi Burhan', 
+    gateMasuk: 'GATE 02', 
+    fotoMasuk: das3, 
+    waktuMasuk: '08:55:01', 
+    gateKeluar: 'GATE 02', 
+    fotoKeluar: das3, 
+    waktuKeluar: '17:00:00', 
+    date: '2023-10-24', 
+    rfidStatus: 'VERIFIED', 
+    rfidOk: true, 
+    status: 'DITERIMA' 
+  },
+  { 
+    plate: 'B 1234 CD', 
+    type: 'SUV', 
+    driver: 'Sari Dewi', 
+    gateMasuk: 'GATE 03', 
+    fotoMasuk: das5, 
+    waktuMasuk: '09:15:23', 
+    gateKeluar: 'GATE 03', 
+    fotoKeluar: das5, 
+    waktuKeluar: '17:00:00', 
+    date: '2023-10-24', 
+    rfidStatus: 'VERIFIED', 
+    rfidOk: true, 
+    status: 'DITERIMA' 
+  },
 ]
 
 export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogout }) {
@@ -59,7 +119,7 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
 
   const filteredData = logData.filter(row => {
     if (vehicleType !== 'all' && row.type !== vehicleType) return false
-    if (gateSelection.length > 0 && !gateSelection.includes(row.gate)) return false
+    if (gateSelection.length > 0 && !gateSelection.includes(row.gateMasuk) && !gateSelection.includes(row.gateKeluar)) return false
     if (rfidStatus !== 'all' && row.status !== rfidStatus) return false
     return true
   })
@@ -245,43 +305,31 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
         {/* Table & Pagination Container */}
         <div className="border border-[#444841] bg-[#1C2026] flex flex-col min-h-0 overflow-hidden flex-1">
           <div className="flex-1 min-h-0 overflow-x-auto no-scrollbar">
-            <table className="w-full h-full text-left min-w-[1000px] 2xl:min-w-[1400px]">
+            <table className="w-full h-full text-left min-w-[1300px] 2xl:min-w-[1700px]">
               <thead className={`z-10 sticky top-0 ${theme === 'light' ? 'bg-[#0C5F9A]' : 'bg-[#262A31]'}`}>
                 <tr style={{ borderBottom: '1.17px solid #444841' }}>
-                  <th className="px-4 py-3 2xl:px-6 2xl:py-4 text-[10px] 2xl:text-[13px] font-bold tracking-widest text-[#C5C8BE] uppercase">ID</th>
-                  <th className="px-4 py-3 2xl:px-6 2xl:py-4 text-[10px] 2xl:text-[13px] font-bold tracking-widest text-[#C5C8BE] uppercase">Type</th>
-                  <th className="px-4 py-3 2xl:px-6 2xl:py-4 text-[10px] 2xl:text-[13px] font-bold tracking-widest text-[#C5C8BE] uppercase">Driver</th>
-                  <th className="px-4 py-3 2xl:px-6 2xl:py-4 text-[10px] 2xl:text-[13px] font-bold tracking-widest text-[#C5C8BE] uppercase">Date / Time</th>
-                  <th className="px-4 py-3 2xl:px-6 2xl:py-4 text-[10px] 2xl:text-[13px] font-bold tracking-widest text-[#C5C8BE] uppercase text-center">Foto Driver</th>
-                  <th className="px-4 py-3 2xl:px-6 2xl:py-4 text-[10px] 2xl:text-[13px] font-bold tracking-widest text-[#C5C8BE] uppercase text-center">Gate</th>
-                  <th className="px-4 py-3 2xl:px-6 2xl:py-4 text-[10px] 2xl:text-[13px] font-bold tracking-widest text-[#C5C8BE] uppercase text-center">License Plate</th>
-                  <th className="px-4 py-3 2xl:px-6 2xl:py-4 text-[10px] 2xl:text-[13px] font-bold tracking-widest text-[#C5C8BE] uppercase">RFID Status</th>
-                  <th className="px-4 py-3 2xl:px-6 2xl:py-4 text-[10px] 2xl:text-[13px] font-bold tracking-widest text-[#C5C8BE] uppercase">Operator Name</th>
-                  <th className="px-4 py-3 2xl:px-6 2xl:py-4 text-[10px] 2xl:text-[13px] font-bold tracking-widest text-[#C5C8BE] uppercase text-center">Status</th>
-                  <th className="px-4 py-3 2xl:px-6 2xl:py-4 text-[10px] 2xl:text-[13px] font-bold tracking-widest text-[#C5C8BE] uppercase text-center">Actions</th>
+                  <th className="px-4 py-3 2xl:px-6 2xl:py-4 text-[10px] 2xl:text-[13px] font-bold tracking-widest text-[#C5C8BE] uppercase whitespace-nowrap">Plate Number</th>
+                  <th className="px-4 py-3 2xl:px-6 2xl:py-4 text-[10px] 2xl:text-[13px] font-bold tracking-widest text-[#C5C8BE] uppercase whitespace-nowrap">Type</th>
+                  <th className="px-4 py-3 2xl:px-6 2xl:py-4 text-[10px] 2xl:text-[13px] font-bold tracking-widest text-[#C5C8BE] uppercase whitespace-nowrap">Driver</th>
+                  <th className="px-4 py-3 2xl:px-6 2xl:py-4 text-[10px] 2xl:text-[13px] font-bold tracking-widest text-[#C5C8BE] uppercase whitespace-nowrap">Gate Masuk</th>
+                  <th className="px-4 py-3 2xl:px-6 2xl:py-4 text-[10px] 2xl:text-[13px] font-bold tracking-widest text-[#C5C8BE] uppercase text-center whitespace-nowrap">Foto Masuk</th>
+                  <th className="px-4 py-3 2xl:px-6 2xl:py-4 text-[10px] 2xl:text-[13px] font-bold tracking-widest text-[#C5C8BE] uppercase whitespace-nowrap">Waktu Masuk</th>
+                  <th className="px-4 py-3 2xl:px-6 2xl:py-4 text-[10px] 2xl:text-[13px] font-bold tracking-widest text-[#C5C8BE] uppercase whitespace-nowrap">Gate Keluar</th>
+                  <th className="px-4 py-3 2xl:px-6 2xl:py-4 text-[10px] 2xl:text-[13px] font-bold tracking-widest text-[#C5C8BE] uppercase text-center whitespace-nowrap">Foto Keluar</th>
+                  <th className="px-4 py-3 2xl:px-6 2xl:py-4 text-[10px] 2xl:text-[13px] font-bold tracking-widest text-[#C5C8BE] uppercase whitespace-nowrap">Waktu Keluar</th>
+                  <th className="px-4 py-3 2xl:px-6 2xl:py-4 text-[10px] 2xl:text-[13px] font-bold tracking-widest text-[#C5C8BE] uppercase whitespace-nowrap">Date</th>
+                  <th className="px-4 py-3 2xl:px-6 2xl:py-4 text-[10px] 2xl:text-[13px] font-bold tracking-widest text-[#C5C8BE] uppercase whitespace-nowrap">RFID Status</th>
+                  <th className="px-4 py-3 2xl:px-6 2xl:py-4 text-[10px] 2xl:text-[13px] font-bold tracking-widest text-[#C5C8BE] uppercase text-center whitespace-nowrap">Status</th>
+                  <th className="px-4 py-3 2xl:px-6 2xl:py-4 text-[10px] 2xl:text-[13px] font-bold tracking-widest text-[#C5C8BE] uppercase text-center whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredData.slice(0, 5).map((row, idx) => (
                   <tr key={idx} className={`border-b border-[#444841]/60 transition-colors ${theme === 'light' ? (idx % 2 === 0 ? 'bg-[#FAFAFA]' : 'bg-[#F7F8FC]') : 'hover:bg-white/[0.02]'}`}>
-                    <td className="px-4 py-3 2xl:px-6 2xl:py-[11px] text-[11px] 2xl:text-[13px] text-slate-400 font-medium tracking-wide">{row.id}</td>
-                    <td className="px-4 py-3 2xl:px-6 2xl:py-[11px] text-[11px] 2xl:text-[13px] text-slate-400 font-medium tracking-wide">{row.type}</td>
-                    <td className={`px-4 py-3 2xl:px-6 2xl:py-[11px] text-[11px] 2xl:text-[13px] font-medium tracking-wide ${row.driver === 'Tidak Dikenal' ? 'text-[#EF4444]' : (row.status === 'DITOLAK' ? 'text-[#FFB4AB]' : 'text-slate-400')}`}>{row.driver}</td>
-                    <td className="px-4 py-3 2xl:px-6 2xl:py-[11px]">
-                      <div className="text-[11px] 2xl:text-[13px] text-slate-400 font-medium tracking-wide">{row.date}</div>
-                      <div className="text-[9px] 2xl:text-[11px] font-medium tracking-wider mt-0.5" style={{ color: '#C5C8BE' }}>{row.time}</div>
-                    </td>
-                    <td className="px-4 py-3 2xl:px-6 2xl:py-[11px]">
-                      <div className="flex justify-center">
-                        <div className="w-10 h-10 2xl:w-[40px] 2xl:h-[40px] border border-[#444841] rounded-sm overflow-hidden flex items-center justify-center bg-[#1C2026]">
-                          <img src={fotdriver} alt="Driver" className="w-full h-full object-cover grayscale opacity-90" />
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 2xl:px-6 2xl:py-[11px] text-[11px] 2xl:text-[13px] font-bold tracking-wider text-center" style={{ color: '#C5C8BE' }}>{row.gate}</td>
-                    <td className="px-4 py-3 2xl:px-6 2xl:py-[11px] text-center">
+                    {/* Plate Number */}
+                    <td className="px-4 py-3 2xl:px-6 2xl:py-[11px] whitespace-nowrap">
                       <span 
-                        className="inline-block text-[11px] 2xl:text-[13px] font-medium px-3 py-1 2xl:px-4 2xl:py-1 rounded-sm tracking-wide" 
+                        className="inline-block text-[11px] 2xl:text-[13px] font-medium px-3 py-1 rounded-sm tracking-wide" 
                         style={{ 
                           backgroundColor: row.status === 'DITERIMA' ? '#BCCBB10D' : '#1C2026',
                           border: row.status === 'DITERIMA' ? '1.17px solid #BCCBB133' : '1.17px solid #444841',
@@ -292,14 +340,56 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
                         {row.plate}
                       </span>
                     </td>
+                    {/* Type */}
+                    <td className="px-4 py-3 2xl:px-6 2xl:py-[11px] text-[11px] 2xl:text-[13px] text-slate-400 font-medium tracking-wide whitespace-nowrap">{row.type}</td>
+                    {/* Driver */}
+                    <td className={`px-4 py-3 2xl:px-6 2xl:py-[11px] text-[11px] 2xl:text-[13px] font-medium tracking-wide whitespace-nowrap ${row.driver === 'Tidak Dikenal' ? 'text-[#EF4444]' : (row.status === 'DITOLAK' ? 'text-[#FFB4AB]' : 'text-slate-400')}`}>{row.driver}</td>
+                    {/* Gate Masuk */}
+                    <td className="px-4 py-3 2xl:px-6 2xl:py-[11px] text-[11px] 2xl:text-[13px] font-bold tracking-wider whitespace-nowrap" style={{ color: '#C5C8BE' }}>{row.gateMasuk}</td>
+                    {/* Foto Masuk */}
                     <td className="px-4 py-3 2xl:px-6 2xl:py-[11px]">
-                      <div className="flex items-center gap-1.5 2xl:gap-2.5">
-                        <div className={`w-1.5 h-1.5 2xl:w-2 2xl:h-2 rounded-full ${row.rfidOk ? 'bg-[#2EAFF9]' : (theme === 'light' ? 'bg-[#EF4444]' : 'bg-[#FFB4AB]')}`} />
-                        <span className={`text-[11px] 2xl:text-[13px] font-medium tracking-wide ${row.rfidOk ? 'text-slate-200' : (theme === 'light' ? 'text-[#EF4444]' : 'text-[#FFB4AB]')}`}>{row.rfidStatus}</span>
+                      <div className="flex justify-center">
+                        <div className="w-10 h-10 2xl:w-[40px] 2xl:h-[40px] border border-[#444841] rounded-sm overflow-hidden flex items-center justify-center bg-[#1C2026]">
+                          {row.fotoMasuk ? (
+                            <img src={row.fotoMasuk} alt="Foto Masuk" className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-[9px] text-slate-500">No Image</span>
+                          )}
+                        </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 2xl:px-6 2xl:py-[11px] text-[11px] 2xl:text-[13px] text-slate-400 font-medium tracking-wide">{row.operator}</td>
-                    <td className="px-4 py-3 2xl:px-6 2xl:py-[11px] text-center">
+                    {/* Waktu Masuk */}
+                    <td className="px-4 py-3 2xl:px-6 2xl:py-[11px] text-[11px] 2xl:text-[13px] text-slate-400 font-medium tracking-wide whitespace-nowrap">{row.waktuMasuk}</td>
+                    {/* Gate Keluar */}
+                    <td className="px-4 py-3 2xl:px-6 2xl:py-[11px] text-[11px] 2xl:text-[13px] font-bold tracking-wider whitespace-nowrap" style={{ color: '#C5C8BE' }}>{row.gateKeluar}</td>
+                    {/* Foto Keluar */}
+                    <td className="px-4 py-3 2xl:px-6 2xl:py-[11px]">
+                      <div className="flex justify-center">
+                        <div className="w-10 h-10 2xl:w-[40px] 2xl:h-[40px] border border-[#444841] rounded-sm overflow-hidden flex items-center justify-center bg-[#1C2026]">
+                          {row.fotoKeluar ? (
+                            <img src={row.fotoKeluar} alt="Foto Keluar" className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-[9px] text-slate-500">No Image</span>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    {/* Waktu Keluar */}
+                    <td className="px-4 py-3 2xl:px-6 2xl:py-[11px] text-[11px] 2xl:text-[13px] text-slate-400 font-medium tracking-wide whitespace-nowrap">{row.waktuKeluar}</td>
+                    {/* Date */}
+                    <td className="px-4 py-3 2xl:px-6 2xl:py-[11px] text-[11px] 2xl:text-[13px] text-slate-400 font-medium tracking-wide whitespace-nowrap">{row.date}</td>
+                    {/* RFID Status */}
+                    <td className="px-4 py-3 2xl:px-6 2xl:py-[11px] whitespace-nowrap">
+                      <span className={`inline-block px-2.5 py-0.5 text-[10px] 2xl:text-[11px] font-bold tracking-wider uppercase rounded border ${
+                        row.rfidOk 
+                          ? (theme === 'light' ? 'border-[#0C5F9A] text-[#0C5F9A] bg-[#0C5F9A]/10' : 'border-[#2EAFF9] text-[#2EAFF9] bg-[#2EAFF9]/10') 
+                          : (theme === 'light' ? 'border-[#EF4444] text-[#EF4444] bg-[#EF4444]/10' : 'border-[#FFB4AB] text-[#FFB4AB] bg-[#FFB4AB]/10')
+                      }`}>
+                        {row.rfidStatus}
+                      </span>
+                    </td>
+                    {/* Status */}
+                    <td className="px-4 py-3 2xl:px-6 2xl:py-[11px] text-center whitespace-nowrap">
                       <div className="flex justify-center">
                         <span 
                           className={`text-[9px] 2xl:text-[11px] font-black tracking-widest px-2 py-1 2xl:px-3 2xl:py-1 uppercase ${
@@ -316,9 +406,13 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
                         </span>
                       </div>
                     </td>
+                    {/* Actions */}
                     <td className="px-4 py-3 2xl:px-6 2xl:py-[11px]">
                       <div className="flex justify-center">
-                        <button className="text-slate-500 hover:text-slate-300 transition-colors">
+                        <button 
+                          onClick={() => onNavigate && onNavigate('detaillog', row)}
+                          className="text-slate-500 hover:text-slate-300 transition-colors p-1"
+                        >
                           <MoreVertical className="w-4 h-4 2xl:w-5 2xl:h-5" />
                         </button>
                       </div>

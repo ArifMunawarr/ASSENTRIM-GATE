@@ -1,16 +1,14 @@
 import React, { useState } from 'react'
 import Header from '../components/Header'
-import { Mic, Camera, X, XCircle, CheckCircle2, AlertTriangle, Square, CheckSquare, ShieldCheck, Info, List, Check } from 'lucide-react'
+import { Mic, X, XCircle, CheckCircle2, AlertTriangle, Square, CheckSquare, ShieldCheck, Info, List, Check } from 'lucide-react'
 import carImage from '../assets/mobil1.png'
 import carImage2 from '../assets/mobil2.png'
-import driverImage from '../assets/fotdriver.png'
 import warningIcon from '../assets/noto_warning.svg'
 import tagIcon from '../assets/tagicon.svg'
-import delIcon from '../assets/delicon.svg'
 
 export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onLogout }) {
   const [isChecked, setIsChecked] = useState(false)
-  const [activeRequestCount, setActiveRequestCount] = useState(7)
+  const [activeRequestCount, setActiveRequestCount] = useState(2)
   const [selectedGate, setSelectedGate] = useState(1)
   const [showAccessGranted, setShowAccessGranted] = useState(false)
   const [showAccessDenied, setShowAccessDenied] = useState(false)
@@ -24,30 +22,16 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
         <div className="helpdesk-manual-header border-b border-[#444841]/60 shrink-0">
           <h3 className="helpdesk-manual-title font-black text-[#2EAFF9] tracking-widest uppercase">MANUAL AUTHORIZATION</h3>
         </div>
-        <div className="helpdesk-manual-content flex flex-col flex-1 min-h-0">
+        <div className="helpdesk-manual-content flex flex-col">
           <div className="helpdesk-field-stack flex flex-col shrink-0">
             <label className="helpdesk-field-label font-bold text-[#C5C8BE] tracking-widest uppercase">ALASAN VERIFIKASI MANUAL</label>
             <input type="text" readOnly value="KETIDAKSESUAIAN DATA (PLAT BERBEDA)"
               className="helpdesk-manual-input w-full bg-[#181C22] border border-[#444841] text-slate-300 tracking-wide outline-none cursor-default rounded-sm" />
           </div>
-          <div className="helpdesk-field-stack flex flex-col shrink-0">
-            <label className="helpdesk-field-label font-bold text-[#C5C8BE] tracking-widest uppercase">BUKTI FOTO DRIVER</label>
-            <div className="helpdesk-photo-row border border-[#444841] flex items-center rounded-sm bg-[#262A31]">
-              <button className="helpdesk-photo-thumb h-full border-dashed border-[#444841] bg-[#2E3340]/40 flex items-center justify-center hover:bg-white/5 transition-colors rounded-sm">
-                <Camera className="helpdesk-photo-cam text-slate-400" strokeWidth={1.5} />
-              </button>
-              <div className="helpdesk-photo-thumb h-full relative border border-[#444841] bg-black rounded-sm">
-                <img src={driverImage} alt="Driver" className="w-full h-full object-cover grayscale opacity-90 rounded-sm" />
-                <button className="helpdesk-photo-del absolute flex items-center justify-center hover:scale-110 transition-transform">
-                  <img src={delIcon} alt="Delete" className="w-full h-full object-contain" />
-                </button>
-              </div>
-            </div>
-          </div>
-          <div className="helpdesk-field-stack helpdesk-notes-stack flex flex-col flex-1 min-h-0">
+          <div className="helpdesk-field-stack helpdesk-notes-stack flex flex-col shrink-0">
             <label className="helpdesk-field-label font-bold text-[#C5C8BE] tracking-widest uppercase">OPERATOR NOTES</label>
             <textarea placeholder="Input detail pemeriksaan fisik..."
-              className="helpdesk-notes w-full flex-1 min-h-0 bg-[#181C22] border border-[#444841] text-slate-300 tracking-wide outline-none resize-none placeholder:text-[#444841] rounded-sm" />
+              className="helpdesk-notes w-full bg-[#181C22] border border-[#444841] text-slate-300 tracking-wide outline-none resize-none placeholder:text-[#444841] rounded-sm" />
           </div>
           <div className="helpdesk-check-row flex items-center cursor-pointer group shrink-0 rounded-sm transition-colors bg-[#262A31]"
             style={theme === 'light' ? { border: '1.11px solid #D8D8D8' } : {}}
@@ -59,7 +43,7 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
             <span className={`helpdesk-check-label tracking-wide font-normal leading-none ${theme === 'light' ? 'text-[#172033]' : 'text-slate-300'}`}>Sudah dilakukan pengecekan kendaraan</span>
           </div>
         </div>
-        <div className="helpdesk-actions mt-auto shrink-0 bg-[#282A2C] z-10">
+        <div className="helpdesk-actions shrink-0 bg-[#282A2C] z-10">
           <div className="helpdesk-actions-row flex items-center">
             <button onClick={() => setShowAccessDenied(true)} className="helpdesk-action-button flex-1 border-[2.22px] border-[#EF4444] bg-[#262A31] text-[#EF4444] font-bold tracking-wider flex items-center justify-center uppercase hover:bg-[#EF4444]/10 transition-colors rounded-sm whitespace-nowrap">
               <XCircle className="helpdesk-action-icon" strokeWidth={2} />
@@ -171,15 +155,9 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
         .helpdesk-field-stack { gap: calc(4 * var(--u)); }
         .helpdesk-field-label { font-size: calc(9 * var(--u)); }
         .helpdesk-manual-input { padding: calc(5 * var(--u)) calc(10 * var(--u)); font-size: calc(10 * var(--u)); }
-        .helpdesk-photo-row { height: calc(58 * var(--u)); padding: calc(4 * var(--u)) calc(8 * var(--u)); gap: calc(8 * var(--u)); }
-        .helpdesk-photo-thumb { width: calc(108 * var(--u)); }
-        .helpdesk-photo-row button.helpdesk-photo-thumb { border-width: calc(2 * var(--u)); }
-        .helpdesk-photo-cam { width: calc(16 * var(--u)); height: calc(16 * var(--u)); }
-        .helpdesk-photo-del { top: calc(3 * var(--u)); right: calc(3 * var(--u)); width: calc(14 * var(--u)); height: calc(14 * var(--u)); }
-        .helpdesk-notes { padding: calc(5 * var(--u)) calc(10 * var(--u)); font-size: calc(10 * var(--u)); min-height: calc(30 * var(--u)); }
-        /* 1-2 card layout: comfortable notes size; still flex so it absorbs any
-           small remainder and keeps the panel fully packed. */
-        .hd-fixed .helpdesk-notes { min-height: calc(58 * var(--u)); }
+        .helpdesk-notes { padding: calc(5 * var(--u)) calc(10 * var(--u)); font-size: calc(10 * var(--u)); height: calc(30 * var(--u)); }
+        /* 1-2 card layout: comfortable fixed notes height. */
+        .hd-fixed .helpdesk-notes { height: calc(58 * var(--u)); }
         .helpdesk-check-row { padding: calc(6 * var(--u)) calc(10 * var(--u)); gap: calc(8 * var(--u)); margin-top: calc(2 * var(--u)); }
         .helpdesk-check-box { width: calc(16 * var(--u)); height: calc(16 * var(--u)); }
         .helpdesk-check-icon { width: calc(14 * var(--u)); height: calc(14 * var(--u)); }
@@ -250,36 +228,16 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
                 <div className="border-b border-[#444841]/60 shrink-0" style={{ paddingBottom: u(12), marginBottom: u(16) }}>
                   <h3 className="font-black text-[#2EAFF9] tracking-widest uppercase" style={{ fontSize: u(12) }}>MANUAL AUTHORIZATION</h3>
                 </div>
-                <div className="flex flex-col flex-1 min-h-0" style={{ gap: u(12) }}>
+                <div className="flex flex-col" style={{ gap: u(12) }}>
                   <div className="flex flex-col shrink-0" style={{ gap: u(10) }}>
                     <label className="font-bold text-[#C5C8BE] tracking-widest uppercase" style={{ fontSize: u(10) }}>ALASAN VERIFIKASI MANUAL</label>
                     <input type="text" readOnly value="KETIDAKSESUAIAN DATA (PLAT BERBEDA)"
                       className="w-full bg-[#181C22] border border-[#444841] text-slate-300 tracking-wide outline-none cursor-default rounded-sm" style={{ padding: `${u(10)} ${u(16)}`, fontSize: u(11) }} />
                   </div>
                   <div className="flex flex-col shrink-0" style={{ gap: u(10) }}>
-                    <label className="font-bold text-[#C5C8BE] tracking-widest uppercase" style={{ fontSize: u(10) }}>BUKTI FOTO DRIVER</label>
-                    <div className="flex items-center rounded-sm"
-                      style={theme === 'light'
-                        ? { background: '#FFFFFF', border: '1.16px solid #D8D8D8', padding: `${u(10)} ${u(14)}`, gap: u(14), height: u(115) }
-                        : { background: '#282A2C', border: '1.16px solid #444841', padding: `${u(10)} ${u(14)}`, gap: u(14), height: u(115) }}>
-                      <button className="h-full flex items-center justify-center hover:opacity-80 transition-opacity rounded-sm"
-                        style={theme === 'light'
-                          ? { background: 'transparent', border: '2px dashed #3B82F6', width: u(138) }
-                          : { background: '#2D3449', border: '3.46px dashed #414750', width: u(138) }}>
-                        <Camera className="text-slate-400" strokeWidth={1.5} style={{ width: u(18), height: u(18) }} />
-                      </button>
-                      <div className="h-full relative border border-[#444841] bg-black rounded-sm" style={{ width: u(138) }}>
-                        <img src={driverImage} alt="Driver" className="w-full h-full object-cover grayscale opacity-90 rounded-sm" />
-                        <button className="absolute flex items-center justify-center hover:scale-110 transition-transform" style={{ top: u(4), right: u(4), width: u(18), height: u(18) }}>
-                          <img src={delIcon} alt="Delete" className="w-full h-full object-contain" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-col flex-1 min-h-0" style={{ gap: u(10) }}>
                     <label className="font-bold text-[#C5C8BE] tracking-widest uppercase" style={{ fontSize: u(10) }}>OPERATOR NOTES</label>
                     <textarea placeholder="Input detail pemeriksaan fisik..."
-                      className="w-full flex-1 min-h-0 bg-[#181C22] border border-[#444841] text-slate-300 tracking-wide outline-none resize-none placeholder:text-[#444841] rounded-sm" style={{ padding: `${u(10)} ${u(16)}`, fontSize: u(11), minHeight: u(44) }} />
+                      className="w-full bg-[#181C22] border border-[#444841] text-slate-300 tracking-wide outline-none resize-none placeholder:text-[#444841] rounded-sm" style={{ padding: `${u(10)} ${u(16)}`, fontSize: u(11), height: u(44) }} />
                   </div>
                   <div className="flex items-center cursor-pointer group rounded-sm bg-[#262A31] shrink-0"
                     style={theme === 'light' ? { border: '1.11px solid #D8D8D8', padding: `${u(10)} ${u(16)}`, gap: u(14) } : { padding: `${u(10)} ${u(16)}`, gap: u(14) }}
@@ -291,7 +249,7 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
                     <span className={`tracking-wide font-normal ${theme === 'light' ? 'text-[#172033]' : 'text-slate-300'}`} style={{ fontSize: u(11) }}>Sudah dilakukan pengecekan kendaraan</span>
                   </div>
                 </div>
-                <div className="mt-auto shrink-0" style={{ paddingTop: u(16) }}>
+                <div className="shrink-0" style={{ paddingTop: u(16) }}>
                   <div className="flex items-center" style={{ gap: u(14) }}>
                     <button onClick={() => setShowAccessDenied(true)} className={`flex-1 border-[2.22px] bg-[#262A31] font-bold tracking-wider flex items-center justify-center uppercase transition-colors rounded-sm whitespace-nowrap ${theme === 'light' ? 'border-[#EF4444] text-[#EF4444] hover:bg-[#EF4444]/10' : 'border-[#FFB4AB] text-[#FFB4AB] hover:bg-[#FFB4AB]/10'}`} style={{ height: u(48), fontSize: u(11), gap: u(8), paddingLeft: u(8), paddingRight: u(8) }}>
                       <XCircle strokeWidth={2.5} style={{ width: u(20), height: u(20) }} />
@@ -322,12 +280,13 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
         {/* STATE >= 2: Multi Request */}
         {activeRequestCount >= 2 && (
           <div
-            className={`helpdesk-multi-grid grid grid-cols-2 w-full mx-auto ${activeRequestCount >= 3 ? 'min-h-0 overflow-y-auto no-scrollbar' : 'my-auto overflow-y-auto no-scrollbar'}`}
+            className={`helpdesk-multi-grid grid grid-cols-2 w-full mx-auto overflow-y-auto no-scrollbar ${activeRequestCount >= 3 ? 'min-h-0' : 'flex-1 min-h-0 content-center'}`}
             style={{
               maxWidth: 'calc(1864 * var(--u))',
               // Every row keeps the same height as the 2-row (3/4 cards) case.
-              // Extra rows (5+ cards) overflow the viewport and become reachable by scrolling.
-              ...(activeRequestCount >= 3 ? { gridAutoRows: `calc((100% - ${u(18)}) / 2)` } : {}),
+              // 2 cards: the single row uses that same height and is vertically
+              // centered (content-center). 5+ cards overflow and scroll.
+              gridAutoRows: `calc((100% - ${u(18)}) / 2)`,
             }}
           >
             {Array.from({ length: activeRequestCount }).map((_, idx) => {

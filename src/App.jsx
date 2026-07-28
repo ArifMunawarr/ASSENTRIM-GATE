@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import ActivityLogs from './pages/ActivityLogs'
+import DetailLog from './pages/DetailLog'
 import OperatorHelpDesk from './pages/OperatorHelpDesk'
 import Profile from './pages/Profile'
 import ViolationPopup from './components/ViolationPopup'
@@ -9,6 +10,7 @@ import ViolationPopup from './components/ViolationPopup'
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [currentPage, setCurrentPage] = useState('dashboard')
+  const [selectedLog, setSelectedLog] = useState(null)
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark')
 
   useEffect(() => {
@@ -22,13 +24,30 @@ function App() {
     setIsLoggedIn(false)
     setCurrentPage('dashboard')
   }
-  const pageProps = { onNavigate: setCurrentPage, theme, onToggleTheme: toggleTheme, onLogout: handleLogout }
+
+  const handleNavigate = (page, logData) => {
+    if (logData) {
+      setSelectedLog(logData)
+    }
+    setCurrentPage(page)
+  }
+
+  const pageProps = { onNavigate: handleNavigate, theme, onToggleTheme: toggleTheme, onLogout: handleLogout }
 
   if (!isLoggedIn) {
     return (
       <>
         <ViolationPopup />
         <Login onLogin={() => setIsLoggedIn(true)} theme={theme} />
+      </>
+    )
+  }
+
+  if (currentPage === 'detaillog') {
+    return (
+      <>
+        <ViolationPopup />
+        <DetailLog logData={selectedLog} {...pageProps} />
       </>
     )
   }

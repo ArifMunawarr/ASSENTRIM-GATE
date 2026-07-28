@@ -105,9 +105,17 @@ body {
   background-color: #0C5F9A !important;
 }
 
+:root.light table thead tr.detail-log-tr {
+  background-color: #F3F4F6 !important;
+}
+
 :root.light table thead th,
 :root.light table thead th[class*="text-"] {
   color: #FAFAFA !important;
+}
+
+:root.light table thead th.detail-log-th {
+  color: #4B5563 !important;
 }
 
 :root.light table thead tr,
