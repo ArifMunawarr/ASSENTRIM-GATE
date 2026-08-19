@@ -1,6 +1,7 @@
 import React from 'react'
 import Header from '../components/Header'
-import { Car, Shield, FileEdit, History, ChevronRight } from 'lucide-react'
+import { Car, Shield, FileEdit, History, ChevronRight, CameraOff } from 'lucide-react'
+
 import fotdriver from '../assets/fotdriver.png'
 import das1 from '../assets/das1.png'
 import das2 from '../assets/das2.png'
@@ -11,6 +12,7 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
   // Default mock data if logData is partial
   const data = {
     id: logData?.id || '22323232323',
+    status: logData?.status || 'DITERIMA',
     plate: logData?.plate || 'B 1234 TNI',
     type: logData?.type || 'SUV',
     color: logData?.color || 'Hitam',
@@ -18,13 +20,13 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
     year: logData?.year || '2022',
     rfidTag: logData?.rfidTag || 'RFID-2023-0847-TNI',
     rfidStatus: logData?.rfidStatus || 'VERIFIED',
+    rfidOk: logData?.rfidOk ?? true,
     driver: logData?.driver || 'Anton Ruman',
     gateMasuk: logData?.gateMasuk || 'GATE 01 - Main Entrance',
     gateKeluar: logData?.gateKeluar || 'GATE 02 - Side Exit',
     waktuMasuk: logData?.waktuMasuk ? `${logData.date || '2023-10-24'} ${logData.waktuMasuk}` : '2023-10-24 09:12:44',
     waktuKeluar: logData?.waktuKeluar ? `${logData.date || '2023-10-24'} ${logData.waktuKeluar}` : '2023-10-24 17:45:12',
     durasi: logData?.durasi || '8 jam 32 menit',
-    status: logData?.status || 'DITERIMA',
     operator: logData?.operator || 'Sgt. Pratama',
     fotoMasuk: logData?.fotoMasuk || das1,
     fotoKeluar: logData?.fotoKeluar || das2,
@@ -66,14 +68,23 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
 
         {/* Top Section - 3 Photo Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_22.5%] gap-2.5 sm:gap-3 2xl:gap-4 shrink-0">
+
+
           
           {/* Card 1: Foto Kendaraan Masuk */}
-          <div className={`relative border rounded-sm overflow-hidden h-36 sm:h-44 2xl:h-52 group ${isLight ? 'bg-white border-[#D8D8D8]' : 'bg-[#1C2026] border-[#444841]'}`}>
-            <img src={data.fotoMasuk} alt="Foto Kendaraan Masuk" className="w-full h-full object-cover" />
+          <div className={`relative border rounded-sm overflow-hidden h-36 sm:h-44 2xl:h-52 group bg-[#000000] ${isLight ? 'border-[#D8D8D8]' : 'border-[#444841]'}`}>
+            {data.fotoMasuk ? (
+              <img src={data.fotoMasuk} alt="Foto Kendaraan Masuk" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 gap-1 bg-[#121416]">
+                <CameraOff size={24} />
+                <span className="text-[10px] font-bold tracking-wider uppercase">TIDAK ADA FOTO MASUK</span>
+              </div>
+            )}
             {/* Top-Left Overlay */}
-            <div className={`absolute top-2 left-2 px-2.5 py-1 rounded-sm flex flex-col backdrop-blur-xs ${isLight ? 'bg-[#00000066]' : 'bg-[#00000099]'}`}>
+            <div className="absolute top-2 left-2 bg-[#00000066] px-2.5 py-1 rounded-sm flex flex-col backdrop-blur-xs">
               <span className={`text-[8.5px] 2xl:text-[10px] font-black tracking-wider uppercase ${isLight ? 'text-[#FFFFFF]' : 'text-[#2EAFF9]'}`}>CAMERA ENTRY CAPTURE</span>
-              <span className={`text-[8.5px] 2xl:text-[10px] font-medium ${isLight ? 'text-[#FFFFFF]' : 'text-slate-200'}`}>{data.waktuMasuk} - {data.gateMasuk.split(' - ')[0]}</span>
+              <span className={`text-[8.5px] 2xl:text-[10px] font-medium ${isLight ? 'text-[#FFFFFF]' : 'text-slate-200'}`}>{data.waktuMasuk} - {(data.gateMasuk || '-').split(' - ')[0]}</span>
             </div>
             {/* Bottom-Right Overlay */}
             <div className={`absolute bottom-2 right-2 px-3 py-1 rounded-sm backdrop-blur-xs ${isLight ? 'bg-[#FFFFFFE5] border border-[#0066CC]' : 'bg-[#0B1326E6] border border-[#2EAFF9]'}`}>
@@ -82,12 +93,20 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
           </div>
 
           {/* Card 2: Foto Kendaraan Keluar */}
-          <div className={`relative border rounded-sm overflow-hidden h-36 sm:h-44 2xl:h-52 group ${isLight ? 'bg-white border-[#D8D8D8]' : 'bg-[#1C2026] border-[#444841]'}`}>
-            <img src={data.fotoKeluar} alt="Foto Kendaraan Keluar" className="w-full h-full object-cover" />
+          <div className={`relative border rounded-sm overflow-hidden h-36 sm:h-44 2xl:h-52 group bg-[#000000] ${isLight ? 'border-[#D8D8D8]' : 'border-[#444841]'}`}>
+            {data.fotoKeluar ? (
+              <img src={data.fotoKeluar} alt="Foto Kendaraan Keluar" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 gap-1 bg-[#121416]">
+                <CameraOff size={24} />
+                <span className="text-[10px] font-bold tracking-wider uppercase">TIDAK ADA FOTO KELUAR</span>
+              </div>
+            )}
             {/* Top-Left Overlay */}
-            <div className={`absolute top-2 left-2 px-2.5 py-1 rounded-sm flex flex-col backdrop-blur-xs ${isLight ? 'bg-[#00000066]' : 'bg-[#00000099]'}`}>
+            <div className="absolute top-2 left-2 bg-[#00000066] px-2.5 py-1 rounded-sm flex flex-col backdrop-blur-xs">
               <span className={`text-[8.5px] 2xl:text-[10px] font-black tracking-wider uppercase ${isLight ? 'text-[#FFFFFF]' : 'text-[#2EAFF9]'}`}>CAMERA EXIT CAPTURE</span>
-              <span className={`text-[8.5px] 2xl:text-[10px] font-medium ${isLight ? 'text-[#FFFFFF]' : 'text-slate-200'}`}>{data.waktuKeluar} - {data.gateKeluar.split(' - ')[0]}</span>
+              <span className={`text-[8.5px] 2xl:text-[10.5px] font-medium ${isLight ? 'text-[#FFFFFF]' : 'text-slate-200'}`}>{data.waktuKeluar} - {(data.gateKeluar || '-').split(' - ')[0]}</span>
+
             </div>
 
             {/* Bottom-Right Overlay */}
@@ -96,9 +115,10 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
             </div>
           </div>
 
+
           {/* Card 3: Driver Info */}
           <div className={`border rounded-sm p-2 2xl:p-2.5 flex gap-2.5 2xl:gap-3 items-center h-36 sm:h-44 2xl:h-52 ${isLight ? 'bg-white border-[#D8D8D8]' : 'bg-[#1C2026] border-[#444841]'}`}>
-            <div className="relative aspect-square h-full rounded-sm overflow-hidden border border-[#444841] bg-[#121416] shrink-0">
+            <div className="relative aspect-square h-full rounded-sm overflow-hidden border border-[#444841] bg-[#000000] shrink-0">
               <img src={fotdriver} alt="Foto Driver" className="w-full h-full object-cover" />
               <div className={`absolute bottom-1 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded text-[7px] 2xl:text-[8px] font-black tracking-widest uppercase whitespace-nowrap ${isLight ? 'bg-[#00000099] text-[#FFFFFF]' : 'bg-[#00000099] text-[#2EAFF9]'}`}>
                 FOTO DRIVER
@@ -154,13 +174,27 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
                 </div>
                 <div className="py-1.5 2xl:py-2 flex items-center justify-between text-[10px] 2xl:text-[12px]">
                   <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>RFID STATUS</span>
-                  <span className={`inline-block px-2.5 py-0.5 text-[9.5px] 2xl:text-[11px] font-bold tracking-wider uppercase rounded border ${
-                    data.rfidStatus === 'VERIFIED'
-                      ? (isLight ? 'border-[#0C5F9A] text-[#0C5F9A] bg-[#0C5F9A]/10' : 'border-[#2EAFF9] text-[#2EAFF9] bg-[#2EAFF9]/10')
-                      : (isLight ? 'border-[#EF4444] text-[#EF4444] bg-[#EF4444]/10' : 'border-[#FFB4AB] text-[#FFB4AB] bg-[#FFB4AB]/10')
-                  }`}>
+                  <span 
+                    className="inline-block px-2.5 py-0.5 text-[9.5px] 2xl:text-[11px] font-bold tracking-wider uppercase rounded-sm"
+                    style={{
+                      backgroundColor: data.rfidOk 
+                        ? (isLight ? '#DEF7EC' : '#2EAFF91A') 
+                        : (isLight ? '#F7DEDE' : '#FFB4AB1A'),
+                      borderColor: data.rfidOk 
+                        ? (isLight ? '#31C48D' : '#2EAFF9') 
+                        : (isLight ? '#EF4444' : '#FFB4AB'),
+                      borderWidth: '1px',
+                      borderStyle: 'solid',
+                      color: data.rfidOk 
+                        ? (isLight ? '#03543F' : '#2EAFF9') 
+                        : (isLight ? '#EF4444' : '#FFB4AB')
+                    }}
+                  >
                     {data.rfidStatus}
                   </span>
+
+
+
                 </div>
               </div>
             </div>
@@ -221,11 +255,12 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
                   <span className={`text-[9px] 2xl:text-[11px] font-black tracking-widest px-2.5 py-0.5 uppercase ${
                     data.status === 'DITOLAK' 
                       ? (isLight ? 'bg-[#FF1B001A] text-[#EF4444] border-l-[4px] border-[#EF4444]' : 'bg-[#FFB4AB1A] text-[#FFB4AB] border-l-[4px] border-[#FFB4AB]') 
-                      : (isLight ? 'bg-[#0000001A] text-[#0C5F9A] border-l-[4px] border-[#0C5F9A]' : 'bg-[#BCCBB11A] text-[#2EAFF9] border-l-[4px] border-[#2EAFF9]')
+                      : (isLight ? 'bg-[#E6F4EA] text-[#137333] border-l-[4px] border-[#34A853]' : 'bg-[#BCCBB11A] text-[#2EAFF9] border-l-[4px] border-[#2EAFF9]')
                   }`}>
                     {data.status}
                   </span>
                 </div>
+
                 <div className="py-1.5 2xl:py-2 flex items-center justify-between text-[10px] 2xl:text-[12px]">
                   <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>OPERATOR</span>
                   <span className={`font-medium ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>{data.operator}</span>
@@ -266,10 +301,11 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
             </div>
 
           </div>
-
         </div>
-
       </div>
     </div>
   )
 }
+
+
+

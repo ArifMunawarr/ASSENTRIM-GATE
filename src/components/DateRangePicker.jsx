@@ -18,15 +18,45 @@ function pad(n) {
   return String(n).padStart(2, '0')
 }
 
-export default function DateRangePicker({ onChange, widthClass = "w-48", theme = 'dark' }) {
+export default function DateRangePicker({ value, onChange, widthClass = "w-48", theme = 'dark' }) {
   const today = new Date()
   const [isOpen, setIsOpen] = useState(false)
   const [viewMode, setViewMode] = useState('date')
   const [currentYear, setCurrentYear] = useState(today.getFullYear())
   const [currentMonth, setCurrentMonth] = useState(today.getMonth())
-  const [startDate, setStartDate] = useState(null)
-  const [endDate, setEndDate] = useState(null)
+  const [startDate, setStartDate] = useState(value?.startDate || null)
+  const [endDate, setEndDate] = useState(value?.endDate || null)
   const popupRef = useRef(null)
+
+  useEffect(() => {
+    setStartDate(value?.startDate || null)
+    setEndDate(value?.endDate || null)
+  }, [value?.startDate, value?.endDate])
+
+  const handleSelectDate = (day) => {
+    const selected = new Date(currentYear, currentMonth, day)
+    let newStart = startDate
+    let newEnd = endDate
+
+    if (!startDate || (startDate && endDate)) {
+      newStart = selected
+      newEnd = null
+    } else {
+      if (selected < startDate) {
+        newEnd = startDate
+        newStart = selected
+      } else {
+        newEnd = selected
+      }
+    }
+
+    setStartDate(newStart)
+    setEndDate(newEnd)
+    if (onChange) {
+      onChange({ startDate: newStart, endDate: newEnd })
+    }
+  }
+
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -192,7 +222,8 @@ export default function DateRangePicker({ onChange, widthClass = "w-48", theme =
                       <div
                         key={day}
                         className={classes}
-                        onClick={() => selectDate(day)}
+                        onClick={() => handleSelectDate(day)}
+
                       >
                         {day}
                       </div>

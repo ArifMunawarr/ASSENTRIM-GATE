@@ -8,10 +8,12 @@ import Profile from './pages/Profile'
 import ViolationPopup from './components/ViolationPopup'
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [user, setUser] = useState(null)
   const [currentPage, setCurrentPage] = useState('dashboard')
   const [selectedLog, setSelectedLog] = useState(null)
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark')
+
+  const isLoggedIn = !!user
 
   useEffect(() => {
     document.documentElement.classList.toggle('light', theme === 'light')
@@ -20,8 +22,11 @@ function App() {
   }, [theme])
 
   const toggleTheme = () => setTheme((currentTheme) => currentTheme === 'dark' ? 'light' : 'dark')
+
+  const handleLoginSuccess = (userData) => setUser(userData)
+
   const handleLogout = () => {
-    setIsLoggedIn(false)
+    setUser(null)
     setCurrentPage('dashboard')
   }
 
@@ -32,13 +37,13 @@ function App() {
     setCurrentPage(page)
   }
 
-  const pageProps = { onNavigate: handleNavigate, theme, onToggleTheme: toggleTheme, onLogout: handleLogout }
+  const pageProps = { user, onNavigate: handleNavigate, theme, onToggleTheme: toggleTheme, onLogout: handleLogout }
 
   if (!isLoggedIn) {
     return (
       <>
         <ViolationPopup />
-        <Login onLogin={() => setIsLoggedIn(true)} theme={theme} />
+        <Login onLogin={handleLoginSuccess} theme={theme} />
       </>
     )
   }
@@ -88,4 +93,5 @@ function App() {
 }
 
 export default App
+
 

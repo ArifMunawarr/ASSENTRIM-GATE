@@ -426,7 +426,7 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
             <div className={`border rounded-lg p-3 mb-5 flex items-center ${theme === 'light' ? 'bg-[#F1F5F9] border-[#E2E8F0]' : 'bg-[#0B0D10] border-[#2A2D32]'}`}>
               <Info className={`w-3 h-3 mr-2 shrink-0 ${theme === 'light' ? 'text-[#0284C7]' : 'text-[#2EAFF9]'}`} />
               <span className={`text-[8px] leading-relaxed ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>
-                <span className={`font-bold ${theme === 'light' ? 'text-[#0F172A]' : 'text-white'}`}>Catatan:</span> Akses manual telah dicatat dalam sistem audit keamanan pusat ASSENTRIM.
+                <span className={`font-bold ${theme === 'light' ? 'text-[#0F172A]' : 'text-white'}`}>Catatan:</span> Akses manual telah dicatat dalam sistem audit keamanan pusat ASENTRIM.
               </span>
             </div>
 
@@ -529,7 +529,7 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
             <div className={`border rounded-lg p-3 mb-5 flex items-center ${theme === 'light' ? 'bg-[#FEF2F2] border-[#FEE2E2]' : 'bg-[#0B0D10] border-[#EF4444]/30'}`}>
               <AlertTriangle className={`w-3 h-3 mr-2 shrink-0 text-[#EF4444]`} />
               <span className={`text-[8px] leading-relaxed text-[#EF4444]`}>
-                <span className={`font-bold`}>PERINGATAN:</span> Kendaraan telah ditandai untuk pemeriksaan lebih lanjut oleh otoritas keamanan pusat ASSENTRIM.
+                <span className={`font-bold`}>PERINGATAN:</span> Kendaraan telah ditandai untuk pemeriksaan lebih lanjut oleh otoritas keamanan pusat ASENTRIM.
               </span>
             </div>
 

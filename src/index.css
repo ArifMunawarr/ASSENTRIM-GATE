@@ -80,9 +80,6 @@ body {
   border-color: #cbd5e1 !important;
 }
 
-:root.light [style*="border"] {
-  border-color: #cbd5e1 !important;
-}
 
 :root.light input,
 :root.light textarea,

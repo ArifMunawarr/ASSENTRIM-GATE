@@ -25,7 +25,7 @@ export default function Header({ activePage, onNavigate, theme = 'dark', onToggl
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         <img src={isDarkMode ? logoImageDark : logoImageLight} alt="Logo" className="w-6 h-6 sm:w-8 sm:h-8" />
         <h1 className="hidden md:block text-lg sm:text-xl font-black text-[#2EAFF9] tracking-wide uppercase mt-0.5">
-          ASSENTRIM
+          ASENTRIM
         </h1>
         <h1 className="hidden lg:block text-lg sm:text-xl font-black text-[#2EAFF9] tracking-wide uppercase mt-0.5">
           GATE COMMAND

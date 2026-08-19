@@ -1,6 +1,6 @@
-# ASSENTRIM GATE COMMAND
+# ASENTRIM GATE COMMAND
 
-ASSENTRIM Gate Command is a modern, responsive React-based web application designed for monitoring and controlling gate activities in a high-security facility. The application offers a comprehensive dashboard with real-time camera feeds, activity logs, an operator help desk, and manual gate control capabilities.
+ASENTRIM Gate Command is a modern, responsive React-based web application designed for monitoring and controlling gate activities in a high-security facility. The application offers a comprehensive dashboard with real-time camera feeds, activity logs, an operator help desk, and manual gate control capabilities.
 
 ## 🚀 Features
 
@@ -50,8 +50,8 @@ Follow these steps to get the project running locally:
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/ArifMunawarr/ASSENTRIM-GATE.git
-cd ASSENTRIM-GATE
+git clone https://github.com/ArifMunawarr/ASENTRIM-GATE.git
+cd ASENTRIM-GATE
 ```
 
 ### 2. Install Dependencies

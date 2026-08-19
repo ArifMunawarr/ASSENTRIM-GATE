@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import Header from '../components/Header'
-import { LayoutDashboard, History, HeadphonesIcon, Settings, ClipboardList, AlertCircle, ChevronDown, ChevronRight, ChevronsRight, ChevronLeft } from 'lucide-react'
+import { LayoutDashboard, History, HeadphonesIcon, Settings, ClipboardList, AlertCircle, ChevronDown, ChevronRight, ChevronsRight, ChevronLeft, X } from 'lucide-react'
 import logoImage from '../assets/logologindark.svg'
 import lconLive from '../assets/lconlive.svg'
 import historymangate from '../assets/historymangate.svg'
@@ -17,26 +17,30 @@ import das3 from '../assets/das3.png'
 import das5 from '../assets/das5.png'
 import das6 from '../assets/das6.png'
 
+import WebRtcPlayer from '../components/WebRtcPlayer'
+
 const cameras = [
-  { id: 1, name: 'GATE 01 - MAIN GATE', img: das1, camId: 'CAM-01 / NW-72', coords: '44.02°N 12.33°E', status: 'LIVE' },
-  { id: 2, name: 'GATE 02 - VEHICLE EXIT', img: das2, camId: 'CAM-02 / SE-41', coords: 'HD-RECON-7', status: 'LIVE' },
-  { id: 3, name: 'GATE 03 - GATE WEST', img: das3, camId: 'CAM-03 / W-09', coords: 'THERMAL-LINK', status: 'LIVE' },
-  { id: 4, name: 'GATE 04 - GATE EAST', img: null, camId: 'CAM-04 / E-14', coords: 'THERMAL-LINK', status: 'LIVE' },
-  { id: 5, name: 'GATE 05 - MAIN GATE', img: das5, camId: 'CAM-05 / INT-01', coords: '44.02°N 12.33°E', status: 'LIVE' },
-  { id: 6, name: 'GATE 06 - LOGISTICS YARD', img: das6, camId: 'CAM-06 / E-14', coords: 'EXT-4A-REAR', status: 'LIVE' },
+  { id: 1, name: 'GATE 01 - MAIN GATE', img: das1, streamUrl: import.meta.env.VITE_CAM1_WEBRTC_URL || null, camId: 'CAM-01 / NW-72', coords: '44.02°N 12.33°E', status: 'LIVE' },
+  { id: 2, name: 'GATE 02 - VEHICLE EXIT', img: das2, streamUrl: import.meta.env.VITE_CAM2_WEBRTC_URL || null, camId: 'CAM-02 / SE-41', coords: 'HD-RECON-7', status: 'LIVE' },
+  { id: 3, name: 'GATE 03 - GATE WEST', img: das3, streamUrl: import.meta.env.VITE_CAM3_WEBRTC_URL || null, camId: 'CAM-03 / W-09', coords: 'THERMAL-LINK', status: 'LIVE' },
+  { id: 4, name: 'GATE 04 - GATE EAST', img: null, streamUrl: import.meta.env.VITE_CAM4_WEBRTC_URL || null, camId: 'CAM-04 / E-14', coords: 'THERMAL-LINK', status: 'LIVE' },
+  { id: 5, name: 'GATE 05 - MAIN GATE', img: das5, streamUrl: import.meta.env.VITE_CAM5_WEBRTC_URL || null, camId: 'CAM-05 / INT-01', coords: '44.02°N 12.33°E', status: 'LIVE' },
+  { id: 6, name: 'GATE 06 - LOGISTICS YARD', img: das6, streamUrl: import.meta.env.VITE_CAM6_WEBRTC_URL || null, camId: 'CAM-06 / E-14', coords: 'EXT-4A-REAR', status: 'LIVE' },
 ]
 
 const activities = [
-  { id: '229-87', gate: 'GATE 03', time: '14:45:10', rfid: '900779009', driver: 'ANTON RUMANTO', type: 'TRUCK / FUEL', status: 'AUTHORIZED' },
-  { id: '222-30', gate: 'GATE 02', time: '14:52:18', rfid: '900909009', driver: 'ANTON RUMANTO', type: 'SEDAN / CIVILIAN', status: 'DENIED' },
-  { id: '229-12', gate: 'GATE 01', time: '14:45:10', rfid: '88778799', driver: 'ANTON RUMANTO', type: 'TRUCK / FUEL', status: 'AUTHORIZED' },
-  { id: '229-13', gate: 'GATE 05', time: '14:46:12', rfid: '88778799', driver: 'ANTON RUMANTO', type: 'TRUCK / FUEL', status: 'AUTHORIZED' },
-  { id: '229-14', gate: 'GATE 06', time: '14:48:05', rfid: '88778799', driver: 'ANTON RUMANTO', type: 'TRUCK / FUEL', status: 'AUTHORIZED' },
-  { id: '229-15', gate: 'GATE 04', time: '14:50:30', rfid: '88778799', driver: 'ANTON RUMANTO', type: 'TRUCK / FUEL', status: 'AUTHORIZED' },
-  { id: '229-16', gate: 'GATE 01', time: '14:55:00', rfid: '88778799', driver: 'ANTON RUMANTO', type: 'TRUCK / FUEL', status: 'AUTHORIZED' },
+  { id: '229-87', gate: 'GATE 03', time: '14:45:10', rfid: '900779009', driver: 'ANTON RUMANTO', type: 'MINIBUS', status: 'AUTHORIZED' },
+  { id: '222-30', gate: 'GATE 02', time: '14:52:18', rfid: '900909009', driver: 'ANTON RUMANTO', type: 'SEDAN', status: 'DENIED' },
+  { id: '229-12', gate: 'GATE 01', time: '14:45:10', rfid: '88778799', driver: 'ANTON RUMANTO', type: 'TRUCK', status: 'AUTHORIZED' },
+  { id: '229-13', gate: 'GATE 05', time: '14:46:12', rfid: '88778799', driver: 'ANTON RUMANTO', type: 'TRUCK', status: 'AUTHORIZED' },
+  { id: '229-14', gate: 'GATE 06', time: '14:48:05', rfid: '88778799', driver: 'ANTON RUMANTO', type: 'TRUCK', status: 'AUTHORIZED' },
+  { id: '229-15', gate: 'GATE 04', time: '14:50:30', rfid: '88778799', driver: 'ANTON RUMANTO', type: 'TRUCK', status: 'AUTHORIZED' },
+  { id: '229-16', gate: 'GATE 01', time: '14:55:00', rfid: '88778799', driver: 'ANTON RUMANTO', type: 'TRUCK', status: 'AUTHORIZED' },
 ]
 
+
 export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }) {
+  const [expandedCam, setExpandedCam] = useState(null)
   const [showManualGate, setShowManualGate] = useState(false)
   const [gateStep, setGateStep] = useState('slider') // 'slider' | 'loading' | 'reason' | 'done'
   const [openingReason, setOpeningReason] = useState('')
@@ -123,6 +127,16 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }
     };
   }, [isDragging]);
 
+  // Tutup preview kamera dengan tombol Escape
+  useEffect(() => {
+    if (!expandedCam) return
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setExpandedCam(null)
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [expandedCam])
+
   return (
     <div className="dashboard-page min-h-screen bg-[#121416] text-white flex flex-col font-display h-screen overflow-hidden">
       {/* Header */}
@@ -134,14 +148,34 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }
         {/* Left: Camera Grid */}
         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-rows-3 gap-2 sm:gap-3 min-h-0 overflow-y-auto lg:overflow-hidden no-scrollbar">
           {cameras.map((cam, idx) => (
-            <div key={idx} className="relative bg-[#282A2C] flex items-center justify-center overflow-hidden min-h-[160px] md:min-h-0" style={{ border: `1px solid ${theme === 'light' ? '#D8D8D8' : '#47483C'}` }}>
-              {cam.img ? (
-                <img src={cam.img} alt={cam.name} className={`absolute inset-0 w-full h-full object-cover ${theme === 'light' ? 'opacity-100' : 'mix-blend-screen opacity-90'}`} />
+            <div
+              key={idx}
+              role="button"
+              tabIndex={0}
+              onClick={() => setExpandedCam(cam)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  setExpandedCam(cam)
+                }
+              }}
+              className="relative bg-[#282A2C] flex items-center justify-center overflow-hidden min-h-[160px] md:min-h-0 cursor-pointer transition-shadow hover:shadow-[0_0_0_1.5px_#2EAFF9] focus:outline-none focus-visible:shadow-[0_0_0_1.5px_#2EAFF9]"
+              style={{ border: `1px solid ${theme === 'light' ? '#D8D8D8' : '#47483C'}` }}
+            >
+              {cam.streamUrl || cam.img ? (
+                <WebRtcPlayer
+                  streamUrl={cam.streamUrl}
+                  fallbackImg={cam.img}
+                  alt={cam.name}
+                  theme={theme}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
               ) : (
                 <div className="z-10 text-sm sm:text-lg lg:text-xl font-bold tracking-[0.25em] text-[#ff4b4b] drop-shadow-[0_0_8px_rgba(255,75,75,0.4)]">
-                  OFFLINE - CAM-04
+                  OFFLINE - {cam.camId.split(' / ')[0]}
                 </div>
               )}
+
 
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0d12] via-transparent to-[#0a0d12]/40 pointer-events-none" />
 
@@ -204,9 +238,10 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }
                     </div>
                   </div>
 
-                  <div className={`text-[18px] sm:text-[20px] font-black leading-none mb-1.5 tracking-tight ${act.status === 'DENIED' ? 'text-[#FFB4AB]' : theme === 'light' ? 'text-[#0C5F9A]' : 'text-[#2EAFF9]'}`}>
+                  <div className={`text-[18px] sm:text-[20px] font-black leading-none mb-1.5 tracking-tight ${act.status === 'DENIED' ? 'text-[#FFB4AB]' : theme === 'light' ? 'text-[#1A73E8]' : 'text-[#2EAFF9]'}`}>
                     {act.id}
                   </div>
+
 
                   <div className={`text-[9px] font-bold tracking-wide mb-0.5 uppercase ${act.status !== 'DENIED' ? 'text-slate-100' : ''}`} style={act.status === 'DENIED' ? { color: '#DFE2EB' } : {}}>
                     RFID: {act.rfid} <span className={`font-black px-1 ${act.status !== 'DENIED' ? 'text-slate-400' : ''}`} style={act.status === 'DENIED' ? { color: 'rgba(223, 226, 235, 0.6)' } : {}}>•</span> DRIVER: {act.driver}
@@ -501,6 +536,63 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }
               </div>
             )}
 
+          </div>
+        </div>
+      )}
+
+      {/* Expanded Camera View - Fullscreen */}
+      {expandedCam && (
+        <div className="fixed inset-0 z-[110] bg-black flex items-center justify-center overflow-hidden">
+          {expandedCam.streamUrl || expandedCam.img ? (
+            <WebRtcPlayer
+              streamUrl={expandedCam.streamUrl}
+              fallbackImg={expandedCam.img}
+              alt={expandedCam.name}
+              theme={theme}
+              className="absolute inset-0 w-full h-full object-contain landscape:object-cover"
+            />
+          ) : (
+            <div className="z-10 px-4 text-center text-base sm:text-2xl lg:text-4xl font-bold tracking-[0.25em] text-[#ff4b4b] drop-shadow-[0_0_8px_rgba(255,75,75,0.4)]">
+              OFFLINE - {expandedCam.camId.split(' / ')[0]}
+            </div>
+          )}
+
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0d12] via-transparent to-[#0a0d12]/40 pointer-events-none" />
+
+          {/* Top Left Status */}
+          <img
+            src={lconLive}
+            alt="Live"
+            className="absolute top-3 left-3 sm:top-5 sm:left-6 lg:top-7 lg:left-9 h-5 sm:h-7 lg:h-9 opacity-90"
+          />
+
+          {/* Top Right Cam ID + Close */}
+          <div className="absolute top-3 right-3 sm:top-5 sm:right-6 lg:top-7 lg:right-9 flex items-center gap-2.5 sm:gap-4 lg:gap-5 max-w-[70vw]">
+            <span
+              className="text-[8px] sm:text-[11px] lg:text-[14px] font-black tracking-[0.2em] uppercase truncate"
+              style={{ color: '#C3CC8CCC' }}
+            >
+              {expandedCam.camId}
+            </span>
+            <button
+              onClick={() => setExpandedCam(null)}
+              aria-label="Tutup preview kamera"
+              className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full bg-[#EF4444] hover:bg-[#dc2626] text-white flex items-center justify-center transition-colors shrink-0"
+            >
+              <X className="w-4 h-4 lg:w-5 lg:h-5" strokeWidth={3} />
+            </button>
+          </div>
+
+          {/* Bottom Left Gate Name */}
+          <div className="absolute bottom-3 left-3 sm:bottom-6 sm:left-6 lg:bottom-9 lg:left-9 max-w-[calc(100vw-1.5rem)] sm:max-w-[60vw] bg-[#0a0d12]/80 border-l-[3px] border-[#2EAFF9] px-2.5 py-1.5 sm:px-4 sm:py-2.5 backdrop-blur-md">
+            <span className={`block truncate text-[11px] sm:text-[16px] lg:text-[22px] xl:text-[26px] font-bold tracking-wider ${theme === 'light' ? 'text-[#E2E2E5]' : 'text-slate-200'}`}>
+              {expandedCam.name}
+            </span>
+          </div>
+
+          {/* Bottom Right Coords */}
+          <div className="hidden sm:block absolute bottom-6 right-6 lg:bottom-9 lg:right-9 text-[11px] lg:text-[13px] font-bold tracking-[0.15em] text-slate-500 uppercase">
+            {expandedCam.coords}
           </div>
         </div>
       )}
