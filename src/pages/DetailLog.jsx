@@ -51,50 +51,6 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
           --u: max(0.7px, min(calc(100vw / 1827.3), calc(100vh / 1032.38)));
         }
 
-        /* ===== Header: scale with the same unit as the page ===== */
-        @media (min-width: 640px) {
-          .detail-root .header-fluid {
-            height: calc(91.4286 * var(--u));
-            padding-left: calc(30.4762 * var(--u));
-            padding-right: calc(30.4762 * var(--u));
-          }
-          .detail-root .header-fluid-brand { gap: calc(15.2381 * var(--u)); }
-          .detail-root .header-fluid-logo {
-            width: calc(40.6349 * var(--u));
-            height: calc(40.6349 * var(--u));
-          }
-          .detail-root .header-fluid-title {
-            font-size: calc(25.3968 * var(--u));
-            line-height: calc(35.5556 * var(--u));
-            margin-top: calc(2.5397 * var(--u));
-          }
-          .detail-root .header-fluid-nav-item {
-            padding-left: calc(30.4762 * var(--u));
-            padding-right: calc(30.4762 * var(--u));
-            gap: calc(10.1587 * var(--u));
-            border-bottom-width: calc(2.5397 * var(--u));
-            font-size: calc(15.2381 * var(--u));
-            line-height: calc(20.3175 * var(--u));
-          }
-          .detail-root .header-fluid-nav-icon {
-            width: calc(17.7778 * var(--u));
-            height: calc(17.7778 * var(--u));
-          }
-          .detail-root .header-fluid-system {
-            width: calc(487.619 * var(--u));
-            gap: calc(30.4762 * var(--u));
-          }
-          .detail-root .header-fluid-meta {
-            font-size: calc(11.4286 * var(--u));
-            line-height: calc(17.1429 * var(--u));
-          }
-          .detail-root .header-fluid-sync { margin-top: calc(5.0794 * var(--u)); }
-          .detail-root .header-fluid-settings {
-            width: calc(25.3968 * var(--u));
-            height: calc(25.3968 * var(--u));
-          }
-        }
-
         /* ===== Page shell / title ===== */
         .dl-shell { padding: calc(15 * var(--u)) calc(20 * var(--u)); gap: calc(15 * var(--u)); }
         .dl-title-block { gap: calc(2.5 * var(--u)); }
@@ -141,7 +97,7 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
         .dl-td-empty { padding: calc(20 * var(--u)) calc(10 * var(--u)); line-height: calc(18 * var(--u)); }
       `}</style>
       {/* Header */}
-      <Header activePage="activitylogs" onNavigate={onNavigate} theme={theme} onToggleTheme={onToggleTheme} onLogout={onLogout} fluidScale />
+      <Header activePage="activitylogs" onNavigate={onNavigate} theme={theme} onToggleTheme={onToggleTheme} onLogout={onLogout} />
 
       {/* Page Content */}
       <div className="dl-shell flex-1 flex flex-col">
