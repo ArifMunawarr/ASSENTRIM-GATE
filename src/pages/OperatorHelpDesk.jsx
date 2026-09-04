@@ -8,7 +8,7 @@ import tagIcon from '../assets/tagicon.svg'
 
 export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onLogout }) {
   const [isChecked, setIsChecked] = useState(false)
-  const [activeRequestCount, setActiveRequestCount] = useState(2)
+  const [activeRequestCount, setActiveRequestCount] = useState(6)
   const [selectedGate, setSelectedGate] = useState(1)
   const [showAccessGranted, setShowAccessGranted] = useState(false)
   const [showAccessDenied, setShowAccessDenied] = useState(false)

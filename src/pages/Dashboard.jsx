@@ -11,22 +11,114 @@ import opnreason from '../assets/opnreason.svg'
 import opnreasonLight from '../assets/opnreason(1).svg'
 import activitiIcon from '../assets/activitiIcon.svg'
 import activitiIconLight from '../assets/activitiIcon(1).svg'
-import das1 from '../assets/das1.png'
-import das2 from '../assets/das2.png'
-import das3 from '../assets/das3.png'
-import das5 from '../assets/das5.png'
-import das6 from '../assets/das6.png'
+import cam01 from '../assets/cameras/cam-01.webp'
+import cam02 from '../assets/cameras/cam-02.webp'
+import cam03 from '../assets/cameras/cam-03.webp'
+import cam04 from '../assets/cameras/cam-04.webp'
+import cam05 from '../assets/cameras/cam-05.webp'
+import cam06 from '../assets/cameras/cam-06.webp'
+import cam07 from '../assets/cameras/cam-07.webp'
+import cam09 from '../assets/cameras/cam-09.webp'
+import cam10 from '../assets/cameras/cam-10.webp'
+import cam11 from '../assets/cameras/cam-11.webp'
+import cam12 from '../assets/cameras/cam-12.webp'
 
 import WebRtcPlayer from '../components/WebRtcPlayer'
 
-const cameras = [
-  { id: 1, name: 'GATE 01 - MAIN GATE', img: das1, streamUrl: import.meta.env.VITE_CAM1_WEBRTC_URL || null, camId: 'CAM-01 / NW-72', coords: '44.02°N 12.33°E', status: 'LIVE' },
-  { id: 2, name: 'GATE 02 - VEHICLE EXIT', img: das2, streamUrl: import.meta.env.VITE_CAM2_WEBRTC_URL || null, camId: 'CAM-02 / SE-41', coords: 'HD-RECON-7', status: 'LIVE' },
-  { id: 3, name: 'GATE 03 - GATE WEST', img: das3, streamUrl: import.meta.env.VITE_CAM3_WEBRTC_URL || null, camId: 'CAM-03 / W-09', coords: 'THERMAL-LINK', status: 'LIVE' },
-  { id: 4, name: 'GATE 04 - GATE EAST', img: null, streamUrl: import.meta.env.VITE_CAM4_WEBRTC_URL || null, camId: 'CAM-04 / E-14', coords: 'THERMAL-LINK', status: 'LIVE' },
-  { id: 5, name: 'GATE 05 - MAIN GATE', img: das5, streamUrl: import.meta.env.VITE_CAM5_WEBRTC_URL || null, camId: 'CAM-05 / INT-01', coords: '44.02°N 12.33°E', status: 'LIVE' },
-  { id: 6, name: 'GATE 06 - LOGISTICS YARD', img: das6, streamUrl: import.meta.env.VITE_CAM6_WEBRTC_URL || null, camId: 'CAM-06 / E-14', coords: 'EXT-4A-REAR', status: 'LIVE' },
+const gates = [
+  {
+    id: 1,
+    name: 'GATE 01 - MAIN GATE',
+    cameras: [
+      { id: 1, img: cam01, streamUrl: import.meta.env.VITE_CAM1_WEBRTC_URL || null, camId: 'CAM-01', coords: '44.02°N 12.33°E' },
+      { id: 2, img: cam02, streamUrl: import.meta.env.VITE_CAM2_WEBRTC_URL || null, camId: 'CAM-02', coords: '44.02°N 12.34°E' },
+    ],
+  },
+  {
+    id: 2,
+    name: 'GATE 02 - VEHICLE EXIT',
+    cameras: [
+      { id: 3, img: cam03, streamUrl: import.meta.env.VITE_CAM3_WEBRTC_URL || null, camId: 'CAM-03', coords: '44.03°N 12.31°E' },
+      { id: 4, img: cam04, streamUrl: import.meta.env.VITE_CAM4_WEBRTC_URL || null, camId: 'CAM-04', coords: '44.03°N 12.32°E' },
+    ],
+  },
+  {
+    id: 3,
+    name: 'GATE 03 - GATE WEST',
+    cameras: [
+      { id: 5, img: cam05, streamUrl: import.meta.env.VITE_CAM5_WEBRTC_URL || null, camId: 'CAM-05', coords: '44.01°N 12.28°E' },
+      { id: 6, img: cam06, streamUrl: import.meta.env.VITE_CAM6_WEBRTC_URL || null, camId: 'CAM-06', coords: '44.01°N 12.29°E' },
+    ],
+  },
+  {
+    id: 4,
+    name: 'GATE 04 - GATE EAST',
+    cameras: [
+      { id: 7, img: cam07, streamUrl: import.meta.env.VITE_CAM7_WEBRTC_URL || null, camId: 'CAM-07', coords: '44.04°N 12.45°E' },
+      { id: 8, img: null, streamUrl: import.meta.env.VITE_CAM8_WEBRTC_URL || null, camId: 'CAM-08', coords: '44.04°N 12.46°E', offline: true },
+    ],
+  },
+  {
+    id: 5,
+    name: 'GATE 05 - GATE WEST',
+    cameras: [
+      { id: 9, img: cam09, streamUrl: import.meta.env.VITE_CAM9_WEBRTC_URL || null, camId: 'CAM-09', coords: '44.01°N 12.28°E' },
+      { id: 10, img: cam10, streamUrl: import.meta.env.VITE_CAM10_WEBRTC_URL || null, camId: 'CAM-10', coords: '44.01°N 12.29°E' },
+    ],
+  },
+  {
+    id: 6,
+    name: 'GATE 06 - GATE EAST',
+    cameras: [
+      { id: 11, img: cam11, streamUrl: import.meta.env.VITE_CAM11_WEBRTC_URL || null, camId: 'CAM-11', coords: '44.04°N 12.45°E' },
+      { id: 12, img: cam12, streamUrl: import.meta.env.VITE_CAM12_WEBRTC_URL || null, camId: 'CAM-12', coords: '44.04°N 12.46°E' },
+    ],
+  },
 ]
+
+function CameraFeed({ camera, gateName, theme, onExpand }) {
+  const isOffline = camera.offline || (!camera.streamUrl && !camera.img)
+  const expandedCamera = { ...camera, name: gateName }
+
+  return (
+    <button
+      type="button"
+      onClick={() => onExpand(expandedCamera)}
+      aria-label={`Buka ${camera.camId} - ${gateName}`}
+      className="group relative block min-h-[170px] w-full overflow-hidden bg-black text-left aspect-[7/6] lg:aspect-auto lg:min-h-0 focus:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[#2EAFF9]"
+      style={{ border: `1px solid ${theme === 'light' ? '#D8D8D8' : '#47483C'}` }}
+    >
+      {!isOffline && (
+        <WebRtcPlayer
+          streamUrl={camera.streamUrl}
+          fallbackImg={camera.img}
+          alt={`${gateName} ${camera.camId}`}
+          theme={theme}
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.01]"
+        />
+      )}
+
+      {isOffline && (
+        <div className="absolute inset-0 flex items-center justify-center px-4 text-center font-mono text-[13px] font-bold tracking-[0.2em] text-[#FF9A9A] sm:text-[15px] xl:text-[17px]">
+          OFFLINE - {camera.camId}
+        </div>
+      )}
+
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black via-black/5 to-black/20" />
+
+      <div className="pointer-events-none absolute bottom-2 left-2 sm:bottom-2.5 sm:left-2.5">
+        <img src={lconLive} alt="" aria-hidden="true" className="h-[16px] w-auto opacity-95 sm:h-[18px]" />
+        <div className={`mt-0.5 font-mono text-[7px] font-medium tracking-[0.06em] sm:text-[8px] ${theme === 'light' ? 'text-slate-600' : 'text-[#888A86]'}`}>
+          {camera.coords}
+        </div>
+      </div>
+
+      <div className="pointer-events-none absolute bottom-[25px] right-2 font-mono text-[8px] font-medium tracking-[0.04em] text-[#A4A96C] sm:bottom-[28px] sm:right-2.5 sm:text-[9px]">
+        {camera.camId}
+      </div>
+    </button>
+  )
+}
 
 const activities = [
   { id: '229-87', gate: 'GATE 03', time: '14:45:10', rfid: '900779009', driver: 'ANTON RUMANTO', type: 'MINIBUS', status: 'AUTHORIZED' },
@@ -145,60 +237,34 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }
       {/* Main Content */}
       <main className="flex-1 flex flex-col lg:flex-row gap-2 p-2 sm:p-3 min-h-0">
 
-        {/* Left: Camera Grid */}
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-rows-3 gap-2 sm:gap-3 min-h-0 overflow-y-auto lg:overflow-hidden no-scrollbar">
-          {cameras.map((cam, idx) => (
-            <div
-              key={idx}
-              role="button"
-              tabIndex={0}
-              onClick={() => setExpandedCam(cam)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  setExpandedCam(cam)
-                }
-              }}
-              className="relative bg-[#282A2C] flex items-center justify-center overflow-hidden min-h-[160px] md:min-h-0 cursor-pointer transition-shadow hover:shadow-[0_0_0_1.5px_#2EAFF9] focus:outline-none focus-visible:shadow-[0_0_0_1.5px_#2EAFF9]"
+        {/* Left: 6 gate groups / 12 camera feeds */}
+        <div className="grid min-h-0 flex-1 grid-cols-1 gap-x-3 gap-y-2 overflow-y-auto no-scrollbar md:grid-cols-2 lg:grid-rows-3 lg:overflow-hidden">
+          {gates.map((gate) => (
+            <section
+              key={gate.id}
+              aria-labelledby={`gate-title-${gate.id}`}
+              className="flex min-h-[360px] flex-col bg-black p-2.5 md:min-h-[300px] lg:min-h-0"
               style={{ border: `1px solid ${theme === 'light' ? '#D8D8D8' : '#47483C'}` }}
             >
-              {cam.streamUrl || cam.img ? (
-                <WebRtcPlayer
-                  streamUrl={cam.streamUrl}
-                  fallbackImg={cam.img}
-                  alt={cam.name}
-                  theme={theme}
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-              ) : (
-                <div className="z-10 text-sm sm:text-lg lg:text-xl font-bold tracking-[0.25em] text-[#ff4b4b] drop-shadow-[0_0_8px_rgba(255,75,75,0.4)]">
-                  OFFLINE - {cam.camId.split(' / ')[0]}
-                </div>
-              )}
+              <h2
+                id={`gate-title-${gate.id}`}
+                className={`shrink-0 font-mono text-[11px] font-bold leading-[1.25] tracking-[0.035em] sm:text-[12px] ${theme === 'light' ? 'text-[#383735]' : 'text-[#DFE2EB]'}`}
+              >
+                {gate.name}
+              </h2>
 
-
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0d12] via-transparent to-[#0a0d12]/40 pointer-events-none" />
-
-              {/* Top Left Status */}
-              <img src={lconLive} alt="Live" className="absolute top-2 left-2 sm:top-3 sm:left-3 h-4 sm:h-[1.1rem] opacity-90" />
-
-              {/* Top Right Cam ID */}
-              <div className="absolute top-2 right-2 sm:top-3 sm:right-3 text-[8px] sm:text-[9px] font-black tracking-[0.2em] uppercase" style={{ color: '#C3CC8CCC' }}>
-                {cam.camId}
+              <div className="mt-2 grid min-h-0 flex-1 grid-cols-2 gap-2.5">
+                {gate.cameras.map((camera) => (
+                  <CameraFeed
+                    key={camera.id}
+                    camera={camera}
+                    gateName={gate.name}
+                    theme={theme}
+                    onExpand={setExpandedCam}
+                  />
+                ))}
               </div>
-
-              {/* Bottom Left Gate Name */}
-              <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 bg-[#0a0d12]/80 border-l-2 border-[#2EAFF9] px-2 py-1 sm:px-2.5 sm:py-1.5 backdrop-blur-md">
-                <span className={`text-[9px] sm:text-[11px] font-bold tracking-wider ${theme === 'light' ? 'text-[#E2E2E5]' : 'text-slate-200'}`}>
-                  {cam.name}
-                </span>
-              </div>
-
-              {/* Bottom Right Coords */}
-              <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 text-[8px] sm:text-[9px] font-bold tracking-[0.15em] text-slate-500 uppercase">
-                {cam.coords}
-              </div>
-            </div>
+            </section>
           ))}
         </div>
 
@@ -543,7 +609,7 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }
       {/* Expanded Camera View - Fullscreen */}
       {expandedCam && (
         <div className="fixed inset-0 z-[110] bg-black flex items-center justify-center overflow-hidden">
-          {expandedCam.streamUrl || expandedCam.img ? (
+          {!expandedCam.offline && (expandedCam.streamUrl || expandedCam.img) ? (
             <WebRtcPlayer
               streamUrl={expandedCam.streamUrl}
               fallbackImg={expandedCam.img}
@@ -553,7 +619,7 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }
             />
           ) : (
             <div className="z-10 px-4 text-center text-base sm:text-2xl lg:text-4xl font-bold tracking-[0.25em] text-[#ff4b4b] drop-shadow-[0_0_8px_rgba(255,75,75,0.4)]">
-              OFFLINE - {expandedCam.camId.split(' / ')[0]}
+              OFFLINE - {expandedCam.camId}
             </div>
           )}
 
