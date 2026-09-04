@@ -5,7 +5,7 @@ import logoImageLight from '../assets/logologinlight.svg'
 import userIcon from '../assets/usericon.svg'
 import logOutIcon from '../assets/logoticon.svg'
 
-export default function Header({ activePage, onNavigate, theme = 'dark', onToggleTheme, onLogout }) {
+export default function Header({ activePage, onNavigate, theme = 'dark', onToggleTheme, onLogout, fluidScale = false }) {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const popupRef = useRef(null)
   const isDarkMode = theme === 'dark'
@@ -21,13 +21,13 @@ export default function Header({ activePage, onNavigate, theme = 'dark', onToggl
   }, [])
 
   return (
-    <header className="h-16 sm:h-[4.5rem] flex items-center justify-between px-4 sm:px-6 bg-[#121416] shrink-0 z-50 relative" style={{ borderBottom: `1px solid ${isDarkMode ? '#47483C' : '#D8D8D8'}` }}>
-      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        <img src={isDarkMode ? logoImageDark : logoImageLight} alt="Logo" className="w-6 h-6 sm:w-8 sm:h-8" />
-        <h1 className="hidden md:block text-lg sm:text-xl font-black text-[#2EAFF9] tracking-wide uppercase mt-0.5">
+    <header className={`h-16 sm:h-[4.5rem] flex items-center justify-between px-4 sm:px-6 bg-[#121416] shrink-0 z-50 relative ${fluidScale ? 'header-fluid' : ''}`} style={{ borderBottom: `1px solid ${isDarkMode ? '#47483C' : '#D8D8D8'}` }}>
+      <div className={`flex items-center gap-2 sm:gap-3 shrink-0 ${fluidScale ? 'header-fluid-brand' : ''}`}>
+        <img src={isDarkMode ? logoImageDark : logoImageLight} alt="Logo" className={`w-6 h-6 sm:w-8 sm:h-8 ${fluidScale ? 'header-fluid-logo' : ''}`} />
+        <h1 className={`hidden md:block text-lg sm:text-xl font-black text-[#2EAFF9] tracking-wide uppercase mt-0.5 ${fluidScale ? 'header-fluid-title' : ''}`}>
           ASENTRIM
         </h1>
-        <h1 className="hidden lg:block text-lg sm:text-xl font-black text-[#2EAFF9] tracking-wide uppercase mt-0.5">
+        <h1 className={`hidden lg:block text-lg sm:text-xl font-black text-[#2EAFF9] tracking-wide uppercase mt-0.5 ${fluidScale ? 'header-fluid-title' : ''}`}>
           GATE COMMAND
         </h1>
       </div>
@@ -35,45 +35,45 @@ export default function Header({ activePage, onNavigate, theme = 'dark', onToggl
       <nav className="flex items-center h-full overflow-x-auto no-scrollbar ml-4 sm:ml-0 flex-1 lg:flex-none justify-start lg:justify-center">
         <button 
           onClick={() => onNavigate && onNavigate('dashboard')} 
-          className={`h-full px-4 sm:px-6 flex items-center justify-center gap-2 border-b-2 font-bold text-[10px] sm:text-xs tracking-wider whitespace-nowrap transition-colors ${
+          className={`h-full px-4 sm:px-6 flex items-center justify-center gap-2 border-b-2 font-bold text-[10px] sm:text-xs tracking-wider whitespace-nowrap transition-colors ${fluidScale ? 'header-fluid-nav-item' : ''} ${
             activePage === 'dashboard' 
               ? 'border-[#2EAFF9] bg-[#1a2235]/40 text-[#2EAFF9]' 
               : 'border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
-          <LayoutDashboard size={14} strokeWidth={2.5} />
+          <LayoutDashboard className={fluidScale ? 'header-fluid-nav-icon' : ''} size={14} strokeWidth={2.5} />
           Dashboard
         </button>
         <button 
           onClick={() => onNavigate && onNavigate('activitylogs')} 
-          className={`h-full px-4 sm:px-6 flex items-center justify-center gap-2 border-b-2 font-bold text-[10px] sm:text-xs tracking-wider whitespace-nowrap transition-colors ${
+          className={`h-full px-4 sm:px-6 flex items-center justify-center gap-2 border-b-2 font-bold text-[10px] sm:text-xs tracking-wider whitespace-nowrap transition-colors ${fluidScale ? 'header-fluid-nav-item' : ''} ${
             activePage === 'activitylogs' 
               ? 'border-[#2EAFF9] bg-[#1a2235]/40 text-[#2EAFF9]' 
               : 'border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
-          <History size={14} strokeWidth={2.5} />
+          <History className={fluidScale ? 'header-fluid-nav-icon' : ''} size={14} strokeWidth={2.5} />
           Activity Logs
         </button>
         <button 
           onClick={() => onNavigate && onNavigate('helpdesk')} 
-          className={`h-full px-4 sm:px-6 flex items-center justify-center gap-2 border-b-2 font-bold text-[10px] sm:text-xs tracking-wider whitespace-nowrap transition-colors ${
+          className={`h-full px-4 sm:px-6 flex items-center justify-center gap-2 border-b-2 font-bold text-[10px] sm:text-xs tracking-wider whitespace-nowrap transition-colors ${fluidScale ? 'header-fluid-nav-item' : ''} ${
             activePage === 'helpdesk' 
               ? 'border-[#2EAFF9] bg-[#1a2235]/40 text-[#2EAFF9]' 
               : 'border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
-          <HeadphonesIcon size={14} strokeWidth={2.5} />
+          <HeadphonesIcon className={fluidScale ? 'header-fluid-nav-icon' : ''} size={14} strokeWidth={2.5} />
           Operator Help Desk
         </button>
       </nav>
 
-      <div className="hidden xl:flex items-center gap-6 justify-end shrink-0 w-[24rem]">
+      <div className={`hidden xl:flex items-center gap-6 justify-end shrink-0 w-[24rem] ${fluidScale ? 'header-fluid-system' : ''}`}>
         <div className="flex flex-col items-end">
-          <div className="text-[9px] font-black tracking-[0.2em] text-slate-400 uppercase">
+          <div className={`text-[9px] font-black tracking-[0.2em] text-slate-400 uppercase ${fluidScale ? 'header-fluid-meta' : ''}`}>
             SYSTEM TIME : 06:54:21:537
           </div>
-          <div className="text-[9px] font-black tracking-[0.2em] text-[#2EAFF9] mt-1 uppercase">
+          <div className={`text-[9px] font-black tracking-[0.2em] text-[#2EAFF9] mt-1 uppercase ${fluidScale ? 'header-fluid-meta header-fluid-sync' : ''}`}>
             SYNC STATUS: STABLE
           </div>
         </div>
@@ -83,7 +83,7 @@ export default function Header({ activePage, onNavigate, theme = 'dark', onToggl
             className={`text-slate-400 hover:text-white transition-colors ${isSettingsOpen ? 'text-white' : ''}`}
             onClick={() => setIsSettingsOpen(!isSettingsOpen)}
           >
-            <Settings size={20} />
+            <Settings className={fluidScale ? 'header-fluid-settings' : ''} size={20} />
           </button>
 
           {isSettingsOpen && (
