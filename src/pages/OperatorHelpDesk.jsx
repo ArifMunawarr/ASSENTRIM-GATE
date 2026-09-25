@@ -8,12 +8,12 @@ import tagIcon from '../assets/tagicon.svg'
 
 export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onLogout }) {
   const [isChecked, setIsChecked] = useState(false)
-  const [activeRequestCount, setActiveRequestCount] = useState(6)
+  const [activeRequestCount, setActiveRequestCount] = useState(8)
   const [selectedGate, setSelectedGate] = useState(1)
   const [showAccessGranted, setShowAccessGranted] = useState(false)
   const [showAccessDenied, setShowAccessDenied] = useState(false)
 
-  // Fluid unit: 1u == 1px at the 1920x1080 baseline (see .helpdesk-root --u).
+  // Scale the desktop composition from the 1920x1080 design unit.
   const u = (n) => `calc(${n} * var(--u))`
 
   const renderDualManualAuth = () => {
@@ -108,12 +108,12 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
   }
 
   return (
-    <div className={`helpdesk-root min-h-screen bg-[#121416] text-white flex flex-col font-display h-screen overflow-hidden ${activeRequestCount >= 3 ? 'hd-fill' : 'hd-fixed'}`}>
+    <div className={`helpdesk-root min-h-screen bg-[#121416] text-white flex flex-col font-display h-screen overflow-hidden ${activeRequestCount >= 3 ? 'hd-fill' : 'hd-fixed'} ${activeRequestCount === 1 ? 'hd-single' : ''}`}>
       <style>{`
         /*
-         * Fluid unit: 1u == 1px at the 1920x1080 baseline.
-         * min() keeps the 16:9 layout fully visible on any viewport;
-         * (100vh - 72px) accounts for the fixed 72px header so nothing overflows.
+         * Keep the desktop composition proportional to the 1920x1080 baseline.
+         * The tighter viewport axis determines the scale below that baseline;
+         * the app's global zoom handles larger displays.
          */
         .helpdesk-root { --u: max(0.5px, min(100vw / 1920, (100vh - 72px) / 1008)); }
         .border-light-blue { border-color: #2EAFF9 !important; }
@@ -190,6 +190,35 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
         .helpdesk-alert-description { font-size: calc(10 * var(--u)); }
         .helpdesk-alert-ts-label { font-size: calc(9 * var(--u)); margin-bottom: calc(2 * var(--u)); }
         .helpdesk-alert-ts { font-size: calc(12 * var(--u)); }
+
+        /* Constrain result dialogs without changing the desktop card composition. */
+        @media (max-height: 1079px) {
+          .helpdesk-result-dialog {
+            max-height: calc(var(--layout-height) - 3rem);
+            overflow-y: auto;
+          }
+          .helpdesk-result-dialog > * { flex-shrink: 0; }
+        }
+        /* Narrow windows use a readable stacked layout; laptops keep two columns. */
+        @media (max-width: 1099px) {
+          .helpdesk-root { --u: 1px; }
+          .hd-fixed .helpdesk-multi-grid { align-content: start; }
+          .hd-single .helpdesk-page-shell { overflow-y: auto; }
+          .helpdesk-single-request { height: 700px !important; flex-shrink: 0; }
+          .helpdesk-page-shell { padding: calc(16 * var(--u)) calc(14 * var(--u)); }
+          .helpdesk-multi-grid { grid-template-columns: 1fr !important; grid-auto-rows: 470px !important; max-width: 980px !important; }
+          .hd-fill .helpdesk-request-card, .hd-fixed .helpdesk-request-card { height: calc(470 * var(--u)) !important; }
+        }
+        @media (max-width: 899px) {
+          .helpdesk-multi-grid { grid-auto-rows: max-content !important; align-content: start; }
+          .hd-fill .helpdesk-request-card, .hd-fixed .helpdesk-request-card { height: auto !important; }
+          .helpdesk-card-body, .helpdesk-single-body { flex-direction: column; flex: none; }
+          .helpdesk-card-body > div, .helpdesk-single-body > div { flex: none; min-height: 300px; }
+          .helpdesk-card-body > div:first-child, .helpdesk-single-body > div:first-child { height: 320px; }
+          .helpdesk-single-request { height: auto !important; }
+          .helpdesk-alert, .hd-fixed .helpdesk-alert, .helpdesk-single-alert { height: auto !important; min-height: 80px; padding: 12px; flex-wrap: wrap; gap: 10px; }
+          .helpdesk-alert-body { flex: 1; margin-left: 0; }
+        }
       `}</style>
       <Header activePage="helpdesk" onNavigate={onNavigate} theme={theme} onToggleTheme={onToggleTheme} onLogout={onLogout} />
       <div className="helpdesk-page-shell flex-1 flex flex-col min-h-0 overflow-hidden no-scrollbar relative">
@@ -201,8 +230,8 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
 
         {/* STATE 1: Single Request */}
         {activeRequestCount === 1 && (
-          <div className="flex flex-col border-[6px] border-light-blue bg-[#1E2022] w-full mx-auto overflow-hidden" style={{ maxWidth: u(1450), height: u(700), marginTop: u(32), padding: u(28) }}>
-            <div className="flex flex-row flex-1 min-h-0" style={{ gap: u(24) }}>
+          <div className="helpdesk-single-request flex flex-col border-[6px] border-light-blue bg-[#1E2022] w-full mx-auto overflow-hidden" style={{ maxWidth: u(1450), height: 'min(calc(700 * var(--u)), 100%)', marginTop: u(32), padding: u(28) }}>
+            <div className="helpdesk-single-body flex flex-row flex-1 min-h-0" style={{ gap: u(24) }}>
               <div className="flex-1 bg-[#181C22] border border-[#444841] flex flex-col rounded-[3px] overflow-hidden min-h-0">
                 <div className="flex items-center justify-between bg-[#323846]/80 border-b border-[#444841] shrink-0" style={{ padding: `${u(12)} ${u(20)}` }}>
                   <div className="flex items-center" style={{ gap: u(14) }}>
@@ -263,7 +292,7 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
                 </div>
               </div>
             </div>
-            <div className="bg-[#93000A] border-l-[8px] border-[#FFB4AB] flex items-center shrink-0 shadow-lg shadow-[#93000A]/10" style={{ height: u(80), paddingLeft: u(24), paddingRight: u(24), marginTop: u(24) }}>
+            <div className="helpdesk-single-alert bg-[#93000A] border-l-[8px] border-[#FFB4AB] flex items-center shrink-0 shadow-lg shadow-[#93000A]/10" style={{ height: u(80), paddingLeft: u(24), paddingRight: u(24), marginTop: u(24) }}>
               <AlertTriangle className="text-[#FFB4AB] shrink-0" strokeWidth={1.5} style={{ width: u(40), height: u(40) }} />
               <div className="flex flex-col justify-center" style={{ marginLeft: u(20) }}>
                 <span className="font-black text-[#FFB4AB] tracking-wide uppercase leading-tight" style={{ fontSize: u(15), marginBottom: u(2) }}>PLAT BERBEDA</span>
@@ -356,7 +385,7 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
       {/* Access Granted Popup Overlay */}
       {showAccessGranted && (
         <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm animate-in fade-in duration-200 ${theme === 'light' ? 'bg-[#F1F5F9]/80' : 'bg-[#121416]/80'}`}>
-          <div className={`${theme === 'light' ? 'bg-[#FFFFFF] border-[#10B981] shadow-xl' : 'bg-[#0B0D10] border-[#00DF89] shadow-[0_0_30px_rgba(0,223,137,0.15)]'} border rounded-xl p-6 w-full max-w-[420px] relative flex flex-col`}>
+          <div className={`helpdesk-result-dialog ${theme === 'light' ? 'bg-[#FFFFFF] border-[#10B981] shadow-xl' : 'bg-[#0B0D10] border-[#00DF89] shadow-[0_0_30px_rgba(0,223,137,0.15)]'} border rounded-xl p-6 w-full max-w-[420px] relative flex flex-col`}>
             
             {/* System State Banner */}
             <div className={`border rounded-md px-3 py-2 mb-5 flex items-center ${theme === 'light' ? 'bg-[#10B981]/10 border-[#10B981]/30' : 'bg-[#00DF89]/[0.02] border-[#00DF89]/60 shadow-[inset_0_0_10px_rgba(0,223,137,0.05)]'}`}>
@@ -459,7 +488,7 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
       {/* Access Denied Popup Overlay */}
       {showAccessDenied && (
         <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm animate-in fade-in duration-200 ${theme === 'light' ? 'bg-[#F1F5F9]/80' : 'bg-[#121416]/80'}`}>
-          <div className={`${theme === 'light' ? 'bg-[#FFFFFF] border-[#EF4444] shadow-xl' : 'bg-[#0B0D10] border-[#EF4444] shadow-[0_0_30px_rgba(239,68,68,0.15)]'} border rounded-xl p-6 w-full max-w-[420px] relative flex flex-col`}>
+          <div className={`helpdesk-result-dialog ${theme === 'light' ? 'bg-[#FFFFFF] border-[#EF4444] shadow-xl' : 'bg-[#0B0D10] border-[#EF4444] shadow-[0_0_30px_rgba(239,68,68,0.15)]'} border rounded-xl p-6 w-full max-w-[420px] relative flex flex-col`}>
             
             {/* System State Banner */}
             <div className={`border rounded-md px-3 py-2 mb-5 flex items-center ${theme === 'light' ? 'bg-[#FEF2F2] border-[#EF4444]/30' : 'bg-[#EF4444]/[0.02] border-[#EF4444]/60 shadow-[inset_0_0_10px_rgba(239,68,68,0.05)]'}`}>

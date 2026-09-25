@@ -154,3 +154,37 @@ a {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* ===== Large-display scaling (> 1920x1080 baseline) =====
+ * App.jsx scales the root and supplies the viewport in local CSS pixels.
+ * Explicit dimensions avoid differences in vh/vw zoom behavior across engines.
+ * Pages that fluid-scale internally (--u) retain their approved Full HD
+ * unit to avoid double scaling. App skips scaling if zoom is unsupported.
+ */
+:root {
+  --z: 1;
+  --layout-width: 100vw;
+  --layout-height: 100vh;
+  --client-rect-factor: 1;
+}
+
+html.zoomed body {
+  min-height: var(--layout-height);
+}
+
+html.zoomed .h-screen {
+  height: var(--layout-height);
+}
+
+html.zoomed .min-h-screen {
+  min-height: var(--layout-height);
+}
+
+html.zoomed .helpdesk-root {
+  --u: 1px;
+}
+
+html.zoomed .detail-root {
+  /* Preserve the actual unit used by the approved 1920x1080 design. */
+  --u: var(--detail-baseline-unit);
+}

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import Header from '../components/Header'
+import { getVisualRect } from '../utils/viewport'
 import { LayoutDashboard, History, HeadphonesIcon, Settings, ClipboardList, AlertCircle, ChevronDown, ChevronRight, ChevronsRight, ChevronLeft, X } from 'lucide-react'
 import logoImage from '../assets/logologindark.svg'
 import lconLive from '../assets/lconlive.svg'
@@ -180,11 +181,13 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }
   useEffect(() => {
     const handlePointerMove = (e) => {
       if (!isDragging || !sliderTrackRef.current || !sliderThumbRef.current) return;
-      const trackRect = sliderTrackRef.current.getBoundingClientRect();
-      const thumbWidth = sliderThumbRef.current.offsetWidth;
-      const maxPos = trackRect.width - thumbWidth;
+      const trackRect = getVisualRect(sliderTrackRef.current);
+      const thumbRect = getVisualRect(sliderThumbRef.current);
+      // Pointer coordinates are visual pixels; translateX uses local CSS pixels.
+      const visualScale = thumbRect.width / sliderThumbRef.current.offsetWidth || 1;
+      const maxPos = Math.max(0, (trackRect.width - thumbRect.width) / visualScale);
       
-      const delta = e.clientX - dragStartXRef.current;
+      const delta = (e.clientX - dragStartXRef.current) / visualScale;
       let newPos = dragStartPosRef.current + delta;
       if (newPos < 0) newPos = 0;
       if (newPos > maxPos) newPos = maxPos;
@@ -235,15 +238,15 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }
       <Header activePage="dashboard" onNavigate={onNavigate} theme={theme} onToggleTheme={onToggleTheme} onLogout={onLogout} />
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col lg:flex-row gap-2 p-2 sm:p-3 min-h-0">
+      <main className="flex-1 flex flex-col lg:flex-row gap-2 p-2 sm:p-3 min-h-0 max-lg:overflow-y-auto">
 
         {/* Left: 6 gate groups / 12 camera feeds */}
-        <div className="grid min-h-0 flex-1 grid-cols-1 gap-x-3 gap-y-2 overflow-y-auto no-scrollbar md:grid-cols-2 lg:grid-rows-3 lg:overflow-hidden">
+        <div className="grid min-h-0 flex-none lg:flex-1 grid-cols-1 gap-x-3 gap-y-2 no-scrollbar md:grid-cols-2 lg:grid-rows-3 lg:overflow-hidden">
           {gates.map((gate) => (
             <section
               key={gate.id}
               aria-labelledby={`gate-title-${gate.id}`}
-              className="flex min-h-[360px] flex-col bg-black p-2.5 md:min-h-[300px] lg:min-h-0"
+              className="flex min-h-0 flex-col bg-black p-2.5"
               style={{ border: `1px solid ${theme === 'light' ? '#D8D8D8' : '#47483C'}` }}
             >
               <h2
@@ -271,20 +274,20 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }
         {/* Right: Activity Report */}
         <div className={`w-full lg:w-[320px] xl:w-[360px] border ${theme === 'light' ? 'border-[#D8D8D8]' : 'border-[#47483C]'} bg-[#1E2022] flex flex-col shrink-0 min-h-[300px] lg:min-h-0 overflow-hidden`}>
           {/* Header */}
-          <div className={`h-14 flex items-center justify-between px-4 border-b ${theme === 'light' ? 'border-[#D8D8D8]' : 'border-[#47483C]'} shrink-0 bg-transparent`}>
-            <div className={`flex items-center gap-2.5 ${theme === 'light' ? 'text-[#0C5F9A]' : 'text-[#FFE2AB]'}`}>
+          <div className={`h-14 flex items-center justify-between px-3 xl:px-4 border-b ${theme === 'light' ? 'border-[#D8D8D8]' : 'border-[#47483C]'} shrink-0 bg-transparent`}>
+            <div className={`flex items-center gap-2 xl:gap-2.5 min-w-0 ${theme === 'light' ? 'text-[#0C5F9A]' : 'text-[#FFE2AB]'}`}>
               {theme === 'light' ? (
-                <img src={activitiIconLight} alt="Activity" className="w-[18px] h-[18px]" />
+                <img src={activitiIconLight} alt="Activity" className="w-[18px] h-[18px] shrink-0" />
               ) : (
-                <img src={activitiIcon} alt="Activity" className="w-[18px] h-[18px]" />
+                <img src={activitiIcon} alt="Activity" className="w-[18px] h-[18px] shrink-0" />
               )}
-              <h2 className="text-[13px] font-medium tracking-[0.15em] uppercase">
+              <h2 className="text-[12px] xl:text-[13px] font-medium tracking-[0.1em] xl:tracking-[0.15em] uppercase truncate">
                 ACTIVITY REPORT
               </h2>
             </div>
             <button 
               onClick={openModal}
-              className={`bg-[#2EAFF9] hover:bg-[#1f9beb] ${theme === 'light' ? 'text-[#FAFAFA]' : 'text-[#0a0d14]'} text-[10px] font-black px-3 py-1.5 rounded tracking-widest uppercase transition-colors`}
+              className={`bg-[#2EAFF9] hover:bg-[#1f9beb] ${theme === 'light' ? 'text-[#FAFAFA]' : 'text-[#0a0d14]'} text-[10px] font-black px-2.5 xl:px-3 py-1.5 rounded tracking-widest uppercase transition-colors shrink-0 whitespace-nowrap`}
             >
               MANUAL GATE
             </button>
@@ -338,7 +341,7 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }
       {/* Manual Gate Modal */}
       {showManualGate && (
         <div className="fixed inset-0 bg-[#0a0d12]/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className={`w-full max-w-[480px] 2xl:max-w-[560px] min-h-[360px] 2xl:min-h-[415px] h-auto flex flex-col shadow-2xl overflow-hidden ${theme === 'light' ? (gateStep === 'history' ? 'bg-[#F7F8FC]' : 'bg-[#FFFFFF]') : 'bg-[#222426]'}`}>
+          <div className={`w-full max-w-[480px] 2xl:max-w-[560px] min-h-[min(360px,calc(var(--layout-height)-2rem))] 2xl:min-h-[min(415px,calc(var(--layout-height)-2rem))] max-h-[calc(var(--layout-height)-2rem)] h-auto flex flex-col shadow-2xl overflow-x-hidden overflow-y-auto ${theme === 'light' ? (gateStep === 'history' ? 'bg-[#F7F8FC]' : 'bg-[#FFFFFF]') : 'bg-[#222426]'}`}>
             {/* Modal Header */}
             <div className={`flex justify-between items-center px-6 py-5 2xl:px-8 2xl:py-6 shrink-0 ${theme === 'light' ? 'bg-[#FFFFFF]' : ''}`}>
               <h2 className={`text-[15px] 2xl:text-[17px] font-medium tracking-[0.25em] uppercase ${theme === 'light' ? 'text-[#383735]' : 'text-[#D4AF37]'}`}>
@@ -633,7 +636,7 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }
           />
 
           {/* Top Right Cam ID + Close */}
-          <div className="absolute top-3 right-3 sm:top-5 sm:right-6 lg:top-7 lg:right-9 flex items-center gap-2.5 sm:gap-4 lg:gap-5 max-w-[70vw]">
+          <div className="absolute top-3 right-3 sm:top-5 sm:right-6 lg:top-7 lg:right-9 flex items-center gap-2.5 sm:gap-4 lg:gap-5 max-w-[calc(var(--layout-width)*0.7)]">
             <span
               className="text-[8px] sm:text-[11px] lg:text-[14px] font-black tracking-[0.2em] uppercase truncate"
               style={{ color: '#C3CC8CCC' }}
@@ -650,7 +653,7 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }
           </div>
 
           {/* Bottom Left Gate Name */}
-          <div className="absolute bottom-3 left-3 sm:bottom-6 sm:left-6 lg:bottom-9 lg:left-9 max-w-[calc(100vw-1.5rem)] sm:max-w-[60vw] bg-[#0a0d12]/80 border-l-[3px] border-[#2EAFF9] px-2.5 py-1.5 sm:px-4 sm:py-2.5 backdrop-blur-md">
+          <div className="absolute bottom-3 left-3 sm:bottom-6 sm:left-6 lg:bottom-9 lg:left-9 max-w-[calc(var(--layout-width)-1.5rem)] sm:max-w-[calc(var(--layout-width)*0.6)] bg-[#0a0d12]/80 border-l-[3px] border-[#2EAFF9] px-2.5 py-1.5 sm:px-4 sm:py-2.5 backdrop-blur-md">
             <span className={`block truncate text-[11px] sm:text-[16px] lg:text-[22px] xl:text-[26px] font-bold tracking-wider ${theme === 'light' ? 'text-[#E2E2E5]' : 'text-slate-200'}`}>
               {expandedCam.name}
             </span>

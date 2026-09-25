@@ -364,7 +364,7 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
 
         {/* Table & Pagination Container */}
         <div className={`border flex flex-col min-h-0 overflow-hidden flex-1 ${theme === 'light' ? 'bg-white border-[#D8D8D8]' : 'bg-[#1C2026] border-[#444841]'}`}>
-          <div className="flex-1 min-h-0 overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-auto">
             <table className="w-full h-full text-left table-auto">
               <thead className={`z-10 sticky top-0 ${theme === 'light' ? 'bg-[#F3F4F6]' : 'bg-[#262A31]'}`}>
 

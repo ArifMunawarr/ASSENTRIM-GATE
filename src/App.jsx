@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import ActivityLogs from './pages/ActivityLogs'
@@ -20,6 +20,44 @@ function App() {
     document.documentElement.classList.toggle('dark', theme === 'dark')
     localStorage.setItem('theme', theme)
   }, [theme])
+
+  // Keep the approved Full HD composition at scale 1. Larger displays use
+  // the tighter axis so a 4K 16:9 viewport is an exact 2x layout scale.
+  useLayoutEffect(() => {
+    const root = document.documentElement
+    const updateZoom = () => {
+      const requestedZoom = CSS.supports('zoom', '1')
+        ? Math.max(1, Math.min(window.innerWidth / 1920, window.innerHeight / 1080))
+        : 1
+      // Zoom the root so rem sizes scale with pixel sizes in older WebKit too.
+      root.style.zoom = requestedZoom > 1 ? String(requestedZoom) : ''
+      const z = parseFloat(getComputedStyle(root).zoom) || 1
+      root.style.setProperty('--z', String(z))
+      root.classList.toggle('zoomed', z > 1)
+      // Explicit pixels avoid engines applying zoom to vh/vw differently.
+      root.style.setProperty('--layout-width', `${window.innerWidth / z}px`)
+      root.style.setProperty('--layout-height', `${window.innerHeight / z}px`)
+
+      // Legacy WebKit omits CSS zoom from client rectangles, while pointer
+      // events still use visual pixels. Measure that behavior without UA checks.
+      const probe = document.createElement('div')
+      probe.style.cssText = 'position:fixed;width:100px;height:0;top:0;left:0;visibility:hidden;pointer-events:none'
+      document.body.appendChild(probe)
+      const rectangleScale = probe.getBoundingClientRect().width / 100 || 1
+      root.style.setProperty('--client-rect-factor', String(z / rectangleScale))
+      probe.remove()
+    }
+    updateZoom()
+    window.addEventListener('resize', updateZoom)
+    return () => {
+      window.removeEventListener('resize', updateZoom)
+      for (const property of ['--z', '--layout-width', '--layout-height', '--client-rect-factor']) {
+        root.style.removeProperty(property)
+      }
+      root.classList.remove('zoomed')
+      root.style.zoom = ''
+    }
+  }, [])
 
   const toggleTheme = () => setTheme((currentTheme) => currentTheme === 'dark' ? 'light' : 'dark')
 
@@ -93,5 +131,3 @@ function App() {
 }
 
 export default App
-
-

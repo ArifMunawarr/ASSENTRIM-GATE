@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
+import AnchoredPopover from './AnchoredPopover'
 
 const MONTHS = [
   'JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE',
@@ -56,17 +57,6 @@ export default function DateRangePicker({ value, onChange, widthClass = "w-48", 
       onChange({ startDate: newStart, endDate: newEnd })
     }
   }
-
-
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (popupRef.current && !popupRef.current.contains(event.target)) {
-        setIsOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
 
   const daysInMonth = getDaysInMonth(currentYear, currentMonth)
   const firstDay = getFirstDayOfMonth(currentYear, currentMonth)
@@ -151,7 +141,7 @@ export default function DateRangePicker({ value, onChange, widthClass = "w-48", 
       </div>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 bg-[#1C2026] border border-[#444841] rounded shadow-2xl z-50 w-[220px] overflow-hidden">
+        <AnchoredPopover anchorRef={popupRef} onClose={() => setIsOpen(false)} gap={8} className="bg-[#1C2026] border border-[#444841] rounded shadow-2xl z-50 w-[220px] overflow-hidden">
           {/* Header */}
           <div className={`flex items-center justify-between p-3 ${theme === 'light' ? 'bg-[#0C5F9A]' : 'bg-[#1C2026]'}`}>
             <div
@@ -258,9 +248,8 @@ export default function DateRangePicker({ value, onChange, widthClass = "w-48", 
               </div>
             )}
           </div>
-        </div>
+        </AnchoredPopover>
       )}
     </div>
   )
 }
-

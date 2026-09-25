@@ -49,14 +49,14 @@ export default function ViolationPopup() {
   };
 
   return (
-    <div className="fixed top-[90px] left-4 sm:top-[110px] sm:left-6 lg:top-[120px] lg:left-8 z-[9999] shadow-2xl animate-in fade-in slide-in-from-top-4">
+    <div className="fixed top-[90px] left-4 sm:top-[110px] sm:left-6 lg:top-[120px] lg:left-8 max-w-[calc(var(--layout-width)-4rem)] z-[9999] shadow-2xl animate-in fade-in slide-in-from-top-4">
       <div 
-        className="flex items-center justify-between overflow-hidden border-l-[8px] border-[#FFB4AB]"
+        className="flex max-sm:flex-col max-sm:items-stretch items-center justify-between overflow-hidden border-l-[8px] border-[#FFB4AB]"
         style={{ 
           background: '#93000A',
           width: '100%',
           maxWidth: '920px',
-          minWidth: '740px'
+          minWidth: 'min(740px, calc(var(--layout-width) - 4rem))'
         }}
       >
         <div className="flex items-center px-5 py-4 2xl:px-7 2xl:py-5 gap-5 2xl:gap-7 flex-1 min-w-0">

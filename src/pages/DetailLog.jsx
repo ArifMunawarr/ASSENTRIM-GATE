@@ -42,13 +42,21 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
     <div className={`detail-root min-h-screen flex flex-col font-display ${isLight ? 'bg-[#FAFAFA] text-[#1F2937]' : 'bg-[#0B1326] text-white'}`}>
       <style>{`
         /*
-         * The Mac reference is a 1439 x 813 CSS-pixel viewport (the uploaded Retina
-         * capture is 2878 x 1626). Scale the complete desktop composition from that
-         * reference, using the tighter viewport axis so the page keeps its proportions.
-         * The small lower bound keeps controls legible after the layout stacks.
+         * Keep the approved Full HD sizes (including the original calibration).
+         * Desktop/laptop screens scale the same composition proportionally.
+         * Global large-display zoom uses this same Full HD unit in index.css.
          */
         .detail-root {
-          --u: max(0.7px, min(calc(100vw / 1827.3), calc(100vh / 1032.38)));
+          --detail-baseline-unit: min(calc(1920px / 1827.3), calc(1080px / 1032.38));
+          --u: clamp(0.7px, min(calc(100vw / 1827.3), calc(100vh / 1032.38)), var(--detail-baseline-unit));
+        }
+
+        /*
+         * Only narrow windows stack. Laptop viewports keep both vehicle photos
+         * and the driver card on one row, as in the Full HD design.
+         */
+        @media (max-width: 1099px) {
+          .detail-root { --u: 1px; }
         }
 
         /* ===== Page shell / title ===== */
@@ -123,7 +131,7 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
         </div>
 
         {/* Top Section - 3 Photo Cards */}
-        <div className="dl-top-grid grid grid-cols-1 lg:grid-cols-[1fr_1fr_22.5%] shrink-0">
+        <div className="dl-top-grid grid grid-cols-1 min-[1100px]:grid-cols-[1fr_1fr_22.5%] shrink-0">
 
 
           
@@ -190,7 +198,7 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
         </div>
 
         {/* Bottom Section - 2 Columns Layout */}
-        <div className="dl-bottom-grid grid grid-cols-1 lg:grid-cols-2">
+        <div className="dl-bottom-grid grid grid-cols-1 min-[1100px]:grid-cols-2">
           
           {/* Left Column: Data Kendaraan & Catatan Operator */}
           <div className="dl-col flex flex-col">

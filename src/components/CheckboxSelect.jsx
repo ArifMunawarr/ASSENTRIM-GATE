@@ -1,19 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef } from 'react'
 import { ChevronDown, Check } from 'lucide-react'
+import AnchoredPopover from './AnchoredPopover'
 
 export default function CheckboxSelect({ options, selectedValues, onChange, placeholder, widthClass = "w-48", theme = 'dark' }) {
   const [isOpen, setIsOpen] = useState(false)
   const popupRef = useRef(null)
-
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (popupRef.current && !popupRef.current.contains(event.target)) {
-        setIsOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
 
   const toggleOption = (value) => {
     if (selectedValues.includes(value)) {
@@ -42,7 +33,7 @@ export default function CheckboxSelect({ options, selectedValues, onChange, plac
       </div>
 
       {isOpen && (
-        <div className={`absolute top-full left-0 mt-1 border shadow-2xl z-50 w-full py-2 ${theme === 'light' ? 'bg-[#FAFAFA] border-[#D8D8D8]' : 'bg-[#181C22] border-[#444841]'}`}>
+        <AnchoredPopover anchorRef={popupRef} onClose={() => setIsOpen(false)} matchAnchorWidth className={`border shadow-2xl z-50 py-2 ${theme === 'light' ? 'bg-[#FAFAFA] border-[#D8D8D8]' : 'bg-[#181C22] border-[#444841]'}`}>
           {options.map((option, idx) => {
             const isSelected = selectedValues.includes(option.value)
             return (
@@ -62,7 +53,7 @@ export default function CheckboxSelect({ options, selectedValues, onChange, plac
               </div>
             )
           })}
-        </div>
+        </AnchoredPopover>
       )}
     </div>
   )

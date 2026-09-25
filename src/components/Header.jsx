@@ -68,8 +68,8 @@ export default function Header({ activePage, onNavigate, theme = 'dark', onToggl
         </button>
       </nav>
 
-      <div className="hidden xl:flex items-center gap-6 justify-end shrink-0 w-[24rem]">
-        <div className="flex flex-col items-end">
+      <div className="flex items-center gap-3 sm:gap-6 justify-end shrink-0 xl:w-[24rem]">
+        <div className="hidden xl:flex flex-col items-end">
           <div className="text-[9px] font-black tracking-[0.2em] text-slate-400 uppercase">
             SYSTEM TIME : 06:54:21:537
           </div>
