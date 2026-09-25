@@ -7,10 +7,32 @@ import OperatorHelpDesk from './pages/OperatorHelpDesk'
 import Profile from './pages/Profile'
 import ViolationPopup from './components/ViolationPopup'
 
+const PAGE_PATHS = {
+  login: '/login',
+  dashboard: '/dashboard',
+  activitylogs: '/activity-logs',
+  detaillog: '/activity-logs/detail',
+  helpdesk: '/operator-help-desk',
+  profile: '/profile',
+}
+
+const getPageFromPath = (pathname) => {
+  const normalizedPath = pathname.replace(/\/+$/, '') || '/'
+  return Object.keys(PAGE_PATHS).find((page) => PAGE_PATHS[page] === normalizedPath) || null
+}
+
+const getStoredUser = () => {
+  try {
+    return JSON.parse(sessionStorage.getItem('asentrim-user'))
+  } catch {
+    return null
+  }
+}
+
 function App() {
-  const [user, setUser] = useState(null)
-  const [currentPage, setCurrentPage] = useState('dashboard')
-  const [selectedLog, setSelectedLog] = useState(null)
+  const [user, setUser] = useState(getStoredUser)
+  const [currentPage, setCurrentPage] = useState(() => getPageFromPath(window.location.pathname) || 'dashboard')
+  const [selectedLog, setSelectedLog] = useState(() => window.history.state?.logData || null)
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark')
 
   const isLoggedIn = !!user
@@ -20,6 +42,33 @@ function App() {
     document.documentElement.classList.toggle('dark', theme === 'dark')
     localStorage.setItem('theme', theme)
   }, [theme])
+
+  useEffect(() => {
+    const syncPageFromUrl = () => {
+      const pageFromUrl = getPageFromPath(window.location.pathname)
+
+      if (!isLoggedIn) {
+        if (pageFromUrl !== 'login') {
+          window.history.replaceState({}, '', PAGE_PATHS.login)
+        }
+        return
+      }
+
+      if (!pageFromUrl || pageFromUrl === 'login') {
+        window.history.replaceState({}, '', PAGE_PATHS.dashboard)
+        setCurrentPage('dashboard')
+        setSelectedLog(null)
+        return
+      }
+
+      setCurrentPage(pageFromUrl)
+      setSelectedLog(window.history.state?.logData || null)
+    }
+
+    syncPageFromUrl()
+    window.addEventListener('popstate', syncPageFromUrl)
+    return () => window.removeEventListener('popstate', syncPageFromUrl)
+  }, [isLoggedIn])
 
   // Keep the approved Full HD composition at scale 1. Larger displays use
   // the tighter axis so a 4K 16:9 viewport is an exact 2x layout scale.
@@ -61,18 +110,28 @@ function App() {
 
   const toggleTheme = () => setTheme((currentTheme) => currentTheme === 'dark' ? 'light' : 'dark')
 
-  const handleLoginSuccess = (userData) => setUser(userData)
+  const updateRoute = (page, { replace = false, logData = null } = {}) => {
+    const nextPage = PAGE_PATHS[page] ? page : 'dashboard'
+    const historyMethod = replace ? 'replaceState' : 'pushState'
+    window.history[historyMethod](logData ? { logData } : {}, '', PAGE_PATHS[nextPage])
+    setCurrentPage(nextPage)
+    setSelectedLog(logData)
+  }
+
+  const handleLoginSuccess = (userData) => {
+    sessionStorage.setItem('asentrim-user', JSON.stringify(userData))
+    setUser(userData)
+    updateRoute('dashboard', { replace: true })
+  }
 
   const handleLogout = () => {
+    sessionStorage.removeItem('asentrim-user')
     setUser(null)
-    setCurrentPage('dashboard')
+    updateRoute('login', { replace: true })
   }
 
   const handleNavigate = (page, logData) => {
-    if (logData) {
-      setSelectedLog(logData)
-    }
-    setCurrentPage(page)
+    updateRoute(page, { logData })
   }
 
   const pageProps = { user, onNavigate: handleNavigate, theme, onToggleTheme: toggleTheme, onLogout: handleLogout }
