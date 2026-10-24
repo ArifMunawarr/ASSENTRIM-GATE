@@ -1,14 +1,23 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { LayoutDashboard, History, HeadphonesIcon, Settings, Moon, Sun } from 'lucide-react'
+import { LayoutDashboard, History, HeadphonesIcon, Settings, Moon } from 'lucide-react'
 import logoImageDark from '../assets/logologindark.svg'
 import logoImageLight from '../assets/logologinlight.svg'
 import userIcon from '../assets/usericon.svg'
 import logOutIcon from '../assets/logoticon.svg'
 
+const navigationItems = [
+  { page: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { page: 'activitylogs', label: 'Activity Logs', icon: History },
+  { page: 'helpdesk', label: 'Operator Help Desk', icon: HeadphonesIcon },
+]
+
 export default function Header({ activePage, onNavigate, theme = 'dark', onToggleTheme, onLogout }) {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const popupRef = useRef(null)
   const isDarkMode = theme === 'dark'
+  const systemDate = new Intl.DateTimeFormat('en-GB', {
+    day: '2-digit', month: 'long', year: 'numeric',
+  }).format(new Date()).toUpperCase()
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -21,69 +30,54 @@ export default function Header({ activePage, onNavigate, theme = 'dark', onToggl
   }, [])
 
   return (
-    <header className="h-16 sm:h-[4.5rem] flex items-center justify-between px-4 sm:px-6 bg-[#121416] shrink-0 z-50 relative" style={{ borderBottom: `1px solid ${isDarkMode ? '#47483C' : '#D8D8D8'}` }}>
-      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        <img src={isDarkMode ? logoImageDark : logoImageLight} alt="Logo" className="w-6 h-6 sm:w-8 sm:h-8" />
-        <h1 className="hidden md:block text-lg sm:text-xl font-black text-[#2EAFF9] tracking-wide uppercase mt-0.5">
-          ASENTRIM
-        </h1>
-        <h1 className="hidden lg:block text-lg sm:text-xl font-black text-[#2EAFF9] tracking-wide uppercase mt-0.5">
-          GATE COMMAND
-        </h1>
+    <header className={`
+      relative z-50 flex flex-none items-center justify-between border-b !shadow-none
+      h-[calc(51*var(--header-unit))] px-[calc(19*var(--header-unit))]
+      [--header-unit:calc(var(--layout-width,100vw)/1024)]
+      [font-family:'Courier_New',monospace] text-[color:var(--header-text)]
+      max-md:sticky max-md:top-0 max-md:h-[92px] max-md:px-4 max-md:pb-9 max-md:[--header-unit:1px]
+      ${isDarkMode
+        ? '[--header-accent:#2eaff9] [--header-text:#c5c8be] [--header-active-bg:#27313a] border-[#2d2f2a] bg-[#121416]'
+        : '[--header-accent:#0c5f9a] [--header-text:#475569] [--header-active-bg:#e4f0f8] border-[#cbd5e1] bg-white'}
+    `}>
+      <div className="flex shrink-0 items-center gap-[calc(7*var(--header-unit))]">
+        <img src={isDarkMode ? logoImageDark : logoImageLight} alt="" className="h-[calc(22*var(--header-unit))] w-[calc(22*var(--header-unit))]" />
+        <h1 className="m-0 whitespace-nowrap [font-family:Arial,sans-serif] text-[length:calc(18*var(--header-unit))] font-bold leading-none tracking-[calc(-0.7*var(--header-unit))] text-[color:var(--header-accent)]">ASENTRIM GATE</h1>
       </div>
 
-      <nav className="flex items-center h-full overflow-x-auto no-scrollbar ml-4 sm:ml-0 flex-1 lg:flex-none justify-start lg:justify-center">
-        <button 
-          onClick={() => onNavigate && onNavigate('dashboard')} 
-          className={`h-full px-4 sm:px-6 flex items-center justify-center gap-2 border-b-2 font-bold text-[10px] sm:text-xs tracking-wider whitespace-nowrap transition-colors ${
-            activePage === 'dashboard' 
-              ? 'border-[#2EAFF9] bg-[#1a2235]/40 text-[#2EAFF9]' 
-              : 'border-transparent text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <LayoutDashboard size={14} strokeWidth={2.5} />
-          Dashboard
-        </button>
-        <button 
-          onClick={() => onNavigate && onNavigate('activitylogs')} 
-          className={`h-full px-4 sm:px-6 flex items-center justify-center gap-2 border-b-2 font-bold text-[10px] sm:text-xs tracking-wider whitespace-nowrap transition-colors ${
-            activePage === 'activitylogs' 
-              ? 'border-[#2EAFF9] bg-[#1a2235]/40 text-[#2EAFF9]' 
-              : 'border-transparent text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <History size={14} strokeWidth={2.5} />
-          Activity Logs
-        </button>
-        <button 
-          onClick={() => onNavigate && onNavigate('helpdesk')} 
-          className={`h-full px-4 sm:px-6 flex items-center justify-center gap-2 border-b-2 font-bold text-[10px] sm:text-xs tracking-wider whitespace-nowrap transition-colors ${
-            activePage === 'helpdesk' 
-              ? 'border-[#2EAFF9] bg-[#1a2235]/40 text-[#2EAFF9]' 
-              : 'border-transparent text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <HeadphonesIcon size={14} strokeWidth={2.5} />
-          Operator Help Desk
-        </button>
+      <nav
+        aria-label="Main navigation"
+        className="absolute left-[calc(416*var(--header-unit))] grid h-full grid-cols-[repeat(3,calc(96*var(--header-unit)))] items-center gap-[calc(8.5*var(--header-unit))] max-md:bottom-0 max-md:left-3 max-md:right-3 max-md:h-9 max-md:grid-cols-3 max-md:gap-1"
+      >
+        {navigationItems.map(({ page, label, icon: Icon }) => (
+          <button
+            key={page}
+            type="button"
+            onClick={() => onNavigate?.(page)}
+            aria-current={activePage === page ? 'page' : undefined}
+            className="flex h-[calc(28*var(--header-unit))] items-center justify-center gap-[calc(6*var(--header-unit))] whitespace-nowrap border-b-[length:calc(2*var(--header-unit))] border-transparent bg-transparent p-0 [font-family:inherit] text-[length:calc(7.5*var(--header-unit))] font-bold leading-none tracking-[calc(0.2*var(--header-unit))] text-[color:var(--header-text)] transition-[background-color,border-color] duration-150 ease-[ease] hover:bg-[var(--header-active-bg)] aria-[current=page]:border-b-[color:var(--header-accent)] aria-[current=page]:bg-[var(--header-active-bg)] focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-[var(--header-accent)] motion-reduce:transition-none max-md:h-8 max-md:gap-[5px] max-md:text-[9px] max-md:tracking-normal"
+          >
+            <Icon aria-hidden="true" strokeWidth={2} className="h-[calc(10*var(--header-unit))] w-[calc(10*var(--header-unit))] shrink-0 max-md:h-3 max-md:w-3" />
+            <span>{label}</span>
+          </button>
+        ))}
       </nav>
 
-      <div className="flex items-center gap-3 sm:gap-6 justify-end shrink-0 xl:w-[24rem]">
-        <div className="hidden xl:flex flex-col items-end">
-          <div className="text-[9px] font-black tracking-[0.2em] text-slate-400 uppercase">
-            SYSTEM TIME : 06:54:21:537
-          </div>
-          <div className="text-[9px] font-black tracking-[0.2em] text-[#2EAFF9] mt-1 uppercase">
-            SYNC STATUS: STABLE
-          </div>
+      <div className="flex shrink-0 items-center gap-[calc(9*var(--header-unit))]">
+        <div className="flex flex-col items-end whitespace-nowrap text-[length:calc(8*var(--header-unit))] font-bold leading-[calc(10*var(--header-unit))] tracking-[calc(1.1*var(--header-unit))] max-md:hidden">
+          <div>SYSTEM DATE: {systemDate}</div>
+          <div className="text-[length:calc(7*var(--header-unit))] leading-[calc(9*var(--header-unit))] tracking-[calc(1.3*var(--header-unit))] text-[color:var(--header-accent)]">SYNC STATUS: STABLE</div>
         </div>
         
         <div className="relative" ref={popupRef}>
           <button 
-            className={`text-slate-400 hover:text-white transition-colors ${isSettingsOpen ? 'text-white' : ''}`}
+            type="button"
+            aria-label="Settings"
+            aria-expanded={isSettingsOpen}
+            className="flex items-center justify-center p-0 text-[color:var(--header-text)] focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-[var(--header-accent)]"
             onClick={() => setIsSettingsOpen(!isSettingsOpen)}
           >
-            <Settings size={20} />
+            <Settings aria-hidden="true" className="h-[calc(16*var(--header-unit))] w-[calc(16*var(--header-unit))] stroke-1 max-md:h-[18px] max-md:w-[18px]" />
           </button>
 
           {isSettingsOpen && (

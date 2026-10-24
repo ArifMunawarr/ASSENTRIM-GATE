@@ -19,14 +19,14 @@ function Login({ onLogin, theme = 'dark' }) {
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!username.trim() || !password) {
-      setError('Mohon masukkan Username / Service ID dan Password.')
+      setError('Please enter your Username / Service ID and Password.')
       return
     }
 
     setError(null)
     setIsLoading(true)
 
-    // Dummy auth - menerima kredensial apa pun
+    // Dummy auth - accepts any credentials
     setTimeout(() => {
       setIsLoading(false)
       if (onLogin) {

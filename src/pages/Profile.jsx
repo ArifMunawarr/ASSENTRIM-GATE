@@ -25,15 +25,15 @@ export default function Profile({ user, onNavigate, theme, onToggleTheme, onLogo
     setMessage(null)
 
     if (newPassword && newPassword !== confirmPassword) {
-      setMessage({ type: 'error', text: 'Konfirmasi password baru tidak cocok.' })
+      setMessage({ type: 'error', text: 'New password confirmation does not match.' })
       return
     }
 
-    // Dummy save - tidak ada backend
+    // Dummy save - no backend
     setSaving(true)
     setTimeout(() => {
       setProfile((prev) => ({ ...prev, nama: fullName, username: usernameInput }))
-      setMessage({ type: 'success', text: 'Profil berhasil diperbarui!' })
+      setMessage({ type: 'success', text: 'Profile updated successfully!' })
       setNewPassword('')
       setConfirmPassword('')
       setSaving(false)

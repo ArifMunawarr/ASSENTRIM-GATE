@@ -4,7 +4,7 @@ ASENTRIM Gate Command is a responsive React frontend for gate monitoring workflo
 
 ## 🚀 Features
 
-- **Real-Time Dashboard Monitoring**: View live statuses of multiple gates, complete with mock video feeds, geographic coordinates, and active gate analytics.
+- **Real-Time Dashboard Monitoring**: Monitor five gates with one camera per gate in a two-column, three-row layout, with the lower-right position intentionally empty and an activity report alongside the feeds.
 - **Activity Logs Tracking**: Detailed, paginated tables to view past access records (Allowed / Denied), including vehicle types, driver info, and time logs.
 - **Operator Help Desk**: An interface designed for operators to manage access requests, view live vehicle information (license plate, driver photo), and process authorizations.
 - **Manual Gate Control Modal**: A multi-step simulation of manual gate opening and reason entry.
@@ -98,7 +98,7 @@ Konfigurasi [deploy/nginx.conf](deploy/nginx.conf) menyajikan hasil build statis
 
 ### Konfigurasi kamera dan status integrasi
 
-Variabel `VITE_CAM1_WEBRTC_URL` sampai `VITE_CAM12_WEBRTC_URL` adalah konfigurasi saat **build**, bukan saat Nginx mulai berjalan. Nilai pada [.env.example](.env.example) saat ini kosong sehingga frontend memakai gambar contoh atau status offline. Untuk mengatur endpoint WHEP/WebRTC, buat `.env.local` dari contoh, isi URL yang sesuai, lalu build ulang:
+Variabel `VITE_CAM1_WEBRTC_URL` sampai `VITE_CAM5_WEBRTC_URL` adalah konfigurasi saat **build**, bukan saat Nginx mulai berjalan, dengan satu kamera untuk setiap gate. CAM-01 pada Gate 01 menggunakan `http://10.70.10.10:8889/gate-cam/whep` secara default; kamera lain memakai gambar contoh atau status offline selama URL-nya kosong. URL WHEP berbeda dari halaman pemutar `/gate-cam/`. Untuk mengatur endpoint WHEP/WebRTC, buat `.env.local` dari contoh, isi URL yang sesuai, lalu build ulang:
 
 ```bash
 cp .env.example .env.local
@@ -138,3 +138,7 @@ In the project directory, you can run:
 ## 🎨 Theming
 
 The application fully supports dynamic switching between **Dark Mode** and **Light Mode**. Assets, border colors, and backdrop blurs seamlessly transition to provide the best contrast depending on the environment. The toggle switch can be found in the header settings dropdown.
+
+## Dashboard Cameras
+
+The dashboard uses `VITE_CAM1_WEBRTC_URL` through `VITE_CAM5_WEBRTC_URL`, mapped directly to gates 01 through 05. Each gate has a single camera; camera endpoints 6-12 are no longer used by this dashboard. Gate 04 shows the offline placeholder until its endpoint is configured. The other gates include the reference camera images as visual fallbacks; configured WebRTC streams retain their connection-status indicators and fullscreen controls.

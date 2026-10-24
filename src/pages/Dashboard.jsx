@@ -1,93 +1,78 @@
 import React, { useState, useRef, useEffect } from 'react'
 import Header from '../components/Header'
 import { getVisualRect } from '../utils/viewport'
-import { LayoutDashboard, History, HeadphonesIcon, Settings, ClipboardList, AlertCircle, ChevronDown, ChevronRight, ChevronsRight, ChevronLeft, X } from 'lucide-react'
-import logoImage from '../assets/logologindark.svg'
+import { AlertTriangle, ChevronDown, ChevronRight, ChevronsRight, ChevronLeft, X } from 'lucide-react'
 import lconLive from '../assets/lconlive.svg'
 import historymangate from '../assets/historymangate.svg'
 import historymangateLight from '../assets/historymangate(1).svg'
 import progressVisuals from '../assets/Progress_Visuals.svg'
-import noteIcon from '../assets/note.svg'
 import opnreason from '../assets/opnreason.svg'
 import opnreasonLight from '../assets/opnreason(1).svg'
 import activitiIcon from '../assets/activitiIcon.svg'
 import activitiIconLight from '../assets/activitiIcon(1).svg'
-import cam01 from '../assets/cameras/cam-01.webp'
-import cam02 from '../assets/cameras/cam-02.webp'
-import cam03 from '../assets/cameras/cam-03.webp'
-import cam04 from '../assets/cameras/cam-04.webp'
-import cam05 from '../assets/cameras/cam-05.webp'
-import cam06 from '../assets/cameras/cam-06.webp'
-import cam07 from '../assets/cameras/cam-07.webp'
-import cam09 from '../assets/cameras/cam-09.webp'
-import cam10 from '../assets/cameras/cam-10.webp'
-import cam11 from '../assets/cameras/cam-11.webp'
-import cam12 from '../assets/cameras/cam-12.webp'
-
+import mainGateImage from '../assets/das1.png'
+import vehicleExitImage from '../assets/das2.png'
+import westGateImage from '../assets/das3.png'
+import fifthGateImage from '../assets/das5.png'
 import WebRtcPlayer from '../components/WebRtcPlayer'
 
 const gates = [
   {
     id: 1,
     name: 'GATE 01 - MAIN GATE',
-    cameras: [
-      { id: 1, img: cam01, streamUrl: import.meta.env.VITE_CAM1_WEBRTC_URL || null, camId: 'CAM-01', coords: '44.02°N 12.33°E' },
-      { id: 2, img: cam02, streamUrl: import.meta.env.VITE_CAM2_WEBRTC_URL || null, camId: 'CAM-02', coords: '44.02°N 12.34°E' },
-    ],
+    camera: { id: 1, img: mainGateImage, streamUrl: import.meta.env.VITE_CAM1_WEBRTC_URL || 'http://10.70.10.10:8889/gate-cam/whep', camId: 'CAM-01', location: 'MN-72', coords: '44.02°N 12.33°E' },
   },
   {
     id: 2,
     name: 'GATE 02 - VEHICLE EXIT',
-    cameras: [
-      { id: 3, img: cam03, streamUrl: import.meta.env.VITE_CAM3_WEBRTC_URL || null, camId: 'CAM-03', coords: '44.03°N 12.31°E' },
-      { id: 4, img: cam04, streamUrl: import.meta.env.VITE_CAM4_WEBRTC_URL || null, camId: 'CAM-04', coords: '44.03°N 12.32°E' },
-    ],
+    camera: { id: 2, img: vehicleExitImage, streamUrl: import.meta.env.VITE_CAM2_WEBRTC_URL || null, camId: 'CAM-02', location: 'SE-41', coords: 'HD-RECON-7' },
   },
   {
     id: 3,
     name: 'GATE 03 - GATE WEST',
-    cameras: [
-      { id: 5, img: cam05, streamUrl: import.meta.env.VITE_CAM5_WEBRTC_URL || null, camId: 'CAM-05', coords: '44.01°N 12.28°E' },
-      { id: 6, img: cam06, streamUrl: import.meta.env.VITE_CAM6_WEBRTC_URL || null, camId: 'CAM-06', coords: '44.01°N 12.29°E' },
-    ],
+    camera: { id: 3, img: westGateImage, streamUrl: import.meta.env.VITE_CAM3_WEBRTC_URL || null, camId: 'CAM-03', location: 'W-09', coords: 'THERMAL-LINK' },
   },
   {
     id: 4,
     name: 'GATE 04 - GATE EAST',
-    cameras: [
-      { id: 7, img: cam07, streamUrl: import.meta.env.VITE_CAM7_WEBRTC_URL || null, camId: 'CAM-07', coords: '44.04°N 12.45°E' },
-      { id: 8, img: null, streamUrl: import.meta.env.VITE_CAM8_WEBRTC_URL || null, camId: 'CAM-08', coords: '44.04°N 12.46°E', offline: true },
-    ],
+    camera: { id: 4, streamUrl: import.meta.env.VITE_CAM4_WEBRTC_URL || null, camId: 'CAM-04', location: 'W-09', coords: 'THERMAL-LINK' },
   },
   {
     id: 5,
-    name: 'GATE 05 - GATE WEST',
-    cameras: [
-      { id: 9, img: cam09, streamUrl: import.meta.env.VITE_CAM9_WEBRTC_URL || null, camId: 'CAM-09', coords: '44.01°N 12.28°E' },
-      { id: 10, img: cam10, streamUrl: import.meta.env.VITE_CAM10_WEBRTC_URL || null, camId: 'CAM-10', coords: '44.01°N 12.29°E' },
-    ],
-  },
-  {
-    id: 6,
-    name: 'GATE 06 - GATE EAST',
-    cameras: [
-      { id: 11, img: cam11, streamUrl: import.meta.env.VITE_CAM11_WEBRTC_URL || null, camId: 'CAM-11', coords: '44.04°N 12.45°E' },
-      { id: 12, img: cam12, streamUrl: import.meta.env.VITE_CAM12_WEBRTC_URL || null, camId: 'CAM-12', coords: '44.04°N 12.46°E' },
-    ],
+    name: 'GATE 05 - MAIN GATE',
+    camera: { id: 5, img: fifthGateImage, streamUrl: import.meta.env.VITE_CAM5_WEBRTC_URL || null, camId: 'CAM-05', location: 'INT-01', coords: '44.02°N 12.33°E' },
   },
 ]
 
-function CameraFeed({ camera, gateName, theme, onExpand }) {
+function CameraStatus({ status, className = '', compact = false }) {
+  if (status === 'live') {
+    return <img src={lconLive} alt="LIVE" className={`${compact ? 'block h-[calc(15*var(--dashboard-unit))] w-[calc(40*var(--dashboard-unit))]' : ''} ${className}`} />
+  }
+
+  return (
+    <span className={`inline-flex items-center border border-[#C3CC8C]/40 bg-black/80 font-mono font-bold tracking-[0.12em] ${compact ? 'gap-[calc(4*var(--dashboard-unit))] px-[calc(4*var(--dashboard-unit))] py-[calc(2*var(--dashboard-unit))] text-[length:calc(6*var(--dashboard-unit))] leading-[calc(10*var(--dashboard-unit))]' : 'gap-1.5 px-2 py-1 text-[9px] sm:text-[10px]'} ${status === 'offline' ? 'text-[#FF9A9A]' : 'text-[#C3CC8C]'} ${className}`}>
+      <span className={`rounded-full ${compact ? 'h-[calc(4*var(--dashboard-unit))] w-[calc(4*var(--dashboard-unit))]' : 'h-1.5 w-1.5'} ${status === 'offline' ? 'bg-[#FF9A9A]' : 'bg-[#C3CC8C]'}`} />
+      {status === 'offline' ? 'OFFLINE' : 'CONNECTING'}
+    </span>
+  )
+}
+
+function CameraFeed({ camera, gateName, theme, onExpand, onStream, onStatusChange, status }) {
   const isOffline = camera.offline || (!camera.streamUrl && !camera.img)
   const expandedCamera = { ...camera, name: gateName }
+  const liveStreamRef = useRef(null)
+
+  const handleStream = (stream) => {
+    liveStreamRef.current = stream
+    onStream(camera.id, stream)
+  }
 
   return (
     <button
       type="button"
-      onClick={() => onExpand(expandedCamera)}
-      aria-label={`Buka ${camera.camId} - ${gateName}`}
-      className="group relative block min-h-[170px] w-full overflow-hidden bg-black text-left aspect-[7/6] lg:aspect-auto lg:min-h-0 focus:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[#2EAFF9]"
-      style={{ border: `1px solid ${theme === 'light' ? '#D8D8D8' : '#47483C'}` }}
+      onClick={() => onExpand({ ...expandedCamera, mediaStream: status === 'live' ? liveStreamRef.current : null })}
+      aria-label={`Open ${camera.camId} - ${gateName}`}
+      className="group relative block min-h-0 min-w-0 overflow-hidden border border-[color:var(--dashboard-border)] bg-black text-left focus:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[#2EAFF9] [&_video]:object-cover max-[541px]:aspect-[2.2]"
     >
       {!isOffline && (
         <WebRtcPlayer
@@ -95,45 +80,47 @@ function CameraFeed({ camera, gateName, theme, onExpand }) {
           fallbackImg={camera.img}
           alt={`${gateName} ${camera.camId}`}
           theme={theme}
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.01]"
+          onStream={handleStream}
+          onStatusChange={(nextStatus) => onStatusChange(camera.id, nextStatus)}
+          className="absolute inset-0 h-full w-full object-fill"
         />
       )}
 
-      {isOffline && (
-        <div className="absolute inset-0 flex items-center justify-center px-4 text-center font-mono text-[13px] font-bold tracking-[0.2em] text-[#FF9A9A] sm:text-[15px] xl:text-[17px]">
+      {(isOffline || (status === 'offline' && !camera.img)) && (
+        <div className="absolute inset-0 z-[1] flex items-center justify-center text-[length:calc(16*var(--dashboard-unit))] font-bold tracking-[calc(1.5*var(--dashboard-unit))] text-[#ff9a9a]">
           OFFLINE - {camera.camId}
         </div>
       )}
 
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black via-black/5 to-black/20" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgb(0_0_0_/_35%),rgb(0_0_0_/_30%)_70%,rgb(0_0_0_/_60%))]" />
 
-      <div className="pointer-events-none absolute bottom-2 left-2 sm:bottom-2.5 sm:left-2.5">
-        <img src={lconLive} alt="" aria-hidden="true" className="h-[16px] w-auto opacity-95 sm:h-[18px]" />
-        <div className={`mt-0.5 font-mono text-[7px] font-medium tracking-[0.06em] sm:text-[8px] ${theme === 'light' ? 'text-slate-600' : 'text-[#888A86]'}`}>
-          {camera.coords}
-        </div>
+      <div className="pointer-events-none absolute left-[calc(10*var(--dashboard-unit))] top-[calc(9*var(--dashboard-unit))]">
+        <CameraStatus status={status} compact />
       </div>
 
-      <div className="pointer-events-none absolute bottom-[25px] right-2 font-mono text-[8px] font-medium tracking-[0.04em] text-[#A4A96C] sm:bottom-[28px] sm:right-2.5 sm:text-[9px]">
-        {camera.camId}
+      <div className="pointer-events-none absolute right-[calc(10*var(--dashboard-unit))] top-[calc(10*var(--dashboard-unit))] bg-black/65 px-[calc(4*var(--dashboard-unit))] py-[calc(1*var(--dashboard-unit))] text-[length:calc(6*var(--dashboard-unit))] leading-[1.2] text-[#a4a96c]">
+        {camera.camId} / {camera.location}
       </div>
+      <h2 className="pointer-events-none absolute bottom-[calc(10*var(--dashboard-unit))] left-[calc(10*var(--dashboard-unit))] max-w-[calc(100%-20*var(--dashboard-unit))] truncate border-l border-[color:var(--dashboard-accent)] bg-black/80 px-[calc(5*var(--dashboard-unit))] py-[calc(2*var(--dashboard-unit))] [font-family:Arial,sans-serif] text-[length:calc(10*var(--dashboard-unit))] font-normal leading-[1.2] text-[#e2e2e5]">{gateName}</h2>
+      {camera.coords && <div className="pointer-events-none absolute bottom-[calc(11*var(--dashboard-unit))] right-[calc(10*var(--dashboard-unit))] text-[length:calc(6*var(--dashboard-unit))] leading-[1.2] text-[color:var(--dashboard-muted)] max-md:hidden">{camera.coords}</div>}
     </button>
   )
 }
 
 const activities = [
-  { id: '229-87', gate: 'GATE 03', time: '14:45:10', rfid: '900779009', driver: 'ANTON RUMANTO', type: 'MINIBUS', status: 'AUTHORIZED' },
-  { id: '222-30', gate: 'GATE 02', time: '14:52:18', rfid: '900909009', driver: 'ANTON RUMANTO', type: 'SEDAN', status: 'DENIED' },
-  { id: '229-12', gate: 'GATE 01', time: '14:45:10', rfid: '88778799', driver: 'ANTON RUMANTO', type: 'TRUCK', status: 'AUTHORIZED' },
-  { id: '229-13', gate: 'GATE 05', time: '14:46:12', rfid: '88778799', driver: 'ANTON RUMANTO', type: 'TRUCK', status: 'AUTHORIZED' },
-  { id: '229-14', gate: 'GATE 06', time: '14:48:05', rfid: '88778799', driver: 'ANTON RUMANTO', type: 'TRUCK', status: 'AUTHORIZED' },
-  { id: '229-15', gate: 'GATE 04', time: '14:50:30', rfid: '88778799', driver: 'ANTON RUMANTO', type: 'TRUCK', status: 'AUTHORIZED' },
-  { id: '229-16', gate: 'GATE 01', time: '14:55:00', rfid: '88778799', driver: 'ANTON RUMANTO', type: 'TRUCK', status: 'AUTHORIZED' },
+  { id: '229-87', gate: 'GATE 01', time: '14:55:02', rfid: '900779009', driver: 'ANTON RUMANTO', type: 'MINIBUS', status: 'AUTHORIZED' },
+  { id: '222-30', gate: 'GATE 02', time: '14:52:18', rfid: '900909009', driver: 'MARCUS VANCE', type: 'SEDAN', status: 'DENIED' },
+  { id: '229-12', gate: 'GATE 03', time: '14:48:44', rfid: '88778799', driver: 'ANTON RUMANTO', type: 'TRUCK', status: 'AUTHORIZED' },
+  { id: '229-12', gate: 'GATE 05', time: '14:45:10', rfid: '88778799', driver: 'ANTON RUMANTO', type: 'TRUCK', status: 'AUTHORIZED' },
+  { id: '229-12', gate: 'GATE 01', time: '14:41:25', rfid: '88778799', driver: 'ANTON RUMANTO', type: 'TRUCK / FUEL', status: 'AUTHORIZED' },
+  { id: '221-08', gate: 'GATE 04', time: '14:38:19', rfid: '100998871', driver: 'STEVE HARVEY', type: 'VAN', status: 'AUTHORIZED' },
+  { id: '222-30', gate: 'GATE 02', time: '14:35:00', rfid: '900909009', driver: 'MARCUS VANCE', type: 'SEDAN', status: 'DENIED' },
 ]
 
 
 export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }) {
   const [expandedCam, setExpandedCam] = useState(null)
+  const [cameraStatuses, setCameraStatuses] = useState({})
   const [showManualGate, setShowManualGate] = useState(false)
   const [gateStep, setGateStep] = useState('slider') // 'slider' | 'loading' | 'reason' | 'done'
   const [openingReason, setOpeningReason] = useState('')
@@ -141,17 +128,32 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }
   const [isDragging, setIsDragging] = useState(false)
   const sliderTrackRef = useRef(null)
   const sliderThumbRef = useRef(null)
+  const expandedViewRef = useRef(null)
   const dragStartXRef = useRef(0)
   const dragStartPosRef = useRef(0)
 
+  const handleCameraStream = (cameraId, stream) => {
+    setExpandedCam((current) => {
+      if (!current || current.id !== cameraId || current.mediaStream === stream) return current
+      return { ...current, mediaStream: stream }
+    })
+  }
+
+  const handleCameraStatus = (cameraId, status) => {
+    setCameraStatuses((current) => current[cameraId] === status ? current : { ...current, [cameraId]: status })
+    if (status === 'offline') {
+      setExpandedCam((current) => current?.id === cameraId && current.mediaStream ? { ...current, mediaStream: null } : current)
+    }
+  }
+
   const [isGateDropdownOpen, setIsGateDropdownOpen] = useState(false)
   const [selectedGates, setSelectedGates] = useState(['Gate 02', 'Gate 04'])
-  const gatesList = ['Gate 01', 'Gate 02', 'Gate 03', 'Gate 04', 'Gate 05', 'Gate 06']
+  const gatesList = gates.map((gate) => `Gate ${String(gate.id).padStart(2, '0')}`)
   
   const historyData = [
-    { date: '2023-10-24', time: '09:12:44', reason: 'Ada Tamu dari luar kota' },
-    { date: '2023-10-24', time: '09:08:12', reason: 'Perintah atasan' },
-    { date: '2023-10-24', time: '08:55:01', reason: 'Ada Teknisi service AC' },
+    { date: '2023-10-24', time: '09:12:44', reason: 'Guest visit from out of town' },
+    { date: '2023-10-24', time: '09:08:12', reason: 'Order from superior' },
+    { date: '2023-10-24', time: '08:55:01', reason: 'AC service technician on site' },
   ]
 
   const toggleGateSelection = (gate) => {
@@ -222,120 +224,75 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }
     };
   }, [isDragging]);
 
-  // Tutup preview kamera dengan tombol Escape
+  // Close camera preview with the Escape key
   useEffect(() => {
     if (!expandedCam) return
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape') setExpandedCam(null)
+      if (e.key === 'Escape' && !document.fullscreenElement) setExpandedCam(null)
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [expandedCam])
 
   return (
-    <div className="dashboard-page min-h-screen bg-[#121416] text-white flex flex-col font-display h-screen overflow-hidden">
+    <div className={`
+      flex h-[var(--layout-height)] min-h-[var(--layout-height)] flex-col overflow-hidden
+      bg-[var(--dashboard-bg)] [font-family:'Courier_New',monospace] text-white
+      [--dashboard-unit:calc(var(--layout-width)/1024)]
+      max-md:h-auto max-md:min-h-[100dvh] max-md:overflow-visible max-md:[--dashboard-unit:1px]
+      ${theme === 'light'
+        ? '[--dashboard-bg:#f4f7fb] [--dashboard-border:#cbd5e1] [--dashboard-accent:#0c5f9a] [--dashboard-muted:#64748b] [--activity-bg:#fff] [--activity-denied-bg:#fff0ef] [--activity-text:#172033] [--activity-warning:#a3262e]'
+        : '[--dashboard-bg:#121416] [--dashboard-border:#47483c] [--dashboard-accent:#2eaff9] [--dashboard-muted:#888a86] [--activity-bg:#282a2c] [--activity-denied-bg:#391c1e] [--activity-text:#dfe2eb] [--activity-warning:#ffb4ab]'}
+    `}>
       {/* Header */}
       <Header activePage="dashboard" onNavigate={onNavigate} theme={theme} onToggleTheme={onToggleTheme} onLogout={onLogout} />
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col lg:flex-row gap-2 p-2 sm:p-3 min-h-0 max-lg:overflow-y-auto">
-
-        {/* Left: 6 gate groups / 12 camera feeds */}
-        <div className="grid min-h-0 flex-none lg:flex-1 grid-cols-1 gap-x-3 gap-y-2 no-scrollbar md:grid-cols-2 lg:grid-rows-3 lg:overflow-hidden">
+      <main className="flex min-h-0 flex-1 gap-[calc(9*var(--dashboard-unit))] py-[calc(13*var(--dashboard-unit))] pl-[calc(19*var(--dashboard-unit))] pr-[calc(11*var(--dashboard-unit))] max-md:flex-col max-md:gap-3 max-md:p-3">
+        <div className="grid min-h-0 min-w-0 flex-1 grid-cols-2 grid-rows-3 gap-[calc(5*var(--dashboard-unit))] max-md:flex-none max-md:grid-rows-[repeat(3,170px)] max-md:gap-1.5 max-[541px]:grid-cols-1 max-[541px]:grid-rows-[repeat(5,auto)]" aria-label="5 gate cameras">
           {gates.map((gate) => (
-            <section
+            <CameraFeed
               key={gate.id}
-              aria-labelledby={`gate-title-${gate.id}`}
-              className="flex min-h-0 flex-col bg-black p-2.5"
-              style={{ border: `1px solid ${theme === 'light' ? '#D8D8D8' : '#47483C'}` }}
-            >
-              <h2
-                id={`gate-title-${gate.id}`}
-                className={`shrink-0 font-mono text-[11px] font-bold leading-[1.25] tracking-[0.035em] sm:text-[12px] ${theme === 'light' ? 'text-[#383735]' : 'text-[#DFE2EB]'}`}
-              >
-                {gate.name}
-              </h2>
-
-              <div className="mt-2 grid min-h-0 flex-1 grid-cols-2 gap-2.5">
-                {gate.cameras.map((camera) => (
-                  <CameraFeed
-                    key={camera.id}
-                    camera={camera}
-                    gateName={gate.name}
-                    theme={theme}
-                    onExpand={setExpandedCam}
-                  />
-                ))}
-              </div>
-            </section>
+              camera={gate.camera}
+              gateName={gate.name}
+              theme={theme}
+              onExpand={setExpandedCam}
+              onStream={handleCameraStream}
+              onStatusChange={handleCameraStatus}
+              status={gate.camera.streamUrl ? (cameraStatuses[gate.camera.id] || 'connecting') : (gate.camera.img ? 'live' : 'offline')}
+            />
           ))}
         </div>
 
-        {/* Right: Activity Report */}
-        <div className={`w-full lg:w-[320px] xl:w-[360px] border ${theme === 'light' ? 'border-[#D8D8D8]' : 'border-[#47483C]'} bg-[#1E2022] flex flex-col shrink-0 min-h-[300px] lg:min-h-0 overflow-hidden`}>
-          {/* Header */}
-          <div className={`h-14 flex items-center justify-between px-3 xl:px-4 border-b ${theme === 'light' ? 'border-[#D8D8D8]' : 'border-[#47483C]'} shrink-0 bg-transparent`}>
-            <div className={`flex items-center gap-2 xl:gap-2.5 min-w-0 ${theme === 'light' ? 'text-[#0C5F9A]' : 'text-[#FFE2AB]'}`}>
-              {theme === 'light' ? (
-                <img src={activitiIconLight} alt="Activity" className="w-[18px] h-[18px] shrink-0" />
-              ) : (
-                <img src={activitiIcon} alt="Activity" className="w-[18px] h-[18px] shrink-0" />
-              )}
-              <h2 className="text-[12px] xl:text-[13px] font-medium tracking-[0.1em] xl:tracking-[0.15em] uppercase truncate">
-                ACTIVITY REPORT
-              </h2>
+        <aside className="flex min-h-0 w-[calc(234*var(--dashboard-unit))] shrink-0 flex-col overflow-hidden border border-[color:var(--dashboard-border)] bg-[var(--activity-bg)] max-md:max-h-[510px] max-md:w-full" aria-labelledby="activity-report-title">
+          <div className={`flex h-[calc(32*var(--dashboard-unit))] shrink-0 items-center justify-between px-[calc(8*var(--dashboard-unit))] max-md:h-11 max-md:px-3 ${theme === 'light' ? 'bg-[#edf2f7]' : 'bg-[#1e2022]'}`}>
+            <div className={`flex items-center gap-[calc(5*var(--dashboard-unit))] ${theme === 'light' ? 'text-[color:var(--dashboard-accent)]' : 'text-[#ffe2ab]'}`}>
+              <img src={theme === 'light' ? activitiIconLight : activitiIcon} alt="" className="h-[calc(10*var(--dashboard-unit))] w-[calc(8*var(--dashboard-unit))] max-md:h-3.5 max-md:w-3" />
+              <h2 id="activity-report-title" className="whitespace-nowrap text-[length:calc(9*var(--dashboard-unit))] font-bold tracking-[calc(0.7*var(--dashboard-unit))] max-md:text-[12px]">ACTIVITY REPORT</h2>
             </div>
-            <button 
-              onClick={openModal}
-              className={`bg-[#2EAFF9] hover:bg-[#1f9beb] ${theme === 'light' ? 'text-[#FAFAFA]' : 'text-[#0a0d14]'} text-[10px] font-black px-2.5 xl:px-3 py-1.5 rounded tracking-widest uppercase transition-colors shrink-0 whitespace-nowrap`}
-            >
-              MANUAL GATE
-            </button>
+            <button type="button" onClick={openModal} className={`h-[calc(16*var(--dashboard-unit))] whitespace-nowrap bg-[var(--dashboard-accent)] px-[calc(8*var(--dashboard-unit))] text-[length:calc(6*var(--dashboard-unit))] font-bold tracking-[calc(0.3*var(--dashboard-unit))] hover:brightness-[1.15] max-md:h-[26px] max-md:text-[9px] ${theme === 'light' ? 'text-[#fff]' : 'text-[#08141d]'}`}>MANUAL GATE</button>
           </div>
 
-          {/* List */}
-          <div className="flex-1 overflow-y-auto no-scrollbar">
+          <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             {activities.map((act, idx) => (
-              <div key={idx} className={`px-1.5 py-0.5 sm:px-2 sm:py-1 ${theme === 'light' ? 'bg-[#f1f1f1]' : 'bg-[#1E2022]'}`}>
-                <div className={`p-2 sm:p-2.5 border transition-colors ${act.status === 'DENIED' ? (theme === 'light' ? 'bg-[#93000A] border-[#FFB4AB]' : 'bg-[#93000A33] border-[#FFB4AB]') : theme === 'light' ? 'bg-[#FAFAFA] border-[#D8D8D8]' : 'bg-[#282A2C] border-[#47483C]'}`}>
-                  <div className="flex justify-between items-start mb-1.5">
-                    <div className={`px-1.5 py-0.5 text-[8px] font-bold tracking-widest rounded-sm border ${act.status === 'DENIED' ? 'bg-[#FFB4AB1A] border-[#FFB4AB33] text-[#FFB4AB]' : theme === 'light' ? 'bg-[#BCCBB11A] border-[#BCCBB133] text-[#0C5F9A]' : 'bg-[#BCCBB11A] border-[#BCCBB133] text-[#2EAFF9]'}`}>
-                      {act.gate}
-                    </div>
-                    <div className={`text-[9px] font-medium tracking-wider ${act.status === 'DENIED' ? 'text-[#FFB4AB]' : 'text-slate-400'}`}>
-                      {act.time}
-                    </div>
-                  </div>
-
-                  <div className={`text-[18px] sm:text-[20px] font-black leading-none mb-1.5 tracking-tight ${act.status === 'DENIED' ? 'text-[#FFB4AB]' : theme === 'light' ? 'text-[#1A73E8]' : 'text-[#2EAFF9]'}`}>
-                    {act.id}
-                  </div>
-
-
-                  <div className={`text-[9px] font-bold tracking-wide mb-0.5 uppercase ${act.status !== 'DENIED' ? 'text-slate-100' : ''}`} style={act.status === 'DENIED' ? { color: '#DFE2EB' } : {}}>
-                    RFID: {act.rfid} <span className={`font-black px-1 ${act.status !== 'DENIED' ? 'text-slate-400' : ''}`} style={act.status === 'DENIED' ? { color: 'rgba(223, 226, 235, 0.6)' } : {}}>•</span> DRIVER: {act.driver}
-                  </div>
-                  
-                  <div className={`text-[8px] font-medium tracking-wider mb-2.5 uppercase ${act.status !== 'DENIED' ? 'text-slate-400' : ''}`} style={act.status === 'DENIED' ? { color: '#C5C8BE' } : {}}>
-                    TYPE: {act.type}
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <div className={`text-[9px] sm:text-[10px] font-black tracking-wider uppercase ${act.status === 'DENIED' ? 'text-[#FFB4AB]' : theme === 'light' ? 'text-[#0C5F9A]' : 'text-[#2EAFF9]'}`}>
-                      {act.status}
-                    </div>
-                    {act.status === 'DENIED' && (
-                      <div className="flex items-center gap-1.5 text-[8px] font-black text-[#FFB4AB] tracking-wider uppercase">
-                        WARNING <AlertCircle size={10} strokeWidth={2} />
-                      </div>
-                    )}
-                  </div>
+              <article key={idx} className={`h-[calc(79.5*var(--dashboard-unit))] border-b border-[color:var(--dashboard-border)] p-[calc(8*var(--dashboard-unit))] text-[color:var(--activity-text)] max-md:h-[104px] max-md:px-3 max-md:py-2.5 ${act.status === 'DENIED' ? 'bg-[var(--activity-denied-bg)] [--entry-accent:var(--activity-warning)] [--entry-badge-bg:rgb(255_180_171_/_10%)]' : 'bg-[var(--activity-bg)] [--entry-accent:var(--dashboard-accent)] [--entry-badge-bg:rgb(46_175_249_/_10%)]'}`}>
+                <div className="flex items-center justify-between">
+                  <span className="bg-[var(--entry-badge-bg)] px-[calc(3*var(--dashboard-unit))] py-[calc(1*var(--dashboard-unit))] text-[length:calc(6*var(--dashboard-unit))] font-bold leading-[calc(8*var(--dashboard-unit))] text-[color:var(--entry-accent)] max-md:text-[9px]">{act.gate}</span>
+                  <time className="text-[length:calc(6.5*var(--dashboard-unit))] text-[color:var(--dashboard-muted)] max-md:text-[9px]">{act.time}</time>
                 </div>
-              </div>
+                <div className="mb-[calc(3*var(--dashboard-unit))] mt-[calc(4*var(--dashboard-unit))] text-[length:calc(13*var(--dashboard-unit))] font-bold leading-none text-[color:var(--entry-accent)] max-md:my-1.5 max-md:text-[18px]">{act.id}</div>
+                <div className="whitespace-nowrap text-[length:calc(6.5*var(--dashboard-unit))] font-bold leading-[calc(10*var(--dashboard-unit))] max-md:text-[9px] max-md:leading-[14px]">RFID: {act.rfid} <span className="text-[color:var(--dashboard-muted)]">&bull;</span> DRIVER: {act.driver}</div>
+                <div className="whitespace-nowrap text-[length:calc(6.5*var(--dashboard-unit))] font-normal leading-[calc(10*var(--dashboard-unit))] text-[#c5c8be] max-md:text-[9px] max-md:leading-[14px]">TYPE: {act.type}</div>
+                <div className="mt-[calc(1*var(--dashboard-unit))] flex items-center justify-between text-[length:calc(6.5*var(--dashboard-unit))] font-bold leading-[calc(9*var(--dashboard-unit))] text-[color:var(--entry-accent)] max-md:mt-1 max-md:text-[9px]">
+                  <span>{act.status}</span>
+                  {act.status === 'DENIED' && (
+                    <span className="flex items-center gap-[calc(2*var(--dashboard-unit))]">WARNING <AlertTriangle aria-hidden="true" className="h-[calc(7*var(--dashboard-unit))] w-[calc(7*var(--dashboard-unit))]" /></span>
+                  )}
+                </div>
+              </article>
             ))}
           </div>
-        </div>
-
+        </aside>
       </main>
 
       {/* Manual Gate Modal */}
@@ -429,7 +386,7 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }
                     </div>
                     <div className={`absolute inset-y-0 flex items-center justify-center pointer-events-none z-10 ${theme === 'light' ? 'left-[124px] 2xl:left-[156px] right-[60px] 2xl:right-[80px]' : 'inset-x-0'}`}>
                       <span className={`text-[10px] 2xl:text-[11px] font-medium tracking-[0.2em] uppercase ${theme === 'light' ? 'text-[#383735]' : 'text-[#2d3f5a] pl-20 2xl:pl-24'}`}>
-                        {theme === 'light' ? 'UNTUK MEMBUKA GERBANG' : 'GESER UNTUK MEMBUKA GERBANG'}
+                        {theme === 'light' ? 'TO OPEN THE GATE' : 'SLIDE TO OPEN THE GATE'}
                       </span>
                     </div>
                     <div className={`absolute flex items-center z-10 ${theme === 'light' ? 'right-6 2xl:right-8' : 'right-4 2xl:right-5'}`}>
@@ -564,7 +521,7 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }
                 <div className={`flex flex-col w-full flex-1 ${theme === 'light' ? 'bg-[#FFFFFF] border border-[#D8D8D8]' : 'bg-[#2a2d37]'}`}>
                   <div className={`flex px-4 py-2.5 2xl:px-5 2xl:py-3 border-b shrink-0 ${theme === 'light' ? 'border-[#D8D8D8]' : 'border-[#D4AF37]/20'}`}>
                     <div className={`w-[45%] font-bold text-[11px] 2xl:text-[12px] tracking-wide ${theme === 'light' ? 'text-[#383735]' : 'text-slate-200'}`}>Date / Time</div>
-                    <div className={`w-[55%] font-bold text-[11px] 2xl:text-[12px] tracking-wide ${theme === 'light' ? 'text-[#383735]' : 'text-slate-200'}`}>Alasan</div>
+                    <div className={`w-[55%] font-bold text-[11px] 2xl:text-[12px] tracking-wide ${theme === 'light' ? 'text-[#383735]' : 'text-slate-200'}`}>Reason</div>
                   </div>
                   
                   <div className="flex flex-col flex-1 pt-1 pb-3 2xl:pb-4">
@@ -611,15 +568,22 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }
 
       {/* Expanded Camera View - Fullscreen */}
       {expandedCam && (
-        <div className="fixed inset-0 z-[110] bg-black flex items-center justify-center overflow-hidden">
-          {!expandedCam.offline && (expandedCam.streamUrl || expandedCam.img) ? (
+        <div ref={expandedViewRef} className="fixed inset-0 z-[110] bg-black flex items-center justify-center overflow-hidden">
+          {!expandedCam.offline && expandedCam.streamUrl ? (
             <WebRtcPlayer
               streamUrl={expandedCam.streamUrl}
               fallbackImg={expandedCam.img}
+              mediaStream={expandedCam.mediaStream}
               alt={expandedCam.name}
               theme={theme}
+              showControls
+              fullscreenTargetRef={expandedViewRef}
+              onStream={(stream) => handleCameraStream(expandedCam.id, stream)}
+              onStatusChange={(status) => handleCameraStatus(expandedCam.id, status)}
               className="absolute inset-0 w-full h-full object-contain landscape:object-cover"
             />
+          ) : expandedCam.img ? (
+            <img src={expandedCam.img} alt={expandedCam.name} className="absolute inset-0 w-full h-full object-contain" />
           ) : (
             <div className="z-10 px-4 text-center text-base sm:text-2xl lg:text-4xl font-bold tracking-[0.25em] text-[#ff4b4b] drop-shadow-[0_0_8px_rgba(255,75,75,0.4)]">
               OFFLINE - {expandedCam.camId}
@@ -629,9 +593,8 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }
           <div className="absolute inset-0 bg-gradient-to-t from-[#0a0d12] via-transparent to-[#0a0d12]/40 pointer-events-none" />
 
           {/* Top Left Status */}
-          <img
-            src={lconLive}
-            alt="Live"
+          <CameraStatus
+            status={expandedCam.streamUrl ? (cameraStatuses[expandedCam.id] || 'connecting') : (expandedCam.img ? 'live' : 'offline')}
             className="absolute top-3 left-3 sm:top-5 sm:left-6 lg:top-7 lg:left-9 h-5 sm:h-7 lg:h-9 opacity-90"
           />
 
@@ -645,7 +608,7 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }
             </span>
             <button
               onClick={() => setExpandedCam(null)}
-              aria-label="Tutup preview kamera"
+              aria-label="Close camera preview"
               className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full bg-[#EF4444] hover:bg-[#dc2626] text-white flex items-center justify-center transition-colors shrink-0"
             >
               <X className="w-4 h-4 lg:w-5 lg:h-5" strokeWidth={3} />
@@ -660,9 +623,11 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout }
           </div>
 
           {/* Bottom Right Coords */}
-          <div className="hidden sm:block absolute bottom-6 right-6 lg:bottom-9 lg:right-9 text-[11px] lg:text-[13px] font-bold tracking-[0.15em] text-slate-500 uppercase">
-            {expandedCam.coords}
-          </div>
+          {expandedCam.coords && (
+            <div className="hidden sm:block absolute bottom-6 right-6 lg:bottom-9 lg:right-9 text-[11px] lg:text-[13px] font-bold tracking-[0.15em] text-slate-500 uppercase">
+              {expandedCam.coords}
+            </div>
+          )}
         </div>
       )}
     </div>

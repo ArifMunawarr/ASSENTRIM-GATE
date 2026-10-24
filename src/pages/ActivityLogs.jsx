@@ -36,7 +36,8 @@ const stats = {
 const logData = [
   {
     id: 'LOG-0001',
-    plate: 'B 1234 TNI',
+    plate: '212-09',
+    alternativeNumber: null,
     type: 'SUV',
     driver: 'Anton Ruman',
     gateMasuk: 'GATE 01',
@@ -48,13 +49,14 @@ const logData = [
     date: '2023-10-24',
     rfidStatus: 'VERIFIED',
     rfidOk: true,
-    status: 'DITERIMA'
+    status: 'AUTHORIZED'
   },
   {
     id: 'LOG-0002',
-    plate: 'AD 7749 AA',
+    plate: '112-90',
+    alternativeNumber: '11-90',
     type: 'TRUCK',
-    driver: 'Tidak Dikenal',
+    driver: 'Unknown',
     gateMasuk: 'GATE 01',
     fotoMasuk: das2,
     waktuMasuk: '09:08:12',
@@ -64,11 +66,12 @@ const logData = [
     date: '2023-10-24',
     rfidStatus: 'NO RFID',
     rfidOk: false,
-    status: 'DITOLAK'
+    status: 'DENIED'
   },
   {
     id: 'LOG-0003',
-    plate: 'L 9901 AB',
+    plate: '223-09',
+    alternativeNumber: '22-09',
     type: 'MINIBUS',
     driver: 'Rudi Burhan',
     gateMasuk: 'GATE 02',
@@ -80,11 +83,12 @@ const logData = [
     date: '2023-10-24',
     rfidStatus: 'VERIFIED',
     rfidOk: true,
-    status: 'DITERIMA'
+    status: 'AUTHORIZED'
   },
   {
     id: 'LOG-0004',
-    plate: 'B 1234 CD',
+    plate: '909-18',
+    alternativeNumber: null,
     type: 'SUV',
     driver: 'Sari Dewi',
     gateMasuk: 'GATE 03',
@@ -96,7 +100,7 @@ const logData = [
     date: '2023-10-24',
     rfidStatus: 'VERIFIED',
     rfidOk: true,
-    status: 'DITERIMA'
+    status: 'AUTHORIZED'
   },
 ]
 
@@ -106,6 +110,20 @@ const toDateString = (d) => {
   const mo = String(d.getMonth() + 1).padStart(2, '0')
   const dy = String(d.getDate()).padStart(2, '0')
   return `${yr}-${mo}-${dy}`
+}
+
+function LogNumberBadge({ value, status, theme, alternative = false }) {
+  return (
+    <span className={`inline-flex h-[22px] items-center whitespace-nowrap rounded-sm border px-1.5 text-[12px] font-normal leading-none 2xl:h-[25px] 2xl:text-[15px] ${alternative ? 'min-w-[72px] 2xl:min-w-[82px]' : 'min-w-[58px] 2xl:min-w-[65px]'} ${
+      theme === 'light'
+        ? 'border-[#AECBFA] bg-[#E8F0FE] text-[#1A73E8]'
+        : status === 'AUTHORIZED'
+          ? 'border-[#444841] bg-[#24292C] text-[#2EAFF9]'
+          : 'border-[#444841] bg-transparent text-[#DFE2EB]'
+    }`}>
+      {value || '-'}
+    </span>
+  )
 }
 
 export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogout }) {
@@ -134,7 +152,7 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
       if (gateSelection.length > 0 && !gateSelection.includes(row.gateMasuk) && !gateSelection.includes(row.gateKeluar)) return false
       if (rfidStatus !== 'all' && row.status !== rfidStatus) return false
       if (startStr && (row.date < startStr || row.date > endStr)) return false
-      if (query && ![row.plate, row.driver, row.rfidStatus].some((v) => (v || '').toLowerCase().includes(query))) return false
+      if (query && ![row.plate, row.alternativeNumber, row.driver, row.rfidStatus].some((v) => (v || '').toLowerCase().includes(query))) return false
       return true
     })
   }, [searchQuery, dateRange, vehicleType, gateSelection, rfidStatus])
@@ -316,8 +334,8 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
                     theme={theme}
                     options={[
                       { value: 'all', label: 'All Status' },
-                      { value: 'DITERIMA', label: 'Diterima' },
-                      { value: 'DITOLAK', label: 'Ditolak' }
+                      { value: 'AUTHORIZED', label: 'Authorized' },
+                      { value: 'DENIED', label: 'Denied' }
                     ]}
                     value={pendingRfidStatus}
                     onChange={setPendingRfidStatus}
@@ -355,8 +373,8 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
                 setSearchQuery(e.target.value)
                 setCurrentPage(1)
               }}
-              placeholder="Search by plate, driver, RFID..." 
-              className={`text-slate-300 text-[11px] 2xl:text-[14px] pl-3 pr-9 py-2 2xl:pl-4 2xl:pr-12 2xl:py-3 w-full lg:w-64 2xl:w-80 outline-none placeholder-slate-300 tracking-wider transition-colors ${theme === 'light' ? 'bg-[#FAFAFA] border border-[#D8D8D8] focus:border-[#D8D8D8]' : 'bg-[#1C2026] border border-[#444841] focus:border-[#2EAFF9]'}`} 
+              placeholder="Search plate, alternative number, driver, RFID..."
+              className={`text-slate-300 text-[11px] 2xl:text-[14px] pl-3 pr-9 py-2 2xl:pl-4 2xl:pr-12 2xl:py-3 w-full lg:w-80 2xl:w-96 outline-none placeholder-slate-300 tracking-wider transition-colors ${theme === 'light' ? 'bg-[#FAFAFA] border border-[#D8D8D8] focus:border-[#D8D8D8]' : 'bg-[#1C2026] border border-[#444841] focus:border-[#2EAFF9]'}`}
             />
             <Search className={`absolute right-3 2xl:right-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 2xl:w-5 2xl:h-5 pointer-events-none transition-colors ${theme === 'light' ? 'text-[#8A8F98]' : 'text-slate-400'}`} strokeWidth={1.5} />
           </div>
@@ -369,15 +387,16 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
               <thead className={`z-10 sticky top-0 ${theme === 'light' ? 'bg-[#F3F4F6]' : 'bg-[#262A31]'}`}>
 
                 <tr style={{ borderBottom: theme === 'light' ? '1.17px solid #D8D8D8' : '1.17px solid #444841' }}>
-                  <th className={`px-2 py-2 2xl:px-3 2xl:py-3 text-[9px] 2xl:text-[11px] font-bold tracking-widest uppercase whitespace-nowrap ${theme === 'light' ? 'text-[#475569]' : 'text-[#C5C8BE]'}`}>Plate Number</th>
-                  <th className={`px-2 py-2 2xl:px-3 2xl:py-3 text-[9px] 2xl:text-[11px] font-bold tracking-widest uppercase whitespace-nowrap ${theme === 'light' ? 'text-[#475569]' : 'text-[#C5C8BE]'}`}>Type</th>
+                  <th scope="col" className={`min-w-[96px] px-3 py-2.5 text-[9px] font-bold tracking-wide whitespace-nowrap 2xl:min-w-[118px] 2xl:px-3.5 2xl:text-[11px] ${theme === 'light' ? 'text-[#475569]' : 'text-[#C5C8BE]'}`}>Plate Number</th>
+                  <th scope="col" className={`min-w-[96px] px-3 py-2.5 text-[9px] font-bold leading-[13px] tracking-wide 2xl:min-w-[118px] 2xl:px-3.5 2xl:text-[11px] 2xl:leading-[15px] ${theme === 'light' ? 'text-[#475569]' : 'text-[#C5C8BE]'}`}>Alternative<br />Number</th>
+                  <th scope="col" className={`px-3 py-2.5 text-[9px] font-bold tracking-wide whitespace-nowrap 2xl:px-3.5 2xl:text-[11px] ${theme === 'light' ? 'text-[#475569]' : 'text-[#C5C8BE]'}`}>Type</th>
                   <th className={`px-2 py-2 2xl:px-3 2xl:py-3 text-[9px] 2xl:text-[11px] font-bold tracking-widest uppercase whitespace-nowrap ${theme === 'light' ? 'text-[#475569]' : 'text-[#C5C8BE]'}`}>Driver</th>
-                  <th className={`px-2 py-2 2xl:px-3 2xl:py-3 text-[9px] 2xl:text-[11px] font-bold tracking-widest uppercase whitespace-nowrap ${theme === 'light' ? 'text-[#475569]' : 'text-[#C5C8BE]'}`}>Gate Masuk</th>
-                  <th className={`px-2 py-2 2xl:px-3 2xl:py-3 text-[9px] 2xl:text-[11px] font-bold tracking-widest uppercase text-center whitespace-nowrap ${theme === 'light' ? 'text-[#475569]' : 'text-[#C5C8BE]'}`}>Foto Masuk</th>
-                  <th className={`px-2 py-2 2xl:px-3 2xl:py-3 text-[9px] 2xl:text-[11px] font-bold tracking-widest uppercase whitespace-nowrap ${theme === 'light' ? 'text-[#475569]' : 'text-[#C5C8BE]'}`}>Waktu Masuk</th>
-                  <th className={`px-2 py-2 2xl:px-3 2xl:py-3 text-[9px] 2xl:text-[11px] font-bold tracking-widest uppercase whitespace-nowrap ${theme === 'light' ? 'text-[#475569]' : 'text-[#C5C8BE]'}`}>Gate Keluar</th>
-                  <th className={`px-2 py-2 2xl:px-3 2xl:py-3 text-[9px] 2xl:text-[11px] font-bold tracking-widest uppercase text-center whitespace-nowrap ${theme === 'light' ? 'text-[#475569]' : 'text-[#C5C8BE]'}`}>Foto Keluar</th>
-                  <th className={`px-2 py-2 2xl:px-3 2xl:py-3 text-[9px] 2xl:text-[11px] font-bold tracking-widest uppercase whitespace-nowrap ${theme === 'light' ? 'text-[#475569]' : 'text-[#C5C8BE]'}`}>Waktu Keluar</th>
+                  <th className={`px-2 py-2 2xl:px-3 2xl:py-3 text-[9px] 2xl:text-[11px] font-bold tracking-widest uppercase whitespace-nowrap ${theme === 'light' ? 'text-[#475569]' : 'text-[#C5C8BE]'}`}>Entry Gate</th>
+                  <th className={`px-2 py-2 2xl:px-3 2xl:py-3 text-[9px] 2xl:text-[11px] font-bold tracking-widest uppercase text-center whitespace-nowrap ${theme === 'light' ? 'text-[#475569]' : 'text-[#C5C8BE]'}`}>Entry Photo</th>
+                  <th className={`px-2 py-2 2xl:px-3 2xl:py-3 text-[9px] 2xl:text-[11px] font-bold tracking-widest uppercase whitespace-nowrap ${theme === 'light' ? 'text-[#475569]' : 'text-[#C5C8BE]'}`}>Entry Time</th>
+                  <th className={`px-2 py-2 2xl:px-3 2xl:py-3 text-[9px] 2xl:text-[11px] font-bold tracking-widest uppercase whitespace-nowrap ${theme === 'light' ? 'text-[#475569]' : 'text-[#C5C8BE]'}`}>Exit Gate</th>
+                  <th className={`px-2 py-2 2xl:px-3 2xl:py-3 text-[9px] 2xl:text-[11px] font-bold tracking-widest uppercase text-center whitespace-nowrap ${theme === 'light' ? 'text-[#475569]' : 'text-[#C5C8BE]'}`}>Exit Photo</th>
+                  <th className={`px-2 py-2 2xl:px-3 2xl:py-3 text-[9px] 2xl:text-[11px] font-bold tracking-widest uppercase whitespace-nowrap ${theme === 'light' ? 'text-[#475569]' : 'text-[#C5C8BE]'}`}>Exit Time</th>
                   <th className={`px-2 py-2 2xl:px-3 2xl:py-3 text-[9px] 2xl:text-[11px] font-bold tracking-widest uppercase whitespace-nowrap ${theme === 'light' ? 'text-[#475569]' : 'text-[#C5C8BE]'}`}>Date</th>
                   <th className={`px-2 py-2 2xl:px-3 2xl:py-3 text-[9px] 2xl:text-[11px] font-bold tracking-widest uppercase whitespace-nowrap ${theme === 'light' ? 'text-[#475569]' : 'text-[#C5C8BE]'}`}>RFID Status</th>
                   <th className={`px-2 py-2 2xl:px-3 2xl:py-3 text-[9px] 2xl:text-[11px] font-bold tracking-widest uppercase text-center whitespace-nowrap ${theme === 'light' ? 'text-[#475569]' : 'text-[#C5C8BE]'}`}>Status</th>
@@ -388,43 +407,33 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
               <tbody>
                 {logs.length === 0 ? (
                   <tr>
-                    <td colSpan={13} className="py-8 text-center text-slate-500">
-                      Tidak ada data log yang sesuai.
+                    <td colSpan={14} className="py-8 text-center text-slate-500">
+                      No matching log entries.
                     </td>
                   </tr>
                 ) : (
                   logs.map((row, idx) => (
                     <tr key={row.id || idx} className={`border-b border-[#444841]/60 transition-colors ${theme === 'light' ? (idx % 2 === 0 ? 'bg-[#FAFAFA]' : 'bg-[#F7F8FC]') : 'hover:bg-white/[0.02]'}`}>
                       {/* Plate Number */}
-                      <td className="px-2 py-1.5 2xl:px-3 2xl:py-2 whitespace-nowrap">
-                        <span 
-                          className="inline-block text-[10px] 2xl:text-[12px] font-medium px-2 py-0.5 rounded-sm tracking-wide" 
-                          style={{ 
-                            backgroundColor: theme === 'light' ? '#E8F0FE' : (row.status === 'DITERIMA' ? '#BCCBB10D' : '#1C2026'),
-                            borderColor: theme === 'light' ? '#AECBFA' : (row.status === 'DITERIMA' ? '#BCCBB133' : '#444841'),
-                            borderWidth: '1px',
-                            borderStyle: 'solid',
-                            color: theme === 'light' ? '#1A73E8' : (row.status === 'DITERIMA' ? '#2EAFF9' : '#DFE2EB'),
-                            fontFamily: 'Inter, sans-serif'
-                          }}
-                        >
-                          {row.plate}
-                        </span>
-
-
+                      <td className="px-3 py-1.5 whitespace-nowrap 2xl:px-3.5 2xl:py-2">
+                        <LogNumberBadge value={row.plate} status={row.status} theme={theme} />
+                      </td>
+                      {/* Alternative Number */}
+                      <td className="px-3 py-1.5 whitespace-nowrap 2xl:px-3.5 2xl:py-2">
+                        <LogNumberBadge value={row.alternativeNumber} status={row.status} theme={theme} alternative />
                       </td>
                       {/* Type */}
-                      <td className="px-2 py-1.5 2xl:px-3 2xl:py-2 text-[10px] 2xl:text-[12px] text-slate-400 font-medium tracking-wide whitespace-nowrap">{row.type}</td>
+                      <td className={`px-3 py-1.5 text-[11px] font-normal whitespace-nowrap 2xl:px-3.5 2xl:py-2 2xl:text-[13px] ${theme === 'light' ? 'text-[#383735]' : 'text-[#DFE2EB]'}`}>{row.type}</td>
                       {/* Driver */}
-                      <td className={`px-2 py-1.5 2xl:px-3 2xl:py-2 text-[10px] 2xl:text-[12px] font-medium tracking-wide whitespace-nowrap ${row.driver === 'Tidak Dikenal' ? 'text-[#EF4444]' : (row.status === 'DITOLAK' ? 'text-[#FFB4AB]' : 'text-slate-400')}`}>{row.driver}</td>
-                      {/* Gate Masuk */}
+                      <td className={`px-2 py-1.5 2xl:px-3 2xl:py-2 text-[10px] 2xl:text-[12px] font-medium tracking-wide whitespace-nowrap ${row.driver === 'Unknown' ? 'text-[#EF4444]' : (row.status === 'DENIED' ? 'text-[#FFB4AB]' : 'text-slate-400')}`}>{row.driver}</td>
+                      {/* Entry Gate */}
                       <td className="px-2 py-1.5 2xl:px-3 2xl:py-2 text-[10px] 2xl:text-[12px] font-bold tracking-wider whitespace-nowrap" style={{ color: theme === 'light' ? '#475569' : '#C5C8BE' }}>{row.gateMasuk}</td>
-                      {/* Foto Masuk */}
+                      {/* Entry Photo */}
                       <td className="px-2 py-1.5 2xl:px-3 2xl:py-2">
                         <div className="flex justify-center">
                           <div className="w-7 h-7 2xl:w-8 2xl:h-8 border border-[#444841] rounded-sm overflow-hidden flex items-center justify-center bg-[#1C2026]">
                             {row.fotoMasuk ? (
-                              <img src={row.fotoMasuk} alt="Foto Masuk" className="w-full h-full object-cover" />
+                              <img src={row.fotoMasuk} alt="Entry photo" className="w-full h-full object-cover" />
                             ) : (
                               <CameraOff size={14} className="text-slate-500" />
                             )}
@@ -432,17 +441,17 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
                         </div>
                       </td>
 
-                      {/* Waktu Masuk */}
+                      {/* Entry Time */}
                       <td className="px-2 py-1.5 2xl:px-3 2xl:py-2 text-[10px] 2xl:text-[12px] text-slate-400 font-medium tracking-wide whitespace-nowrap">{row.waktuMasuk}</td>
-                      {/* Gate Keluar */}
+                      {/* Exit Gate */}
                       <td className="px-2 py-1.5 2xl:px-3 2xl:py-2 text-[10px] 2xl:text-[12px] font-bold tracking-wider whitespace-nowrap" style={{ color: theme === 'light' ? '#475569' : '#C5C8BE' }}>{row.gateKeluar}</td>
 
-                      {/* Foto Keluar */}
+                      {/* Exit Photo */}
                       <td className="px-2 py-1.5 2xl:px-3 2xl:py-2">
                         <div className="flex justify-center">
                           <div className="w-7 h-7 2xl:w-8 2xl:h-8 border border-[#444841] rounded-sm overflow-hidden flex items-center justify-center bg-[#1C2026]">
                             {row.fotoKeluar ? (
-                              <img src={row.fotoKeluar} alt="Foto Keluar" className="w-full h-full object-cover" />
+                              <img src={row.fotoKeluar} alt="Exit photo" className="w-full h-full object-cover" />
                             ) : (
                               <CameraOff size={14} className="text-slate-500" />
                             )}
@@ -450,7 +459,7 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
                         </div>
                       </td>
 
-                      {/* Waktu Keluar */}
+                      {/* Exit Time */}
                       <td className="px-2 py-1.5 2xl:px-3 2xl:py-2 text-[10px] 2xl:text-[12px] text-slate-400 font-medium tracking-wide whitespace-nowrap">{row.waktuKeluar}</td>
                       {/* Date */}
                       <td className="px-2 py-1.5 2xl:px-3 2xl:py-2 text-[10px] 2xl:text-[12px] text-slate-400 font-medium tracking-wide whitespace-nowrap">{row.date}</td>
@@ -482,7 +491,7 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
                         <div className="flex justify-center">
                           <span 
                             className={`text-[8.5px] 2xl:text-[10px] font-black tracking-widest px-2 py-0.5 uppercase ${
-                              row.status === 'DITOLAK' 
+                              row.status === 'DENIED' 
                                 ? (theme === 'light' 
                                     ? 'bg-[#FF1B001A] text-[#EF4444] border-l-[4px] border-[#EF4444]' 
                                     : 'bg-[#FFB4AB1A] text-[#FFB4AB] border-l-[4px] border-[#FFB4AB]') 

@@ -36,16 +36,16 @@ export default function ViolationPopup() {
 
   const getViolationMessage = (v) => {
     if (!v) return "";
-    const gateStr = v.gateId ? ` berada di depan gate ${v.gateId}` : "";
+    const gateStr = v.gateId ? ` in front of gate ${v.gateId}` : "";
     
     if (v.type === 'UNKNOWN_PLATE') {
-      return `Sistem mendeteksi Plat tidak dikenal${gateStr}`;
+      return `System detected an unknown plate${gateStr}`;
     }
     if (v.type === 'OCR_RFID_MISMATCH') {
-      return `Sistem mendeteksi ketidaksesuaian antara OCR dan Data RFID terdaftar${gateStr}`;
+      return `System detected a mismatch between OCR and registered RFID data${gateStr}`;
     }
     
-    return v.message || `Sistem mendeteksi pelanggaran keamanan${gateStr}`;
+    return v.message || `System detected a security violation${gateStr}`;
   };
 
   return (
@@ -63,7 +63,7 @@ export default function ViolationPopup() {
           <AlertTriangle className="w-11 h-11 2xl:w-12 2xl:h-12 shrink-0" color="#FFB4AB" strokeWidth={2} />
           <div className="flex flex-col min-w-0">
             <span className="font-bold text-[15px] 2xl:text-[17px] tracking-wide uppercase truncate" style={{ color: '#FFB4AB' }}>
-              PERINGATAN VERIFIKASI KENDARAAN
+              VEHICLE VERIFICATION WARNING
             </span>
             <span className="text-[13px] 2xl:text-[15px] mt-1 truncate" style={{ color: '#FFDAD6' }}>
               {getViolationMessage(violation)}

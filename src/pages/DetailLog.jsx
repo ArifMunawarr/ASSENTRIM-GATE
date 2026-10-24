@@ -12,10 +12,10 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
   // Default mock data if logData is partial
   const data = {
     id: logData?.id || '22323232323',
-    status: logData?.status || 'DITERIMA',
+    status: logData?.status || 'AUTHORIZED',
     plate: logData?.plate || 'B 1234 TNI',
     type: logData?.type || 'SUV',
-    color: logData?.color || 'Hitam',
+    color: logData?.color || 'Black',
     brand: logData?.brand || 'Toyota Fortuner',
     year: logData?.year || '2022',
     rfidTag: logData?.rfidTag || 'RFID-2023-0847-TNI',
@@ -26,11 +26,11 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
     gateKeluar: logData?.gateKeluar || 'GATE 02 - Side Exit',
     waktuMasuk: logData?.waktuMasuk ? `${logData.date || '2023-10-24'} ${logData.waktuMasuk}` : '2023-10-24 09:12:44',
     waktuKeluar: logData?.waktuKeluar ? `${logData.date || '2023-10-24'} ${logData.waktuKeluar}` : '2023-10-24 17:45:12',
-    durasi: logData?.durasi || '8 jam 32 menit',
+    durasi: logData?.durasi || '8 hours 32 minutes',
     operator: logData?.operator || 'Sgt. Pratama',
     fotoMasuk: logData?.fotoMasuk || das1,
     fotoKeluar: logData?.fotoKeluar || das2,
-    catatan: logData?.catatan || 'Kendaraan dinas resmi, verifikasi RFID berhasil. Tidak ada catatan khusus.',
+    catatan: logData?.catatan || 'Official service vehicle, RFID verification successful. No special notes.',
     riwayat: logData?.riwayat || [
       { waktu: '2023-10-23 08:44:12', gate: 'GATE 01 - Main Entrance', status: 'VERIFIED' },
       { waktu: '2023-10-22 17:10:05', gate: 'GATE 02 - Side Exit', status: 'VERIFIED' },
@@ -135,14 +135,14 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
 
 
           
-          {/* Card 1: Foto Kendaraan Masuk */}
+          {/* Card 1: Vehicle Entry Photo */}
           <div className={`dl-photo-card relative border rounded-sm overflow-hidden group bg-[#000000] ${isLight ? 'border-[#D8D8D8]' : 'border-[#444841]'}`}>
             {data.fotoMasuk ? (
-              <img src={data.fotoMasuk} alt="Foto Kendaraan Masuk" className="w-full h-full object-cover" />
+              <img src={data.fotoMasuk} alt="Vehicle entry photo" className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 gap-1 bg-[#121416]">
                 <CameraOff className="dl-cam-icon" />
-                <span className="dl-cam-text font-bold tracking-wider uppercase">TIDAK ADA FOTO MASUK</span>
+                <span className="dl-cam-text font-bold tracking-wider uppercase">NO ENTRY PHOTO</span>
               </div>
             )}
             {/* Top-Left Overlay */}
@@ -152,18 +152,18 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
             </div>
             {/* Bottom-Right Overlay */}
             <div className={`dl-ov-br absolute rounded-sm backdrop-blur-xs ${isLight ? 'bg-[#FFFFFFE5] border border-[#0066CC]' : 'bg-[#0B1326E6] border border-[#2EAFF9]'}`}>
-              <span className={`dl-ov-text font-black tracking-widest uppercase ${isLight ? 'text-[#1F2937]' : 'text-white'}`}>FOTO KENDARAAN MASUK</span>
+              <span className={`dl-ov-text font-black tracking-widest uppercase ${isLight ? 'text-[#1F2937]' : 'text-white'}`}>VEHICLE ENTRY PHOTO</span>
             </div>
           </div>
 
-          {/* Card 2: Foto Kendaraan Keluar */}
+          {/* Card 2: Vehicle Exit Photo */}
           <div className={`dl-photo-card relative border rounded-sm overflow-hidden group bg-[#000000] ${isLight ? 'border-[#D8D8D8]' : 'border-[#444841]'}`}>
             {data.fotoKeluar ? (
-              <img src={data.fotoKeluar} alt="Foto Kendaraan Keluar" className="w-full h-full object-cover" />
+              <img src={data.fotoKeluar} alt="Vehicle exit photo" className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 gap-1 bg-[#121416]">
                 <CameraOff className="dl-cam-icon" />
-                <span className="dl-cam-text font-bold tracking-wider uppercase">TIDAK ADA FOTO KELUAR</span>
+                <span className="dl-cam-text font-bold tracking-wider uppercase">NO EXIT PHOTO</span>
               </div>
             )}
             {/* Top-Left Overlay */}
@@ -175,7 +175,7 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
 
             {/* Bottom-Right Overlay */}
             <div className={`dl-ov-br absolute rounded-sm backdrop-blur-xs ${isLight ? 'bg-[#FFFFFFE5] border border-[#0066CC]' : 'bg-[#0B1326E6] border border-[#2EAFF9]'}`}>
-              <span className={`dl-ov-text font-black tracking-widest uppercase ${isLight ? 'text-[#1F2937]' : 'text-white'}`}>FOTO KENDARAAN KELUAR</span>
+              <span className={`dl-ov-text font-black tracking-widest uppercase ${isLight ? 'text-[#1F2937]' : 'text-white'}`}>VEHICLE EXIT PHOTO</span>
             </div>
           </div>
 
@@ -183,14 +183,14 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
           {/* Card 3: Driver Info */}
           <div className={`dl-driver-card border rounded-sm flex items-center ${isLight ? 'bg-white border-[#D8D8D8]' : 'bg-[#1C2026] border-[#444841]'}`}>
             <div className="relative aspect-square h-full rounded-sm overflow-hidden border border-[#444841] bg-[#000000] shrink-0">
-              <img src={fotdriver} alt="Foto Driver" className="w-full h-full object-cover" />
+              <img src={fotdriver} alt="Driver photo" className="w-full h-full object-cover" />
               <div className={`dl-driver-badge absolute left-1/2 -translate-x-1/2 rounded font-black tracking-widest uppercase whitespace-nowrap ${isLight ? 'bg-[#00000099] text-[#FFFFFF]' : 'bg-[#00000099] text-[#2EAFF9]'}`}>
-                FOTO DRIVER
+                DRIVER PHOTO
               </div>
             </div>
             <div className="flex flex-col justify-center min-w-0 flex-1">
-              {/* Nama Driver color: #C5C8BE */}
-              <div className={`dl-driver-label font-bold tracking-widest uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>NAMA DRIVER</div>
+              {/* Driver name color: #C5C8BE */}
+              <div className={`dl-driver-label font-bold tracking-widest uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>DRIVER NAME</div>
               <div className={`dl-driver-name font-bold tracking-wide truncate ${isLight ? 'text-[#1F2937]' : 'text-white'}`}>{data.driver}</div>
             </div>
           </div>
@@ -200,36 +200,36 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
         {/* Bottom Section - 2 Columns Layout */}
         <div className="dl-bottom-grid grid grid-cols-1 min-[1100px]:grid-cols-2">
           
-          {/* Left Column: Data Kendaraan & Catatan Operator */}
+          {/* Left Column: Vehicle Data & Operator Notes */}
           <div className="dl-col flex flex-col">
             
-            {/* Data Kendaraan - #1C2026 border #444841 */}
+            {/* Vehicle Data - #1C2026 border #444841 */}
             <div className={`dl-card border rounded-sm flex flex-col ${isLight ? 'bg-white border-[#D8D8D8]' : 'bg-[#1C2026] border-[#444841]'}`}>
               <div className="dl-card-head flex items-center shrink-0">
                 <Car className={`dl-card-icon ${isLight ? 'text-[#0C5F9A]' : 'text-[#2EAFF9]'}`} />
                 <h3 className={`dl-card-title font-black tracking-wider uppercase ${isLight ? 'text-[#0C5F9A]' : 'text-[#2EAFF9]'}`}>
-                  DATA KENDARAAN
+                  VEHICLE DATA
                 </h3>
               </div>
               <div className="flex flex-col divide-y divide-[#444841]/50">
                 <div className="dl-row flex items-center justify-between">
-                  <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>NOMOR PLAT</span>
+                  <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>PLATE NUMBER</span>
                   <span className={`font-bold tracking-wide ${isLight ? 'text-[#1F2937]' : 'text-white'}`}>{data.plate}</span>
                 </div>
                 <div className="dl-row flex items-center justify-between">
-                  <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>TIPE KENDARAAN</span>
+                  <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>VEHICLE TYPE</span>
                   <span className={`font-medium ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>{data.type}</span>
                 </div>
                 <div className="dl-row flex items-center justify-between">
-                  <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>WARNA</span>
+                  <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>COLOR</span>
                   <span className={`font-medium ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>{data.color}</span>
                 </div>
                 <div className="dl-row flex items-center justify-between">
-                  <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>MEREK</span>
+                  <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>BRAND</span>
                   <span className={`font-medium ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>{data.brand}</span>
                 </div>
                 <div className="dl-row flex items-center justify-between">
-                  <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>TAHUN</span>
+                  <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>YEAR</span>
                   <span className={`font-medium ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>{data.year}</span>
                 </div>
                 <div className="dl-row flex items-center justify-between">
@@ -263,12 +263,12 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
               </div>
             </div>
 
-            {/* Catatan Operator - outer #1C2026 border #444841, inner #181C22 border #444841 */}
+            {/* Operator Notes - outer #1C2026 border #444841, inner #181C22 border #444841 */}
             <div className={`dl-card border rounded-sm ${isLight ? 'bg-white border-[#D8D8D8]' : 'bg-[#1C2026] border-[#444841]'}`}>
               <div className="dl-card-head dl-card-head--lg flex items-center shrink-0">
                 <FileEdit className={`dl-card-icon ${isLight ? 'text-[#0C5F9A]' : 'text-[#2EAFF9]'}`} />
                 <h3 className={`dl-card-title font-black tracking-wider uppercase ${isLight ? 'text-[#0C5F9A]' : 'text-[#2EAFF9]'}`}>
-                  CATATAN OPERATOR
+                  OPERATOR NOTES
                 </h3>
               </div>
               <div className={`dl-note rounded-sm border leading-relaxed ${isLight ? 'bg-[#F7F8FC] border-[#D8D8D8] text-slate-700' : 'bg-[#181C22] border-[#444841] text-slate-300'}`}>
@@ -278,46 +278,46 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
 
           </div>
 
-          {/* Right Column: Data Akses Gate & Riwayat Akses Terakhir */}
+          {/* Right Column: Gate Access Data & Recent Access History */}
           <div className="dl-col flex flex-col">
             
-            {/* Data Akses Gate - #1C2026 border #444841 */}
+            {/* Gate Access Data - #1C2026 border #444841 */}
             <div className={`dl-card border rounded-sm flex flex-col ${isLight ? 'bg-white border-[#D8D8D8]' : 'bg-[#1C2026] border-[#444841]'}`}>
               <div className="dl-card-head flex items-center shrink-0">
                 <Shield className={`dl-card-icon ${isLight ? 'text-[#0C5F9A]' : 'text-[#2EAFF9]'}`} />
                 <h3 className={`dl-card-title font-black tracking-wider uppercase ${isLight ? 'text-[#0C5F9A]' : 'text-[#2EAFF9]'}`}>
-                  DATA AKSES GATE
+                  GATE ACCESS DATA
                 </h3>
               </div>
               <div className="flex flex-col divide-y divide-[#444841]/50">
                 <div className="dl-row flex items-center justify-between">
-                  <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>ID LOG</span>
+                  <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>LOG ID</span>
                   <span className={`font-bold tracking-wide ${isLight ? 'text-[#1F2937]' : 'text-white'}`}>{data.id}</span>
                 </div>
                 <div className="dl-row flex items-center justify-between">
-                  <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>GATE MASUK</span>
+                  <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>ENTRY GATE</span>
                   <span className={`font-medium ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>{data.gateMasuk}</span>
                 </div>
                 <div className="dl-row flex items-center justify-between">
-                  <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>GATE KELUAR</span>
+                  <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>EXIT GATE</span>
                   <span className={`font-medium ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>{data.gateKeluar}</span>
                 </div>
                 <div className="dl-row flex items-center justify-between">
-                  <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>WAKTU MASUK</span>
+                  <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>ENTRY TIME</span>
                   <span className={`font-medium ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>{data.waktuMasuk}</span>
                 </div>
                 <div className="dl-row flex items-center justify-between">
-                  <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>WAKTU KELUAR</span>
+                  <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>EXIT TIME</span>
                   <span className={`font-medium ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>{data.waktuKeluar}</span>
                 </div>
                 <div className="dl-row flex items-center justify-between">
-                  <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>DURASI</span>
+                  <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>DURATION</span>
                   <span className={`font-medium ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>{data.durasi}</span>
                 </div>
                 <div className="dl-row flex items-center justify-between">
                   <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>STATUS</span>
                   <span className={`dl-status-badge font-black tracking-widest uppercase ${
-                    data.status === 'DITOLAK' 
+                    data.status === 'DENIED' 
                       ? (isLight ? 'bg-[#FF1B001A] text-[#EF4444] border-[#EF4444]' : 'bg-[#FFB4AB1A] text-[#FFB4AB] border-[#FFB4AB]')
                       : (isLight ? 'bg-[#E6F4EA] text-[#137333] border-[#34A853]' : 'bg-[#BCCBB11A] text-[#2EAFF9] border-[#2EAFF9]')
                   }`}>
@@ -332,19 +332,19 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
               </div>
             </div>
 
-            {/* Riwayat Akses Terakhir Kendaraan - #1C2026 border #444841 */}
+            {/* Recent Vehicle Access History - #1C2026 border #444841 */}
             <div className={`dl-card border rounded-sm ${isLight ? 'bg-white border-[#D8D8D8]' : 'bg-[#1C2026] border-[#444841]'}`}>
               <div className="dl-card-head dl-card-head--lg flex items-center shrink-0">
                 <History className={`dl-card-icon ${isLight ? 'text-[#0C5F9A]' : 'text-[#2EAFF9]'}`} />
                 <h3 className={`dl-card-title font-black tracking-wider uppercase ${isLight ? 'text-[#0C5F9A]' : 'text-[#2EAFF9]'}`}>
-                  RIWAYAT AKSES TERAKHIR KENDARAAN
+                  RECENT VEHICLE ACCESS HISTORY
                 </h3>
               </div>
               <div className="dl-riwayat-box overflow-y-auto overflow-x-auto no-scrollbar">
                 <table className="dl-table w-full text-left">
                   <thead className="sticky top-0 z-10">
                     <tr className={`border-b ${isLight ? 'bg-[#F3F4F6] border-slate-200 detail-log-tr' : 'bg-[#1C2026] border-[#444841]/60'}`}>
-                      <th className={`dl-th font-bold tracking-wider uppercase ${isLight ? 'text-[#4B5563] detail-log-th' : 'text-[#C5C8BE]'}`}>WAKTU</th>
+                      <th className={`dl-th font-bold tracking-wider uppercase ${isLight ? 'text-[#4B5563] detail-log-th' : 'text-[#C5C8BE]'}`}>TIME</th>
                       <th className={`dl-th font-bold tracking-wider uppercase ${isLight ? 'text-[#4B5563] detail-log-th' : 'text-[#C5C8BE]'}`}>GATE</th>
                       <th className={`dl-th font-bold tracking-wider uppercase text-right ${isLight ? 'text-[#4B5563] detail-log-th' : 'text-[#C5C8BE]'}`}>STATUS</th>
                     </tr>
@@ -353,7 +353,7 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
                     {data.riwayat.length === 0 ? (
                       <tr>
                         <td colSpan={3} className={`dl-td-empty text-center font-medium ${isLight ? 'text-slate-400' : 'text-slate-500'}`}>
-                          TIDAK ADA RIWAYAT AKSES
+                          NO ACCESS HISTORY
                         </td>
                       </tr>
                     ) : (

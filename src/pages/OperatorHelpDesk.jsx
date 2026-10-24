@@ -24,13 +24,13 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
         </div>
         <div className="helpdesk-manual-content flex flex-col">
           <div className="helpdesk-field-stack flex flex-col shrink-0">
-            <label className="helpdesk-field-label font-bold text-[#C5C8BE] tracking-widest uppercase">ALASAN VERIFIKASI MANUAL</label>
-            <input type="text" readOnly value="KETIDAKSESUAIAN DATA (PLAT BERBEDA)"
+            <label className="helpdesk-field-label font-bold text-[#C5C8BE] tracking-widest uppercase">MANUAL VERIFICATION REASON</label>
+            <input type="text" readOnly value="DATA MISMATCH (PLATE MISMATCH)"
               className="helpdesk-manual-input w-full bg-[#181C22] border border-[#444841] text-slate-300 tracking-wide outline-none cursor-default rounded-sm" />
           </div>
           <div className="helpdesk-field-stack helpdesk-notes-stack flex flex-col shrink-0">
             <label className="helpdesk-field-label font-bold text-[#C5C8BE] tracking-widest uppercase">OPERATOR NOTES</label>
-            <textarea placeholder="Input detail pemeriksaan fisik..."
+            <textarea placeholder="Enter physical inspection details..."
               className="helpdesk-notes w-full bg-[#181C22] border border-[#444841] text-slate-300 tracking-wide outline-none resize-none placeholder:text-[#444841] rounded-sm" />
           </div>
           <div className="helpdesk-check-row flex items-center cursor-pointer group shrink-0 rounded-sm transition-colors bg-[#262A31]"
@@ -40,20 +40,20 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
               style={theme === 'light' ? { border: isChecked ? '1.11px solid #0C5F9A' : '1.11px solid #D8D8D8' } : {}}>
               {isChecked && <CheckSquare className={`helpdesk-check-icon ${theme === 'light' ? 'text-[#0C5F9A] bg-white' : 'text-[#2EAFF9] bg-[#181C22]'}`} strokeWidth={2} />}
             </div>
-            <span className={`helpdesk-check-label tracking-wide font-normal leading-none ${theme === 'light' ? 'text-[#172033]' : 'text-slate-300'}`}>Sudah dilakukan pengecekan kendaraan</span>
+            <span className={`helpdesk-check-label tracking-wide font-normal leading-none ${theme === 'light' ? 'text-[#172033]' : 'text-slate-300'}`}>Vehicle inspection has been performed</span>
           </div>
         </div>
         <div className="helpdesk-actions shrink-0 bg-[#282A2C] z-10">
           <div className="helpdesk-actions-row flex items-center">
             <button onClick={() => setShowAccessDenied(true)} className="helpdesk-action-button flex-1 border-[2.22px] border-[#EF4444] bg-[#262A31] text-[#EF4444] font-bold tracking-wider flex items-center justify-center uppercase hover:bg-[#EF4444]/10 transition-colors rounded-sm whitespace-nowrap">
               <XCircle className="helpdesk-action-icon" strokeWidth={2} />
-              TOLAK AKSES
+              DENY ACCESS
             </button>
             <button 
               onClick={() => setShowAccessGranted(true)}
               className="helpdesk-action-button flex-1 bg-[#3B82F6] text-[#FAFAFA] font-black tracking-wider flex items-center justify-center uppercase hover:bg-[#3B82F6]/90 transition-colors shadow-lg shadow-[#3B82F6]/20 rounded-sm whitespace-nowrap">
               <CheckCircle2 className="helpdesk-action-icon" strokeWidth={2.5} />
-              DIPERSILAHKAN MASUK
+              ALLOW ENTRY
             </button>
           </div>
         </div>
@@ -84,12 +84,12 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
           </div>
           <div className="shrink-0 flex flex-col">
             <div className="helpdesk-db-row flex justify-between items-center z-10">
-              <span className="helpdesk-db-row-label font-bold text-[#C5C8BE] tracking-widest uppercase">NOMOR PLAT TERDAFTAR</span>
+              <span className="helpdesk-db-row-label font-bold text-[#C5C8BE] tracking-widest uppercase">REGISTERED PLATE NUMBER</span>
               <span className="helpdesk-db-row-value font-bold text-[#EF4444] tracking-wide uppercase">B 9999 MIL</span>
             </div>
             <div className="w-full" style={{ borderBottom: theme === 'light' ? '0.64px solid #D8D8D8' : '0.64px solid rgba(68, 72, 65, 0.6)' }}></div>
             <div className="helpdesk-db-row flex justify-between items-center z-10">
-              <span className="helpdesk-db-row-label font-bold text-[#C5C8BE] tracking-widest uppercase w-1/3">JENIS KENDARAAN</span>
+              <span className="helpdesk-db-row-label font-bold text-[#C5C8BE] tracking-widest uppercase w-1/3">VEHICLE TYPE</span>
               <div className="helpdesk-db-row-value font-medium text-slate-300 text-right flex flex-col leading-tight gap-0.5">
                 <span>Armored SUV - Anoa</span>
                 <span>V2</span>
@@ -97,7 +97,7 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
             </div>
             <div className="w-full" style={{ borderBottom: theme === 'light' ? '0.64px solid #D8D8D8' : '0.64px solid rgba(68, 72, 65, 0.6)' }}></div>
             <div className="helpdesk-db-row flex justify-between items-center z-10">
-              <span className="helpdesk-db-row-label font-bold text-[#C5C8BE] tracking-widest uppercase">STATUS PERSONEL</span>
+              <span className="helpdesk-db-row-label font-bold text-[#C5C8BE] tracking-widest uppercase">PERSONNEL STATUS</span>
               <span className="helpdesk-db-row-value font-medium text-[#3B82F6]">Active Duty</span>
             </div>
             <div className="w-full" style={{ borderBottom: theme === 'light' ? '0.64px solid #D8D8D8' : '0.64px solid rgba(68, 72, 65, 0.6)' }}></div>
@@ -245,7 +245,7 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
                 </div>
                 <div className="bg-[#1C2026] border-t border-[#444841] flex items-center justify-between shrink-0" style={{ padding: `${u(12)} ${u(20)}` }}>
                   <div className="flex flex-col">
-                    <span className="font-bold tracking-widest text-[#C5C8BE] uppercase" style={{ fontSize: u(10), marginBottom: u(4) }}>DETEKSI PLAT</span>
+                    <span className="font-bold tracking-widest text-[#C5C8BE] uppercase" style={{ fontSize: u(10), marginBottom: u(4) }}>PLATE DETECTION</span>
                     <span className="font-black text-[#2EAFF9] tracking-wide leading-none" style={{ fontSize: u(50) }}>B 1234 TNI</span>
                   </div>
                   <button className="rounded-full border-[3px] border-[#0C5F9A] flex items-center justify-center hover:bg-[#0C5F9A]/10 transition-colors bg-transparent shadow-sm" style={{ width: u(40), height: u(40) }}>
@@ -259,13 +259,13 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
                 </div>
                 <div className="flex flex-col" style={{ gap: u(12) }}>
                   <div className="flex flex-col shrink-0" style={{ gap: u(10) }}>
-                    <label className="font-bold text-[#C5C8BE] tracking-widest uppercase" style={{ fontSize: u(10) }}>ALASAN VERIFIKASI MANUAL</label>
-                    <input type="text" readOnly value="KETIDAKSESUAIAN DATA (PLAT BERBEDA)"
+                    <label className="font-bold text-[#C5C8BE] tracking-widest uppercase" style={{ fontSize: u(10) }}>MANUAL VERIFICATION REASON</label>
+                    <input type="text" readOnly value="DATA MISMATCH (PLATE MISMATCH)"
                       className="w-full bg-[#181C22] border border-[#444841] text-slate-300 tracking-wide outline-none cursor-default rounded-sm" style={{ padding: `${u(10)} ${u(16)}`, fontSize: u(11) }} />
                   </div>
                   <div className="flex flex-col shrink-0" style={{ gap: u(10) }}>
                     <label className="font-bold text-[#C5C8BE] tracking-widest uppercase" style={{ fontSize: u(10) }}>OPERATOR NOTES</label>
-                    <textarea placeholder="Input detail pemeriksaan fisik..."
+                    <textarea placeholder="Enter physical inspection details..."
                       className="w-full bg-[#181C22] border border-[#444841] text-slate-300 tracking-wide outline-none resize-none placeholder:text-[#444841] rounded-sm" style={{ padding: `${u(10)} ${u(16)}`, fontSize: u(11), height: u(44) }} />
                   </div>
                   <div className="flex items-center cursor-pointer group rounded-sm bg-[#262A31] shrink-0"
@@ -275,18 +275,18 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
                       style={theme === 'light' ? { border: isChecked ? '1.11px solid #0C5F9A' : '1.11px solid #D8D8D8', width: u(20), height: u(20) } : { width: u(20), height: u(20) }}>
                       {isChecked && <CheckSquare className={`${theme === 'light' ? 'text-[#0C5F9A] bg-white' : 'text-[#2EAFF9] bg-[#181C22]'}`} strokeWidth={2.5} style={{ width: u(20), height: u(20) }} />}
                     </div>
-                    <span className={`tracking-wide font-normal ${theme === 'light' ? 'text-[#172033]' : 'text-slate-300'}`} style={{ fontSize: u(11) }}>Sudah dilakukan pengecekan kendaraan</span>
+                    <span className={`tracking-wide font-normal ${theme === 'light' ? 'text-[#172033]' : 'text-slate-300'}`} style={{ fontSize: u(11) }}>Vehicle inspection has been performed</span>
                   </div>
                 </div>
                 <div className="shrink-0" style={{ paddingTop: u(16) }}>
                   <div className="flex items-center" style={{ gap: u(14) }}>
                     <button onClick={() => setShowAccessDenied(true)} className={`flex-1 border-[2.22px] bg-[#262A31] font-bold tracking-wider flex items-center justify-center uppercase transition-colors rounded-sm whitespace-nowrap ${theme === 'light' ? 'border-[#EF4444] text-[#EF4444] hover:bg-[#EF4444]/10' : 'border-[#FFB4AB] text-[#FFB4AB] hover:bg-[#FFB4AB]/10'}`} style={{ height: u(48), fontSize: u(11), gap: u(8), paddingLeft: u(8), paddingRight: u(8) }}>
                       <XCircle strokeWidth={2.5} style={{ width: u(20), height: u(20) }} />
-                      TOLAK AKSES
+                      DENY ACCESS
                     </button>
                     <button onClick={() => setShowAccessGranted(true)} className={`flex-1 font-black tracking-wider flex items-center justify-center uppercase transition-colors shadow-lg rounded-sm whitespace-nowrap ${theme === 'light' ? 'bg-[#3B82F6] text-[#FAFAFA] hover:bg-[#3B82F6]/90 shadow-[#3B82F6]/20' : 'bg-[#2EAFF9] text-[#273421] hover:bg-[#2EAFF9]/90 shadow-[#2EAFF9]/20'}`} style={{ height: u(48), fontSize: u(11), gap: u(8), paddingLeft: u(8), paddingRight: u(8) }}>
                       <CheckCircle2 strokeWidth={3} style={{ width: u(20), height: u(20) }} />
-                      DIPERSILAHKAN MASUK
+                      ALLOW ENTRY
                     </button>
                   </div>
                 </div>
@@ -295,8 +295,8 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
             <div className="helpdesk-single-alert bg-[#93000A] border-l-[8px] border-[#FFB4AB] flex items-center shrink-0 shadow-lg shadow-[#93000A]/10" style={{ height: u(80), paddingLeft: u(24), paddingRight: u(24), marginTop: u(24) }}>
               <AlertTriangle className="text-[#FFB4AB] shrink-0" strokeWidth={1.5} style={{ width: u(40), height: u(40) }} />
               <div className="flex flex-col justify-center" style={{ marginLeft: u(20) }}>
-                <span className="font-black text-[#FFB4AB] tracking-wide uppercase leading-tight" style={{ fontSize: u(15), marginBottom: u(2) }}>PLAT BERBEDA</span>
-                <span className="font-medium text-[#FFDAD6] tracking-wide" style={{ fontSize: u(10) }}>Sistem mendeteksi ketidaksesuaian antara PLAT dan Data RFID terdaftar.</span>
+                <span className="font-black text-[#FFB4AB] tracking-wide uppercase leading-tight" style={{ fontSize: u(15), marginBottom: u(2) }}>PLATE MISMATCH</span>
+                <span className="font-medium text-[#FFDAD6] tracking-wide" style={{ fontSize: u(10) }}>System detected a mismatch between the PLATE and registered RFID data.</span>
               </div>
               <div className="ml-auto flex flex-col items-end justify-center">
                 <span className="font-black text-[#FFDAD6] tracking-[0.15em] uppercase" style={{ fontSize: u(9), marginBottom: u(2) }}>TIMESTAMPS</span>
@@ -343,7 +343,7 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
                       </div>
                       <div className="helpdesk-plate-footer bg-[#1C2026] border-t border-[#444841] flex items-center justify-between shrink-0">
                         <div className="flex flex-col">
-                          <span className="helpdesk-plate-caption font-bold tracking-widest text-[#C5C8BE] uppercase">DETEKSI PLAT</span>
+                          <span className="helpdesk-plate-caption font-bold tracking-widest text-[#C5C8BE] uppercase">PLATE DETECTION</span>
                           <span className="helpdesk-plate-number font-black text-[#2EAFF9] tracking-wide leading-none">B 1234 TNI</span>
                         </div>
                         {selectedGate === gateId && (
@@ -358,8 +358,8 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
                   <div className="helpdesk-alert bg-[#93000A] border-[#FFB4AB] flex items-center shrink-0 shadow-lg shadow-[#93000A]/10">
                     <AlertTriangle className="helpdesk-alert-icon text-[#FFB4AB] shrink-0" strokeWidth={1.5} />
                     <div className="helpdesk-alert-body flex flex-col justify-center">
-                      <span className="helpdesk-alert-title font-black text-[#FFB4AB] tracking-wide uppercase leading-tight">PLAT BERBEDA</span>
-                      <span className="helpdesk-alert-description font-medium text-[#FFDAD6] tracking-wide">Sistem mendeteksi ketidaksesuaian antara PLAT dan Data RFID terdaftar.</span>
+                      <span className="helpdesk-alert-title font-black text-[#FFB4AB] tracking-wide uppercase leading-tight">PLATE MISMATCH</span>
+                      <span className="helpdesk-alert-description font-medium text-[#FFDAD6] tracking-wide">System detected a mismatch between the PLATE and registered RFID data.</span>
                     </div>
                     <div className="ml-auto flex flex-col items-end justify-center">
                       <span className="helpdesk-alert-ts-label font-black text-[#FFDAD6] tracking-[0.15em] uppercase">TIMESTAMPS</span>
@@ -376,7 +376,7 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
         {activeRequestCount === 0 && (
           <div className="flex-1 flex flex-col items-center justify-center min-h-0 w-full" style={{ marginBottom: u(64) }}>
             <img src={warningIcon} alt="Warning" className={`object-contain ${theme === 'light' ? 'mix-blend-multiply' : 'drop-shadow-2xl'}`} style={{ width: u(112), height: u(112), marginBottom: u(32) }} />
-            <h3 className="font-medium text-white tracking-wide" style={{ fontSize: u(28) }}>Belum ada permintaan bantuan</h3>
+            <h3 className="font-medium text-white tracking-wide" style={{ fontSize: u(28) }}>No help requests yet</h3>
           </div>
         )}
 
@@ -398,8 +398,8 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
               <div className={`w-12 h-12 rounded-full border-[2px] flex items-center justify-center mb-3 ${theme === 'light' ? 'border-[#10B981] bg-[#10B981]/10 shadow-sm' : 'border-[#00DF89] bg-[#00DF89]/15 shadow-[0_0_20px_rgba(0,223,137,0.15)]'}`}>
                  <ShieldCheck className={`w-6 h-6 ${theme === 'light' ? 'text-[#10B981]' : 'text-[#00DF89]'}`} strokeWidth={1.5} />
               </div>
-              <h2 className={`text-[20px] font-black tracking-widest mb-1 ${theme === 'light' ? 'text-[#10B981]' : 'text-[#00DF89] shadow-[#00DF89]'}`}>AKSES DIBERIKAN</h2>
-              <p className={`tracking-[0.3em] text-[8px] font-medium uppercase text-center ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>ACCESS GRANTED // COMMAND SEND OK</p>
+              <h2 className={`text-[20px] font-black tracking-widest mb-1 ${theme === 'light' ? 'text-[#10B981]' : 'text-[#00DF89] shadow-[#00DF89]'}`}>ACCESS GRANTED</h2>
+              <p className={`tracking-[0.3em] text-[8px] font-medium uppercase text-center ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}> // COMMAND SEND OK</p>
             </div>
 
             {/* License Plate Box */}
@@ -430,13 +430,13 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
               <div className={`border rounded-lg flex flex-col overflow-hidden ${theme === 'light' ? 'bg-[#F8FAFC] border-[#E2E8F0]' : 'bg-[#16181C] border-[#2A2D32]'}`}>
                 {/* Row 1 */}
                 <div className={`flex justify-between items-center px-3 py-2 border-b ${theme === 'light' ? 'border-[#E2E8F0]' : 'border-[#2A2D32]'}`}>
-                  <span className={`text-[8px] font-bold tracking-[0.15em] uppercase ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>TIPE VERIFIKASI</span>
+                  <span className={`text-[8px] font-bold tracking-[0.15em] uppercase ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>VERIFICATION TYPE</span>
                   <span className={`text-[9px] font-bold text-right ${theme === 'light' ? 'text-[#0284C7]' : 'text-[#2EAFF9]'}`}>Manual Override</span>
                 </div>
                 {/* Row 2 */}
                 <div className={`flex justify-between items-center px-3 py-2 border-b ${theme === 'light' ? 'border-[#E2E8F0]' : 'border-[#2A2D32]'}`}>
-                  <span className={`text-[8px] font-bold tracking-[0.15em] uppercase ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>ALASAN</span>
-                  <span className={`text-[9px] font-bold text-right ${theme === 'light' ? 'text-[#0F172A]' : 'text-white'}`}>Ketidaksesuaian Data (Plat Berbeda)</span>
+                  <span className={`text-[8px] font-bold tracking-[0.15em] uppercase ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>REASON</span>
+                  <span className={`text-[9px] font-bold text-right ${theme === 'light' ? 'text-[#0F172A]' : 'text-white'}`}>Data Mismatch (Plate Mismatch)</span>
                 </div>
                 {/* Row 3 */}
                 <div className={`flex justify-between items-center px-3 py-2 border-b ${theme === 'light' ? 'border-[#E2E8F0]' : 'border-[#2A2D32]'}`}>
@@ -455,7 +455,7 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
             <div className={`border rounded-lg p-3 mb-5 flex items-center ${theme === 'light' ? 'bg-[#F1F5F9] border-[#E2E8F0]' : 'bg-[#0B0D10] border-[#2A2D32]'}`}>
               <Info className={`w-3 h-3 mr-2 shrink-0 ${theme === 'light' ? 'text-[#0284C7]' : 'text-[#2EAFF9]'}`} />
               <span className={`text-[8px] leading-relaxed ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>
-                <span className={`font-bold ${theme === 'light' ? 'text-[#0F172A]' : 'text-white'}`}>Catatan:</span> Akses manual telah dicatat dalam sistem audit keamanan pusat ASENTRIM.
+                <span className={`font-bold ${theme === 'light' ? 'text-[#0F172A]' : 'text-white'}`}>Note:</span> Manual access has been recorded in the central ASENTRIM security audit system.
               </span>
             </div>
 
@@ -474,11 +474,11 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
             <div className="flex gap-3 mt-auto">
               <button className={`flex-1 border font-bold text-[9px] tracking-[0.15em] uppercase h-[36px] rounded-md flex items-center justify-center transition-colors ${theme === 'light' ? 'bg-white hover:bg-gray-50 border-[#CBD5E1] text-[#475569]' : 'bg-[#0B0D10] hover:bg-[#16181C] border-[#2A2D32] text-white'}`}>
                 <List className="w-3.5 h-3.5 mr-1.5" />
-                LIHAT LOG
+                VIEW LOG
               </button>
-              <button onClick={() => setShowAccessGranted(false)} className={`flex-1 font-black text-[9px] tracking-[0.15em] uppercase h-[36px] rounded-md flex items-center justify-center transition-colors ${theme === 'light' ? 'bg-[#10B981] hover:bg-[#10B981]/90 shadow-md shadow-[#10B981]/20' : 'bg-[#2EAFF9] hover:bg-[#2EAFF9]/90 shadow-[0_0_15px_rgba(46,175,249,0.3)]'}`} style={{ color: theme === 'light' ? '#FFFFFF' : '#0B0D10' }}>
+              <button onClick={() => setShowAccessGranted(false)} className="flex-1 font-black text-[9px] tracking-[0.15em] uppercase h-[36px] rounded-md flex items-center justify-center transition-colors bg-[#00DF89] hover:bg-[#00DF89]/90 shadow-[0_0_15px_rgba(0,223,137,0.3)] text-[#0B0D10]">
                 <Check className="w-3.5 h-3.5 mr-1.5" strokeWidth={3} />
-                SELESAI
+                DONE
               </button>
             </div>
           </div>
@@ -501,7 +501,7 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
               <div className={`w-12 h-12 rounded-full border-[2px] flex items-center justify-center mb-3 ${theme === 'light' ? 'border-[#EF4444] bg-[#FEF2F2] shadow-sm' : 'border-[#EF4444] bg-[#EF4444]/15 shadow-[0_0_20px_rgba(239,68,68,0.15)]'}`}>
                  <XCircle className={`w-6 h-6 text-[#EF4444]`} strokeWidth={1.5} />
               </div>
-              <h2 className={`text-[20px] font-black tracking-widest mb-1 text-[#EF4444] ${theme === 'dark' ? 'shadow-[#EF4444]' : ''}`}>AKSES DITOLAK</h2>
+              <h2 className={`text-[20px] font-black tracking-widest mb-1 text-[#EF4444] ${theme === 'dark' ? 'shadow-[#EF4444]' : ''}`}>ACCESS DENIED</h2>
               <p className={`tracking-[0.3em] text-[8px] font-medium uppercase text-center ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>ACCESS DENIED // CRITICAL STOP TRIGGERED</p>
             </div>
 
@@ -533,13 +533,13 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
               <div className={`border rounded-lg flex flex-col overflow-hidden ${theme === 'light' ? 'bg-[#F8FAFC] border-[#E2E8F0]' : 'bg-[#16181C] border-[#2A2D32]'}`}>
                 {/* Row 1 */}
                 <div className={`flex justify-between items-center px-3 py-2 border-b ${theme === 'light' ? 'border-[#E2E8F0]' : 'border-[#2A2D32]'}`}>
-                  <span className={`text-[8px] font-bold tracking-[0.15em] uppercase ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>TIPE VERIFIKASI</span>
+                  <span className={`text-[8px] font-bold tracking-[0.15em] uppercase ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>VERIFICATION TYPE</span>
                   <span className={`text-[9px] font-bold text-right ${theme === 'light' ? 'text-[#0F172A]' : 'text-white'}`}>Manual Override</span>
                 </div>
                 {/* Row 2 */}
                 <div className={`flex justify-between items-center px-3 py-2 border-b ${theme === 'light' ? 'border-[#E2E8F0]' : 'border-[#2A2D32]'}`}>
-                  <span className={`text-[8px] font-bold tracking-[0.15em] uppercase ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>ALASAN PENOLAKAN</span>
-                  <span className={`text-[9px] font-bold text-right text-[#EF4444]`}>Ketidaksesuaian Data (Plat Berbeda)</span>
+                  <span className={`text-[8px] font-bold tracking-[0.15em] uppercase ${theme === 'light' ? 'text-[#475569]' : 'text-gray-400'}`}>REJECTION REASON</span>
+                  <span className={`text-[9px] font-bold text-right text-[#EF4444]`}>Data Mismatch (Plate Mismatch)</span>
                 </div>
                 {/* Row 3 */}
                 <div className={`flex justify-between items-center px-3 py-2 border-b ${theme === 'light' ? 'border-[#E2E8F0]' : 'border-[#2A2D32]'}`}>
@@ -558,7 +558,7 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
             <div className={`border rounded-lg p-3 mb-5 flex items-center ${theme === 'light' ? 'bg-[#FEF2F2] border-[#FEE2E2]' : 'bg-[#0B0D10] border-[#EF4444]/30'}`}>
               <AlertTriangle className={`w-3 h-3 mr-2 shrink-0 text-[#EF4444]`} />
               <span className={`text-[8px] leading-relaxed text-[#EF4444]`}>
-                <span className={`font-bold`}>PERINGATAN:</span> Kendaraan telah ditandai untuk pemeriksaan lebih lanjut oleh otoritas keamanan pusat ASENTRIM.
+                <span className={`font-bold`}>WARNING:</span> The vehicle has been flagged for further inspection by central ASENTRIM security authorities.
               </span>
             </div>
 
@@ -577,11 +577,11 @@ export default function OperatorHelpDesk({ onNavigate, theme, onToggleTheme, onL
             <div className="flex gap-3 mt-auto">
               <button className={`flex-1 border font-bold text-[9px] tracking-[0.15em] uppercase h-[36px] rounded-md flex items-center justify-center transition-colors ${theme === 'light' ? 'bg-white hover:bg-gray-50 border-[#CBD5E1] text-[#475569]' : 'bg-[#0B0D10] hover:bg-[#16181C] border-[#2A2D32] text-white'}`}>
                 <List className="w-3.5 h-3.5 mr-1.5" />
-                LIHAT LOG
+                VIEW LOG
               </button>
               <button onClick={() => setShowAccessDenied(false)} className={`flex-1 font-black text-[9px] tracking-[0.15em] uppercase h-[36px] rounded-md flex items-center justify-center transition-colors ${theme === 'light' ? 'bg-[#EF4444] hover:bg-[#EF4444]/90 shadow-md shadow-[#EF4444]/20' : 'bg-[#EF4444] hover:bg-[#EF4444]/90 shadow-[0_0_15px_rgba(239,68,68,0.3)]'}`} style={{ color: theme === 'light' ? '#FFFFFF' : '#0B0D10' }}>
                 <Check className="w-3.5 h-3.5 mr-1.5" strokeWidth={3} />
-                SELESAI
+                DONE
               </button>
             </div>
           </div>
