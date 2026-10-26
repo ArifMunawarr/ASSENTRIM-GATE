@@ -1,41 +1,116 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Header from '../components/Header'
-import { Car, Shield, FileEdit, History, ChevronRight, CameraOff } from 'lucide-react'
+import { Car, Shield, FileEdit, History, ChevronRight, CameraOff, Pencil, Check, X } from 'lucide-react'
 
-import fotdriver from '../assets/fotdriver.png'
-import das1 from '../assets/das1.png'
-import das2 from '../assets/das2.png'
+import { getLogDetail, updateLogNotes } from '../services/api'
 
-export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, onLogout }) {
+const formatDetailTime = (value) => {
+  if (!value) return '—'
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime())) return String(value)
+  return `${parsed.toISOString().slice(0, 10)} ${parsed.toLocaleTimeString('en-GB', { hour12: false })}`
+}
+
+const formatDuration = (seconds) => {
+  const total = Number(seconds)
+  if (!Number.isFinite(total) || total < 0) return null
+  const hours = Math.floor(total / 3600)
+  const minutes = Math.floor((total % 3600) / 60)
+  if (hours === 0) return `${minutes} minutes`
+  return `${hours} hours ${minutes} minutes`
+}
+
+const durationBetween = (start, end) => {
+  const a = new Date(start).getTime()
+  const b = new Date(end).getTime()
+  if (Number.isNaN(a) || Number.isNaN(b) || b < a) return null
+  return formatDuration((b - a) / 1000)
+}
+
+const normGate = (value) => String(value || '').replace(/-/g, ' ').toUpperCase() || '—'
+
+const mapAccessStatus = (raw) => {
+  const value = String(raw || '').toLowerCase()
+  if (value === 'denied' || value === 'violation' || value === 'unreadable') return 'DENIED'
+  if (value === 'pending') return 'PENDING'
+  return 'AUTHORIZED'
+}
+
+const photoUrl = (value) => (typeof value === 'string' && /^https?:\/\//i.test(value) ? value : null)
+
+const mapHistoryItem = (item) => ({
+  waktu: item.waktu ?? formatDetailTime(item.occurred_at ?? item.time ?? item.created_at),
+  gate: normGate(item.gate ?? item.gate_code ?? item.gate_label),
+  status: String(item.status ?? item.access_status ?? '—').toUpperCase(),
+})
+
+// Keeps fetched details per event so reopening a log renders instantly.
+const detailCache = { token: null, byId: {} }
+
+export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, onLogout, accessToken }) {
   const isLight = theme === 'light'
+  const [detail, setDetail] = useState(() => (
+    detailCache.token === accessToken ? (detailCache.byId[logData?.id] ?? null) : null
+  ))
+  const [editingNotes, setEditingNotes] = useState(false)
+  const [notesDraft, setNotesDraft] = useState('')
+  const [savingNotes, setSavingNotes] = useState(false)
 
-  // Default mock data if logData is partial
+  useEffect(() => {
+    if (!accessToken || !logData?.id) return
+    let cancelled = false
+    detailCache.token = accessToken
+    getLogDetail(accessToken, logData.id)
+      .then((data) => {
+        if (cancelled) return
+        detailCache.byId[logData.id] = data
+        setDetail(data)
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [accessToken, logData?.id])
+
+  const entryTime = detail?.entry_time ?? detail?.entered_at ?? detail?.occurred_at ?? null
+  const exitTime = detail?.exit_time ?? detail?.exited_at ?? null
+
   const data = {
-    id: logData?.id || '22323232323',
-    status: logData?.status || 'AUTHORIZED',
-    plate: logData?.plate || 'B 1234 TNI',
-    type: logData?.type || 'SUV',
-    color: logData?.color || 'Black',
-    brand: logData?.brand || 'Toyota Fortuner',
-    year: logData?.year || '2022',
-    rfidTag: logData?.rfidTag || 'RFID-2023-0847-TNI',
-    rfidStatus: logData?.rfidStatus || 'VERIFIED',
-    rfidOk: logData?.rfidOk ?? true,
-    driver: logData?.driver || 'Anton Ruman',
-    gateMasuk: logData?.gateMasuk || 'GATE 01 - Main Entrance',
-    gateKeluar: logData?.gateKeluar || 'GATE 02 - Side Exit',
-    waktuMasuk: logData?.waktuMasuk ? `${logData.date || '2023-10-24'} ${logData.waktuMasuk}` : '2023-10-24 09:12:44',
-    waktuKeluar: logData?.waktuKeluar ? `${logData.date || '2023-10-24'} ${logData.waktuKeluar}` : '2023-10-24 17:45:12',
-    durasi: logData?.durasi || '8 hours 32 minutes',
-    operator: logData?.operator || 'Sgt. Pratama',
-    fotoMasuk: logData?.fotoMasuk || das1,
-    fotoKeluar: logData?.fotoKeluar || das2,
-    catatan: logData?.catatan || 'Official service vehicle, RFID verification successful. No special notes.',
-    riwayat: logData?.riwayat || [
-      { waktu: '2023-10-23 08:44:12', gate: 'GATE 01 - Main Entrance', status: 'VERIFIED' },
-      { waktu: '2023-10-22 17:10:05', gate: 'GATE 02 - Side Exit', status: 'VERIFIED' },
-      { waktu: '2023-10-22 09:01:52', gate: 'GATE 01 - Main Entrance', status: 'VERIFIED' }
-    ]
+    id: detail?.event_id ?? logData?.id ?? '—',
+    status: mapAccessStatus(detail?.access_status ?? detail?.verification_status ?? logData?.status),
+    plate: detail?.plate_number ?? logData?.plate ?? '—',
+    type: String(detail?.vehicle_type ?? logData?.type ?? '—').toUpperCase(),
+    color: detail?.color ?? '—',
+    brand: detail?.brand ?? detail?.model ?? '—',
+    year: detail?.year ?? '—',
+    rfidTag: detail?.rfid_tag ?? '—',
+    rfidStatus: detail?.rfid_status ?? logData?.rfidStatus ?? '—',
+    rfidOk: detail?.rfid_ok ?? logData?.rfidOk ?? String(detail?.rfid_status ?? 'VERIFIED').toUpperCase() === 'VERIFIED',
+    driver: detail?.driver_name ?? logData?.driver ?? 'Unknown',
+    gateMasuk: normGate(detail?.entry_gate ?? detail?.entry_gate_code ?? detail?.gate_code ?? logData?.gateMasuk),
+    gateKeluar: normGate(detail?.exit_gate ?? detail?.exit_gate_code ?? logData?.gateKeluar),
+    waktuMasuk: entryTime ? formatDetailTime(entryTime) : (logData?.waktuMasuk && logData?.date ? `${logData.date} ${logData.waktuMasuk}` : logData?.waktuMasuk || '—'),
+    waktuKeluar: exitTime ? formatDetailTime(exitTime) : (logData?.waktuKeluar && logData?.date ? `${logData.date} ${logData.waktuKeluar}` : logData?.waktuKeluar || '—'),
+    durasi: formatDuration(detail?.duration_seconds ?? detail?.duration) ?? durationBetween(entryTime, exitTime) ?? '—',
+    operator: detail?.operator_name ?? detail?.operator ?? '—',
+    fotoMasuk: photoUrl(detail?.entry_photo_url ?? detail?.entry_photo) ?? logData?.fotoMasuk ?? null,
+    fotoKeluar: photoUrl(detail?.exit_photo_url ?? detail?.exit_photo) ?? logData?.fotoKeluar ?? null,
+    catatan: detail?.notes ?? detail?.operator_notes ?? 'No operator notes.',
+    riwayat: (detail?.access_history ?? detail?.recent_events ?? logData?.riwayat ?? []).map(mapHistoryItem)
+  }
+
+  const handleSaveNotes = async () => {
+    if (!accessToken || !logData?.id) return
+    setSavingNotes(true)
+    try {
+      const updated = await updateLogNotes(accessToken, logData.id, notesDraft.trim())
+      const merged = { ...(detailCache.byId[logData.id] || {}), notes: updated?.notes ?? notesDraft.trim() }
+      detailCache.byId[logData.id] = merged
+      setDetail((prev) => ({ ...(prev || merged), notes: merged.notes }))
+      setEditingNotes(false)
+    } catch {
+      // Keep edit mode open so the operator can retry
+    } finally {
+      setSavingNotes(false)
+    }
   }
 
   return (
@@ -75,12 +150,6 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
         .dl-ov-tl { top: calc(10 * var(--u)); left: calc(10 * var(--u)); padding: calc(5 * var(--u)) calc(12.5 * var(--u)); }
         .dl-ov-br { bottom: calc(10 * var(--u)); right: calc(10 * var(--u)); padding: calc(5 * var(--u)) calc(15 * var(--u)); }
         .dl-ov-text { font-size: calc(11 * var(--u)); }
-
-        /* ===== Driver card ===== */
-        .dl-driver-card { height: calc(223.5 * var(--u)); padding: calc(10 * var(--u)); gap: calc(12.5 * var(--u)); }
-        .dl-driver-badge { bottom: calc(5 * var(--u)); padding: calc(2.5 * var(--u)) calc(7.5 * var(--u)); font-size: calc(9 * var(--u)); }
-        .dl-driver-label { font-size: calc(10 * var(--u)); margin-bottom: calc(2.5 * var(--u)); }
-        .dl-driver-name { font-size: calc(20 * var(--u)); line-height: calc(30.5 * var(--u)); }
 
         /* ===== Bottom cards ===== */
         .dl-bottom-grid, .dl-col { gap: calc(15 * var(--u)); }
@@ -130,7 +199,7 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
           </div>
         </div>
 
-        {/* Top Section - 3 Photo Cards */}
+        {/* Top Section - Vehicle Photos and Responsible Person */}
         <div className="dl-top-grid grid grid-cols-1 min-[1100px]:grid-cols-[1fr_1fr_22.5%] shrink-0">
 
 
@@ -180,18 +249,23 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
           </div>
 
 
-          {/* Card 3: Driver Info */}
-          <div className={`dl-driver-card border rounded-sm flex items-center ${isLight ? 'bg-white border-[#D8D8D8]' : 'bg-[#1C2026] border-[#444841]'}`}>
-            <div className="relative aspect-square h-full rounded-sm overflow-hidden border border-[#444841] bg-[#000000] shrink-0">
-              <img src={fotdriver} alt="Driver photo" className="w-full h-full object-cover" />
-              <div className={`dl-driver-badge absolute left-1/2 -translate-x-1/2 rounded font-black tracking-widest uppercase whitespace-nowrap ${isLight ? 'bg-[#00000099] text-[#FFFFFF]' : 'bg-[#00000099] text-[#2EAFF9]'}`}>
-                DRIVER PHOTO
+          {/* Card 3: Responsible Person */}
+          <div className={`flex h-[calc(223.5*var(--u))] min-w-0 items-center justify-center rounded-sm border p-[calc(20*var(--u))] ${isLight ? 'bg-white border-[#D8D8D8]' : 'bg-[#121416] border-[#444841]'}`}>
+            <div className="flex min-w-0 max-w-full items-center gap-[calc(20*var(--u))]">
+              <svg
+                viewBox="0 0 20 28"
+                fill="none"
+                aria-hidden="true"
+                className={`h-[calc(35*var(--u))] w-[calc(25*var(--u))] shrink-0 ${isLight ? 'text-[#1F2937]' : 'text-white'}`}
+              >
+                <rect x="1" y="1" width="18" height="26" rx="3" stroke="currentColor" strokeWidth="1.5" />
+                <circle cx="10" cy="11" r="4.5" fill="currentColor" />
+                <path d="M2 24a8 8 0 0 1 16 0v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-1Z" fill="currentColor" />
+              </svg>
+              <div className="flex min-w-0 flex-col text-left">
+                <div className={`mb-[calc(2.5*var(--u))] text-[length:calc(10*var(--u))] font-bold tracking-widest uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>RESPONSIBLE PERSON</div>
+                <div title={data.driver} className={`truncate text-[length:calc(20*var(--u))] font-medium leading-[calc(30.5*var(--u))] ${isLight ? 'text-[#1F2937]' : 'text-white'}`}>{data.driver}</div>
               </div>
-            </div>
-            <div className="flex flex-col justify-center min-w-0 flex-1">
-              {/* Driver name color: #C5C8BE */}
-              <div className={`dl-driver-label font-bold tracking-widest uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>DRIVER NAME</div>
-              <div className={`dl-driver-name font-bold tracking-wide truncate ${isLight ? 'text-[#1F2937]' : 'text-white'}`}>{data.driver}</div>
             </div>
           </div>
 
@@ -270,10 +344,50 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
                 <h3 className={`dl-card-title font-black tracking-wider uppercase ${isLight ? 'text-[#0C5F9A]' : 'text-[#2EAFF9]'}`}>
                   OPERATOR NOTES
                 </h3>
+                {accessToken && logData?.id && !editingNotes && (
+                  <button
+                    onClick={() => { setNotesDraft(data.catatan === 'No operator notes.' ? '' : data.catatan); setEditingNotes(true) }}
+                    className={`ml-auto p-1 transition-colors ${isLight ? 'text-[#0C5F9A] hover:text-[#094d7d]' : 'text-[#2EAFF9] hover:text-white'}`}
+                    aria-label="Edit notes"
+                  >
+                    <Pencil className="dl-card-icon" />
+                  </button>
+                )}
+                {editingNotes && (
+                  <div className="ml-auto flex items-center gap-1">
+                    <button
+                      onClick={handleSaveNotes}
+                      disabled={savingNotes}
+                      className={`p-1 transition-colors ${isLight ? 'text-[#0C5F9A] hover:text-[#094d7d]' : 'text-[#2EAFF9] hover:text-white'} disabled:opacity-40`}
+                      aria-label="Save notes"
+                    >
+                      <Check className="dl-card-icon" />
+                    </button>
+                    <button
+                      onClick={() => setEditingNotes(false)}
+                      disabled={savingNotes}
+                      className="p-1 text-slate-400 hover:text-white transition-colors disabled:opacity-40"
+                      aria-label="Cancel editing"
+                    >
+                      <X className="dl-card-icon" />
+                    </button>
+                  </div>
+                )}
               </div>
-              <div className={`dl-note rounded-sm border leading-relaxed ${isLight ? 'bg-[#F7F8FC] border-[#D8D8D8] text-slate-700' : 'bg-[#181C22] border-[#444841] text-slate-300'}`}>
-                {data.catatan}
-              </div>
+              {editingNotes ? (
+                <textarea
+                  value={notesDraft}
+                  onChange={(e) => setNotesDraft(e.target.value)}
+                  maxLength={4000}
+                  rows={4}
+                  placeholder="Write operator notes..."
+                  className={`dl-note rounded-sm border leading-relaxed w-full resize-y outline-none ${isLight ? 'bg-[#F7F8FC] border-[#D8D8D8] text-slate-700 focus:border-[#0C5F9A]' : 'bg-[#181C22] border-[#444841] text-slate-300 focus:border-[#2EAFF9]'}`}
+                />
+              ) : (
+                <div className={`dl-note rounded-sm border leading-relaxed ${isLight ? 'bg-[#F7F8FC] border-[#D8D8D8] text-slate-700' : 'bg-[#181C22] border-[#444841] text-slate-300'}`}>
+                  {data.catatan}
+                </div>
+              )}
             </div>
 
           </div>

@@ -6,6 +6,8 @@ import DetailLog from './pages/DetailLog'
 import OperatorHelpDesk from './pages/OperatorHelpDesk'
 import Profile from './pages/Profile'
 import ViolationPopup from './components/ViolationPopup'
+import { getMe, logout as apiLogout, refreshToken, subscribeRealtime } from './services/api'
+import { OPERATOR_HELP_DESK_ENABLED } from './features'
 
 const PAGE_PATHS = {
   login: '/login',
@@ -18,24 +20,29 @@ const PAGE_PATHS = {
 
 const getPageFromPath = (pathname) => {
   const normalizedPath = pathname.replace(/\/+$/, '') || '/'
-  return Object.keys(PAGE_PATHS).find((page) => PAGE_PATHS[page] === normalizedPath) || null
+  const page = Object.keys(PAGE_PATHS).find((page) => PAGE_PATHS[page] === normalizedPath) || null
+  return page === 'helpdesk' && !OPERATOR_HELP_DESK_ENABLED ? null : page
 }
 
-const getStoredUser = () => {
+const AUTH_KEY = 'asentrim-auth'
+
+const getStoredAuth = () => {
   try {
-    return JSON.parse(sessionStorage.getItem('asentrim-user'))
+    return JSON.parse(sessionStorage.getItem(AUTH_KEY))
   } catch {
     return null
   }
 }
 
+const saveAuth = (auth) => sessionStorage.setItem(AUTH_KEY, JSON.stringify(auth))
+
 function App() {
-  const [user, setUser] = useState(getStoredUser)
+  const [auth, setAuth] = useState(getStoredAuth)
   const [currentPage, setCurrentPage] = useState(() => getPageFromPath(window.location.pathname) || 'dashboard')
   const [selectedLog, setSelectedLog] = useState(() => window.history.state?.logData || null)
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark')
 
-  const isLoggedIn = !!user
+  const isLoggedIn = !!auth?.accessToken
 
   useEffect(() => {
     document.documentElement.classList.toggle('light', theme === 'light')
@@ -108,33 +115,125 @@ function App() {
     }
   }, [])
 
+  // Verify the stored session once per token, then keep it alive by refreshing
+  // before expiry (the API rotates tokens on refresh).
+  useEffect(() => {
+    if (!auth?.accessToken) return undefined
+    const token = auth.accessToken
+    let cancelled = false
+
+    const dropSession = () => {
+      sessionStorage.removeItem(AUTH_KEY)
+      setAuth(null)
+      updateRoute('login', { replace: true })
+    }
+
+    getMe(token).then((me) => {
+      if (!cancelled && me) {
+        const next = { ...auth, user: me }
+        saveAuth(next)
+        setAuth(next)
+      }
+    }).catch((err) => {
+      if (!cancelled && err.status === 401) dropSession()
+    })
+
+    const maybeRefresh = async () => {
+      const expiry = Date.parse(auth.expiresAt || '')
+      if (Number.isFinite(expiry) && expiry - Date.now() > 5 * 60 * 1000) return
+      try {
+        const data = await refreshToken(token)
+        if (cancelled) return
+        const next = { accessToken: data.access_token, expiresAt: data.expires_at, user: data.user }
+        saveAuth(next)
+        setAuth(next)
+      } catch (err) {
+        if (!cancelled && err.status === 401) dropSession()
+      }
+    }
+
+    const interval = setInterval(maybeRefresh, 60 * 1000)
+    maybeRefresh()
+    return () => {
+      cancelled = true
+      clearInterval(interval)
+    }
+  }, [auth?.accessToken])
+
+  // Single SSE connection for the whole app; survives page navigation.
+  useEffect(() => {
+    if (!auth?.accessToken) return undefined
+
+    const unsubscribe = subscribeRealtime(auth.accessToken, {
+      onEvent: (event) => {
+        if (event.event === 'unauthorized') {
+          sessionStorage.removeItem(AUTH_KEY)
+          setAuth(null)
+          updateRoute('login', { replace: true })
+          return
+        }
+
+        const envelope = typeof event.data === 'object' && event.data !== null ? event.data : {}
+        const data = typeof envelope.data === 'object' && envelope.data !== null ? envelope.data : envelope
+        const kind = String(event.event || envelope.type || data.type || '').toLowerCase()
+        if (['keepalive', 'keep-alive', 'ping', 'heartbeat', 'connected'].includes(kind)
+          || (event.data === null && kind === 'message')) return
+        const violationLike = ['violation', 'denied', 'unreadable'].some((k) => kind.includes(k))
+          || ['violation', 'denied', 'unreadable'].includes(String(data.access_status ?? data.verification_status ?? '').toLowerCase())
+
+        if (violationLike) {
+          window.dispatchEvent(new CustomEvent('show-violation', {
+            detail: {
+              gateId: data.gate_code ?? data.gate,
+              type: data.type ?? data.violation_type ?? kind.toUpperCase(),
+              timestamp: data.timestamp ?? data.occurred_at ?? data.created_at,
+              message: data.message,
+            },
+          }))
+        }
+
+        window.dispatchEvent(new CustomEvent('asentrim-realtime', { detail: event }))
+      },
+    })
+
+    return unsubscribe
+  }, [auth?.accessToken])
+
   const toggleTheme = () => setTheme((currentTheme) => currentTheme === 'dark' ? 'light' : 'dark')
 
   const updateRoute = (page, { replace = false, logData = null } = {}) => {
-    const nextPage = PAGE_PATHS[page] ? page : 'dashboard'
+    const nextPage = PAGE_PATHS[page] && (page !== 'helpdesk' || OPERATOR_HELP_DESK_ENABLED) ? page : 'dashboard'
     const historyMethod = replace ? 'replaceState' : 'pushState'
     window.history[historyMethod](logData ? { logData } : {}, '', PAGE_PATHS[nextPage])
     setCurrentPage(nextPage)
     setSelectedLog(logData)
   }
 
-  const handleLoginSuccess = (userData) => {
-    sessionStorage.setItem('asentrim-user', JSON.stringify(userData))
-    setUser(userData)
+  const handleLoginSuccess = (data) => {
+    const next = { accessToken: data.access_token, expiresAt: data.expires_at, user: data.user }
+    saveAuth(next)
+    setAuth(next)
     updateRoute('dashboard', { replace: true })
   }
 
   const handleLogout = () => {
-    sessionStorage.removeItem('asentrim-user')
-    setUser(null)
+    if (auth?.accessToken) apiLogout(auth.accessToken).catch(() => {})
+    sessionStorage.removeItem(AUTH_KEY)
+    setAuth(null)
     updateRoute('login', { replace: true })
+  }
+
+  const handleUserUpdate = (updatedUser) => {
+    const next = { ...auth, user: updatedUser }
+    saveAuth(next)
+    setAuth(next)
   }
 
   const handleNavigate = (page, logData) => {
     updateRoute(page, { logData })
   }
 
-  const pageProps = { user, onNavigate: handleNavigate, theme, onToggleTheme: toggleTheme, onLogout: handleLogout }
+  const pageProps = { user: auth?.user, accessToken: auth?.accessToken, onUserUpdate: handleUserUpdate, onNavigate: handleNavigate, theme, onToggleTheme: toggleTheme, onLogout: handleLogout }
 
   if (!isLoggedIn) {
     return (
@@ -163,7 +262,7 @@ function App() {
     )
   }
 
-  if (currentPage === 'helpdesk') {
+  if (OPERATOR_HELP_DESK_ENABLED && currentPage === 'helpdesk') {
     return (
       <>
         <ViolationPopup />

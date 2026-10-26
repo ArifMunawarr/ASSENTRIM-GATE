@@ -8,6 +8,7 @@ import iconIdDark from '../assets/iconid.svg'
 import iconIdLight from '../assets/iconid(1).svg'
 import iconPassDark from '../assets/iconpass.svg'
 import iconPassLight from '../assets/iconpass(1).svg'
+import { login, ApiError } from '../services/api'
 
 function Login({ onLogin, theme = 'dark' }) {
   const [username, setUsername] = useState('')
@@ -16,7 +17,7 @@ function Login({ onLogin, theme = 'dark' }) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!username.trim() || !password) {
       setError('Please enter your Username / Service ID and Password.')
@@ -26,17 +27,16 @@ function Login({ onLogin, theme = 'dark' }) {
     setError(null)
     setIsLoading(true)
 
-    // Dummy auth - accepts any credentials
-    setTimeout(() => {
+    try {
+      const data = await login(username.trim(), password)
+      onLogin?.(data)
+    } catch (err) {
+      setError(err instanceof ApiError && err.status === 401
+        ? 'Invalid Service ID or password.'
+        : err.message)
+    } finally {
       setIsLoading(false)
-      if (onLogin) {
-        onLogin({
-          nama: 'Administrator',
-          username: username.trim(),
-          role: 'Admin / Superuser',
-        })
-      }
-    }, 800)
+    }
   }
 
   return (

@@ -4,12 +4,13 @@ import logoImageDark from '../assets/logologindark.svg'
 import logoImageLight from '../assets/logologinlight.svg'
 import userIcon from '../assets/usericon.svg'
 import logOutIcon from '../assets/logoticon.svg'
+import { OPERATOR_HELP_DESK_ENABLED } from '../features'
 
 const navigationItems = [
   { page: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { page: 'activitylogs', label: 'Activity Logs', icon: History },
-  { page: 'helpdesk', label: 'Operator Help Desk', icon: HeadphonesIcon },
-]
+  { page: 'helpdesk', label: 'Operator Help Desk', icon: HeadphonesIcon, enabled: OPERATOR_HELP_DESK_ENABLED },
+].filter(({ enabled }) => enabled !== false)
 
 export default function Header({ activePage, onNavigate, theme = 'dark', onToggleTheme, onLogout }) {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
@@ -37,7 +38,7 @@ export default function Header({ activePage, onNavigate, theme = 'dark', onToggl
       [font-family:'Courier_New',monospace] text-[color:var(--header-text)]
       max-md:sticky max-md:top-0 max-md:h-[92px] max-md:px-4 max-md:pb-9 max-md:[--header-unit:1px]
       ${isDarkMode
-        ? '[--header-accent:#2eaff9] [--header-text:#c5c8be] [--header-active-bg:#27313a] border-[#2d2f2a] bg-[#121416]'
+        ? '[--header-accent:#2eaff9] [--header-text:#c8c7b8] [--header-active-bg:#27313a] border-[#32332d] bg-[#121416]'
         : '[--header-accent:#0c5f9a] [--header-text:#475569] [--header-active-bg:#e4f0f8] border-[#cbd5e1] bg-white'}
     `}>
       <div className="flex shrink-0 items-center gap-[calc(7*var(--header-unit))]">
@@ -47,7 +48,7 @@ export default function Header({ activePage, onNavigate, theme = 'dark', onToggl
 
       <nav
         aria-label="Main navigation"
-        className="absolute left-[calc(416*var(--header-unit))] grid h-full grid-cols-[repeat(3,calc(96*var(--header-unit)))] items-center gap-[calc(8.5*var(--header-unit))] max-md:bottom-0 max-md:left-3 max-md:right-3 max-md:h-9 max-md:grid-cols-3 max-md:gap-1"
+        className="absolute left-[calc(386*var(--header-unit))] grid h-full grid-flow-col auto-cols-[calc(113*var(--header-unit))] items-center gap-[calc(9*var(--header-unit))] max-md:bottom-0 max-md:left-3 max-md:right-3 max-md:h-9 max-md:auto-cols-fr max-md:gap-1"
       >
         {navigationItems.map(({ page, label, icon: Icon }) => (
           <button

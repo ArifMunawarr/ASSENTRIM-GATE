@@ -133,7 +133,7 @@ export default function DateRangePicker({ value, onChange, widthClass = "w-48", 
   return (
     <div className="relative" ref={popupRef}>
       <div
-        className={`bg-[#181C22] border border-[#444841] text-slate-300 text-[11px] px-3 py-2 ${widthClass} outline-none cursor-pointer flex items-center justify-between tracking-wider`}
+        className={`bg-[#181C22] border border-[#444841] text-slate-300 text-[11px] px-3 py-2 ${widthClass} outline-none cursor-pointer flex items-center justify-between tracking-wider h-[33.5px]`}
         onClick={() => setIsOpen(!isOpen)}
       >
         <span className={startDate ? 'text-slate-200' : 'text-slate-500'}>{displayLabel}</span>

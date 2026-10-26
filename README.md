@@ -1,6 +1,6 @@
 # ASENTRIM GATE COMMAND
 
-ASENTRIM Gate Command is a responsive React frontend for gate monitoring workflows, activity logs, and an operator help desk. The current application uses dummy login, sample activity data, and simulated gate authorization; it does not include a production authentication or gate-control backend.
+ASENTRIM Gate Command is a responsive React frontend for gate monitoring workflows and activity logs, using backend authentication and live API data. Operator Help Desk and the simulated Manual Gate UI are temporarily disabled, with their source code retained for future use.
 
 ## 🚀 Features
 
@@ -31,7 +31,7 @@ ASENTRIM Gate Command is a responsive React frontend for gate monitoring workflo
 │   │   ├── CheckboxSelect.jsx   # Multi-select dropdowns
 │   │   └── DateRangePicker.jsx  # Calendar date picker
 │   ├── pages/              # Application views
-│   │   ├── Login.jsx            # Dummy login page
+│   │   ├── Login.jsx            # Backend authentication
 │   │   ├── Dashboard.jsx        # Main command dashboard
 │   │   ├── ActivityLogs.jsx     # Access history table
 │   │   ├── OperatorHelpDesk.jsx # Gate processing interface
@@ -98,7 +98,7 @@ Konfigurasi [deploy/nginx.conf](deploy/nginx.conf) menyajikan hasil build statis
 
 ### Konfigurasi kamera dan status integrasi
 
-Variabel `VITE_CAM1_WEBRTC_URL` sampai `VITE_CAM5_WEBRTC_URL` adalah konfigurasi saat **build**, bukan saat Nginx mulai berjalan, dengan satu kamera untuk setiap gate. CAM-01 pada Gate 01 menggunakan `http://10.70.10.10:8889/gate-cam/whep` secara default; kamera lain memakai gambar contoh atau status offline selama URL-nya kosong. URL WHEP berbeda dari halaman pemutar `/gate-cam/`. Untuk mengatur endpoint WHEP/WebRTC, buat `.env.local` dari contoh, isi URL yang sesuai, lalu build ulang:
+Set `VITE_API_BASE_URL` in `.env.local` before building. Camera configuration is loaded at runtime from authenticated `GET /api/v1/gates`; per-camera environment variables, default stream URLs, and sample camera images are not used.
 
 ```bash
 cp .env.example .env.local
@@ -106,7 +106,7 @@ nano .env.local
 npm run build
 ```
 
-Pertahankan `.env.local` yang sudah dikonfigurasi saat melakukan pembaruan. Variabel berawalan `VITE_` dimasukkan ke berkas frontend dan dapat dibaca oleh browser; gunakan hanya konfigurasi publik di dalamnya. Deployment ini memasang frontend dummy: login belum memverifikasi akun ke backend, dan otorisasi serta pembukaan gerbang masih berupa simulasi antarmuka.
+Keep the configured `.env.local` during application updates. `VITE_` variables are public browser configuration, not a place for credentials. Updating a gate's camera URL in the backend does not require rebuilding the frontend. Manual Gate and Operator Help Desk remain disabled.
 
 ### Pembaruan aplikasi
 
@@ -141,4 +141,12 @@ The application fully supports dynamic switching between **Dark Mode** and **Lig
 
 ## Dashboard Cameras
 
-The dashboard uses `VITE_CAM1_WEBRTC_URL` through `VITE_CAM5_WEBRTC_URL`, mapped directly to gates 01 through 05. Each gate has a single camera; camera endpoints 6-12 are no longer used by this dashboard. Gate 04 shows the offline placeholder until its endpoint is configured. The other gates include the reference camera images as visual fallbacks; configured WebRTC streams retain their connection-status indicators and fullscreen controls.
+The dashboard keeps five slots for `GATE-01` through `GATE-05`, with one camera per gate from the API's `cameras` array (the first enabled camera). Gate names, camera IDs, and `cameras[].stream_url` come from the backend.
+
+- A missing gate, missing camera/URL, disabled gate, or offline agent shows OFFLINE, without a sample image.
+- Explicit camera telemetry (`telemetry.cameras[camera_id].ready` or `publisher_connected` set to `false`) also marks the camera OFFLINE.
+- A configured HTTP(S) WHEP URL shows CONNECTING during negotiation; ONLINE appears only once video playback starts. Disconnected streams show OFFLINE and retry automatically.
+- Gate configuration refreshes every 15 seconds and on SSE events. URL changes, removals, and availability changes also update an open camera preview without retaining an old stream.
+- Fullscreen reuses the tile's active MediaStream, preserving snapshot, audio, and playback controls without opening a second WHEP connection.
+
+The configured URL must be a browser-accessible WHEP endpoint, not an RTSP address or an HTML player page. The stream server must allow the frontend origin (CORS).
