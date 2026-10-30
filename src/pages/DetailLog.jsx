@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import Header from '../components/Header'
-import { Car, Shield, FileEdit, History, ChevronRight, CameraOff, Pencil, Check, X } from 'lucide-react'
+import { Car, Shield, FileEdit, History, ChevronRight, CameraOff, Pencil, Check, X, ArrowLeft } from 'lucide-react'
 
 import { getLogDetail, updateLogNotes } from '../services/api'
+import { evidencePhotoUrl } from '../utils/evidence'
+import AuthImage from '../components/AuthImage'
 
 const formatDetailTime = (value) => {
   if (!value) return '—'
@@ -35,8 +37,6 @@ const mapAccessStatus = (raw) => {
   if (value === 'pending') return 'PENDING'
   return 'AUTHORIZED'
 }
-
-const photoUrl = (value) => (typeof value === 'string' && /^https?:\/\//i.test(value) ? value : null)
 
 const mapHistoryItem = (item) => ({
   waktu: item.waktu ?? formatDetailTime(item.occurred_at ?? item.time ?? item.created_at),
@@ -91,8 +91,8 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
     waktuKeluar: exitTime ? formatDetailTime(exitTime) : (logData?.waktuKeluar && logData?.date ? `${logData.date} ${logData.waktuKeluar}` : logData?.waktuKeluar || '—'),
     durasi: formatDuration(detail?.duration_seconds ?? detail?.duration) ?? durationBetween(entryTime, exitTime) ?? '—',
     operator: detail?.operator_name ?? detail?.operator ?? '—',
-    fotoMasuk: photoUrl(detail?.entry_photo_url ?? detail?.entry_photo) ?? logData?.fotoMasuk ?? null,
-    fotoKeluar: photoUrl(detail?.exit_photo_url ?? detail?.exit_photo) ?? logData?.fotoKeluar ?? null,
+    fotoMasuk: (detail?.direction === 'exit' ? null : evidencePhotoUrl(detail)) ?? logData?.fotoMasuk ?? null,
+    fotoKeluar: (detail?.direction === 'exit' ? evidencePhotoUrl(detail) : null) ?? logData?.fotoKeluar ?? null,
     catatan: detail?.notes ?? detail?.operator_notes ?? 'No operator notes.',
     riwayat: (detail?.access_history ?? detail?.recent_events ?? logData?.riwayat ?? []).map(mapHistoryItem)
   }
@@ -123,7 +123,7 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
          */
         .detail-root {
           --detail-baseline-unit: min(calc(1920px / 1827.3), calc(1080px / 1032.38));
-          --u: clamp(0.7px, min(calc(100vw / 1827.3), calc(100vh / 1032.38)), var(--detail-baseline-unit));
+          --u: clamp(0.7px, min(calc(100vw / 1827.3), calc(100vh / 1082)), var(--detail-baseline-unit));
         }
 
         /*
@@ -136,6 +136,8 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
 
         /* ===== Page shell / title ===== */
         .dl-shell { padding: calc(15 * var(--u)) calc(20 * var(--u)); gap: calc(15 * var(--u)); }
+        .dl-back { align-self: flex-start; gap: calc(7.5 * var(--u)); padding: calc(9 * var(--u)) calc(15 * var(--u)); font-size: calc(13 * var(--u)); border-width: 1px; border-radius: calc(4 * var(--u)); margin-bottom: calc(10 * var(--u)); }
+        .dl-back-icon { width: calc(15 * var(--u)); height: calc(15 * var(--u)); }
         .dl-title-block { gap: calc(2.5 * var(--u)); }
         .dl-crumb { font-size: calc(11.5 * var(--u)); gap: calc(7.5 * var(--u)); }
         .dl-crumb-icon { width: calc(15 * var(--u)); height: calc(15 * var(--u)); }
@@ -181,6 +183,13 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
         
         {/* Title & Breadcrumb Header */}
         <div className="dl-title-block flex flex-col shrink-0">
+          <button
+            onClick={() => onNavigate && onNavigate('activitylogs')}
+            className={`dl-back inline-flex items-center font-bold tracking-widest uppercase transition-colors ${isLight ? 'border-[#D8D8D8] bg-white text-[#1F2937] hover:bg-[#F3F4F6]' : 'border-[#444841] bg-[#14161B] text-white hover:bg-[#1C2026]'}`}
+          >
+            <ArrowLeft className="dl-back-icon" />
+            Back to Log
+          </button>
           <div className="dl-crumb flex items-center font-black tracking-widest text-slate-400 uppercase">
             <button 
               onClick={() => onNavigate && onNavigate('activitylogs')} 
@@ -207,7 +216,7 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
           {/* Card 1: Vehicle Entry Photo */}
           <div className={`dl-photo-card relative border rounded-sm overflow-hidden group bg-[#000000] ${isLight ? 'border-[#D8D8D8]' : 'border-[#444841]'}`}>
             {data.fotoMasuk ? (
-              <img src={data.fotoMasuk} alt="Vehicle entry photo" className="w-full h-full object-cover" />
+              <AuthImage src={data.fotoMasuk} token={accessToken} alt="Vehicle entry photo" className="w-full h-full object-cover" fallbackSize={40} />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 gap-1 bg-[#121416]">
                 <CameraOff className="dl-cam-icon" />
@@ -228,7 +237,7 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
           {/* Card 2: Vehicle Exit Photo */}
           <div className={`dl-photo-card relative border rounded-sm overflow-hidden group bg-[#000000] ${isLight ? 'border-[#D8D8D8]' : 'border-[#444841]'}`}>
             {data.fotoKeluar ? (
-              <img src={data.fotoKeluar} alt="Vehicle exit photo" className="w-full h-full object-cover" />
+              <AuthImage src={data.fotoKeluar} token={accessToken} alt="Vehicle exit photo" className="w-full h-full object-cover" fallbackSize={40} />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 gap-1 bg-[#121416]">
                 <CameraOff className="dl-cam-icon" />

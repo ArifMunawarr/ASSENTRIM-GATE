@@ -1,4 +1,4 @@
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://10.70.10.10:8007').replace(/\/$/, '')
+export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://10.70.10.10:8007').replace(/\/$/, '')
 
 export class ApiError extends Error {
   constructor(message, status = 0) {
@@ -77,6 +77,11 @@ export const getCommands = (token, limit = 20) =>
 
 export const getLogs = async (token, params = {}) => {
   const payload = await requestFull(`/api/v1/logs${buildQuery(params)}`, { token })
+  return { items: payload?.data ?? [], pagination: payload?.pagination ?? null }
+}
+
+export const getVisits = async (token, params = {}) => {
+  const payload = await requestFull(`/api/v1/visits${buildQuery(params)}`, { token })
   return { items: payload?.data ?? [], pagination: payload?.pagination ?? null }
 }
 

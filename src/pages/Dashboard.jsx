@@ -90,8 +90,8 @@ const formatActivityTime = (value) => {
 }
 
 const mapActivityItem = (item) => ({
-  eventId: item.event_id ?? item.id,
-  id: String(item.plate_number ?? item.plate ?? item.log_number ?? item.event_id ?? item.id ?? '—'),
+  eventId: item.event_id ?? item.id ?? item.observation?.event_id,
+  id: (() => { const v = item.plate_number ?? item.plate ?? item.observation?.normalized_license_plate ?? item.observation?.raw_ocr_text ?? item.log_number; return v == null ? null : String(v); })(),
   gate: String(item.gate_code ?? item.gate ?? '').replace(/-/g, ' ').toUpperCase(),
   time: formatActivityTime(item.occurred_at ?? item.captured_at ?? item.created_at ?? item.timestamp ?? item.time),
   rfid: String(item.rfid_tag ?? item.rfid ?? item.rfidTag ?? item.vehicle?.rfid_tag ?? (item.observation?.observed_rfid_tags?.join(', ') || 'N/A')),
@@ -392,7 +392,9 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout, 
                   <span className="border border-[color:var(--dashboard-border)] bg-[var(--entry-badge-bg)] px-[calc(3*var(--dashboard-unit))] py-[calc(1*var(--dashboard-unit))] text-[length:calc(6*var(--dashboard-unit))] font-bold leading-[calc(8*var(--dashboard-unit))] text-[color:var(--entry-accent)] max-md:text-[9px]">{act.gate}</span>
                   <time className="text-[length:calc(6.5*var(--dashboard-unit))] text-[color:var(--dashboard-muted)] max-md:text-[9px]">{act.time}</time>
                 </div>
-                <div className="mb-[calc(3*var(--dashboard-unit))] mt-[calc(4*var(--dashboard-unit))] text-[length:calc(13*var(--dashboard-unit))] font-bold leading-none text-[color:var(--entry-number)] max-md:my-1.5 max-md:text-[18px]">{act.id}</div>
+                {act.id && (
+                  <div className="mb-[calc(3*var(--dashboard-unit))] mt-[calc(4*var(--dashboard-unit))] text-[length:calc(13*var(--dashboard-unit))] font-bold leading-none text-[color:var(--entry-number)] max-md:my-1.5 max-md:text-[18px]">{act.id}</div>
+                )}
                 <div className="flex items-baseline gap-[calc(3*var(--dashboard-unit))] whitespace-nowrap text-[length:calc(6.5*var(--dashboard-unit))] font-normal leading-[calc(10*var(--dashboard-unit))] max-md:text-[9px] max-md:leading-[14px]">
                   <span className="shrink-0 font-bold">RFID: {act.rfid}</span>
                   <span aria-hidden="true" className="text-[color:var(--dashboard-muted)]">&bull;</span>
