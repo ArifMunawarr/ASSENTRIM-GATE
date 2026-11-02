@@ -1,4 +1,4 @@
-export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://10.70.10.10:8007').replace(/\/$/, '')
+export const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL || 'http://10.70.10.10:8007').replace(/\/$/, '')
 
 export class ApiError extends Error {
   constructor(message, status = 0) {
@@ -88,13 +88,32 @@ export const getVisits = async (token, params = {}) => {
 export const getLogDetail = (token, eventId) =>
   request(`/api/v1/logs/${eventId}`, { token })
 
+export const getActivityReports = async (token, params = {}) => {
+  const payload = await requestFull(`/api/v1/activity-reports${buildQuery(params)}`, { token })
+  return { items: payload?.data ?? [], pagination: payload?.pagination ?? null, timezone: payload?.timezone }
+}
+
+export const getActivityReportDetail = async (token, reportId) => {
+  let payload
+  try {
+    payload = await requestFull(`/api/v1/activity-reports/${encodeURIComponent(reportId)}`, { token })
+  } catch (error) {
+    if (error.status !== 404) throw error
+    // An attempt can become a visit between opening the table and its detail.
+    const event = await getLogDetail(token, reportId)
+    if (!event?.visit?.id) throw error
+    payload = await requestFull(`/api/v1/activity-reports/${encodeURIComponent(event.visit.id)}`, { token })
+  }
+  return { ...payload.data, timezone: payload.timezone }
+}
+
 export const updateLogNotes = (token, eventId, notes) =>
   request(`/api/v1/logs/${eventId}/notes`, { method: 'PATCH', token, body: { notes } })
 
-export const exportLogs = async (token, format, params = {}) => {
+const downloadReport = async (token, path, format, params) => {
   let response
   try {
-    response = await fetch(`${API_BASE_URL}/api/v1/logs/export/${format}${buildQuery(params)}`, {
+    response = await fetch(`${API_BASE_URL}${path}/${format}${buildQuery(params)}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
   } catch {
@@ -109,6 +128,12 @@ export const exportLogs = async (token, format, params = {}) => {
     filename: /filename="?([^";]+)"?/.exec(response.headers.get('content-disposition') || '')?.[1] || `activity-logs.${format}`,
   }
 }
+
+export const exportLogs = (token, format, params = {}) =>
+  downloadReport(token, '/api/v1/logs/export', format, params)
+
+export const exportActivityReports = (token, format, params = {}) =>
+  downloadReport(token, '/api/v1/activity-reports/export', format, params)
 
 const parseSseBlock = (block) => {
   const event = { event: 'message', data: null, id: null }

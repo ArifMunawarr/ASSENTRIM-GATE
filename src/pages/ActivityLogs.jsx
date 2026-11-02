@@ -18,14 +18,11 @@ import deniedIcon from '../assets/deniedicon.svg'
 import iconTotTodayLight from '../assets/icontottoday(1).svg'
 import activeGateIconLight from '../assets/activegateicon(1).svg'
 import deniedIconLight from '../assets/deniedicon(1).svg'
-import { getDashboardSummary, getLogs, getGates, exportLogs } from '../services/api'
-import { evidencePhotoUrl } from '../utils/evidence'
+import { API_BASE_URL, getDashboardSummary, getActivityReports, getGates, exportActivityReports } from '../services/api'
+import { mapActivityReport } from '../utils/activityReports'
 import { buildGateTiles } from '../utils/gates'
 
 const PAGE_SIZE = 4
-// Fetch server rows in bigger chunks so client-side filtering (empty plates,
-// auto/operator split) can backfill a full page instead of leaving gaps.
-const CHUNK_SIZE = 20
 
 const defaultStats = {
   totalHariIni: 0,
@@ -35,53 +32,6 @@ const defaultStats = {
 }
 
 const gateApiCode = (label) => String(label || '').replace(/\s+/g, '-').toUpperCase()
-
-const formatLogTime = (value) => {
-  if (!value) return '—'
-  const parsed = new Date(value)
-  return Number.isNaN(parsed.getTime()) ? String(value) : parsed.toLocaleTimeString('en-GB', { hour12: false })
-}
-
-const formatLogDate = (value) => {
-  if (!value) return '—'
-  const parsed = new Date(value)
-  return Number.isNaN(parsed.getTime()) ? String(value).slice(0, 10) : parsed.toISOString().slice(0, 10)
-}
-
-const mapAccessStatus = (item) => {
-  const value = String(item.access_status ?? item.verification_status ?? item.status ?? '').toLowerCase()
-  if (value === 'denied' || value === 'violation' || value === 'unreadable') return 'DENIED'
-  if (value === 'pending') return 'PENDING'
-  const isOverride = item.command?.source === 'manual' || Boolean(item.operator_id || item.operator_name || item.command?.operator_id)
-  return isOverride ? 'OPERATOR OVERRIDE' : 'AUTO AUTHORIZED'
-}
-
-// /logs returns one event per row; its direction decides whether it fills
-// the Entry columns or the Exit columns (unknown counts as entry-side).
-const mapLogItem = (item) => {
-  const isExit = item.direction === 'exit'
-  const status = mapAccessStatus(item)
-  const rfidVerified = item.verification_status === 'verified'
-  const gate = String(item.gate_code ?? item.gate ?? '').replace(/-/g, ' ').toUpperCase() || '—'
-  const photo = evidencePhotoUrl(item)
-  const time = formatLogTime(item.captured_at ?? item.occurred_at ?? item.created_at ?? item.passed_at)
-  return {
-    id: item.event_id ?? item.id ?? item.observation?.event_id,
-    plate: item.plate_number ?? item.plate ?? item.observation?.normalized_license_plate ?? item.observation?.raw_ocr_text ?? null,
-    alternativeNumber: item.alternative_number ?? item.alt_plate ?? null,
-    gateMasuk: isExit ? '—' : gate,
-    fotoMasuk: isExit ? null : photo,
-    waktuMasuk: isExit ? '—' : time,
-    statusMasuk: isExit ? null : status,
-    gateKeluar: isExit ? gate : '—',
-    fotoKeluar: isExit ? photo : null,
-    waktuKeluar: isExit ? time : '—',
-    statusKeluar: isExit ? status : null,
-    date: formatLogDate(item.captured_at ?? item.occurred_at ?? item.created_at ?? item.date),
-    rfidStatus: rfidVerified ? 'VERIFIED' : 'NO RFID',
-    rfidOk: rfidVerified,
-  }
-}
 
 function LogNumberBadge({ value, status, theme, alternative = false }) {
   return (
@@ -131,6 +81,9 @@ function StatusBadge({ status, theme }) {
 const activityLogsCache = { token: null, summary: null, logs: null, totalItems: 0, view: null }
 
 export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogout, accessToken }) {
+  if (activityLogsCache.token !== accessToken) {
+    Object.assign(activityLogsCache, { token: accessToken, summary: null, logs: null, totalItems: 0, view: null })
+  }
   const cached = activityLogsCache.token === accessToken ? activityLogsCache : null
   const cachedView = cached?.view
 
@@ -196,7 +149,7 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
   const [exportError, setExportError] = useState(null)
   const [debouncedQuery, setDebouncedQuery] = useState(() => cachedView?.debouncedQuery ?? '')
   const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE))
-  const visibleLogs = logs.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+  const visibleLogs = logs
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(searchQuery.trim()), 300)
@@ -215,6 +168,7 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
     gate_code: gateSelection.length === 1 ? gateApiCode(gateSelection[0]) : undefined,
     vehicle_type: vehicleType !== 'all' ? vehicleType : undefined,
     access_status: rfidStatus === 'all' ? undefined : (rfidStatus === 'auto_authorized' || rfidStatus === 'operator_override' ? 'allowed' : rfidStatus),
+    authorization_mode: ['auto_authorized', 'operator_override'].includes(rfidStatus) ? rfidStatus : undefined,
     start_date: dayBoundaryIso(dateRange.startDate, false),
     end_date: dayBoundaryIso(dateRange.endDate || dateRange.startDate, true),
   })
@@ -229,6 +183,9 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
     // connect) queue one follow-up refresh instead of spawning a request per event.
     let inFlight = false
     let queued = false
+    // A changed page/filter must not keep showing rows from the previous query.
+    const queryKey = JSON.stringify({ ...buildLogParams(), page: currentPage })
+    if (activityLogsCache.queryKey !== queryKey) setLogs([])
 
     const load = async () => {
       if (inFlight) {
@@ -238,34 +195,20 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
       inFlight = true
       try {
         setLogsLoading(true)
-        // Accumulate filtered rows until the current page is full so hidden
-        // rows (no plate / excluded status) don't leave empty slots.
-        const needed = currentPage * PAGE_SIZE
-        const visible = []
-        let serverPage = 1
-        let total = null
-        for (;;) {
-          const { items, pagination } = await getLogs(accessToken, {
-            ...buildLogParams(),
-            page: serverPage,
-            limit: CHUNK_SIZE,
-          })
-          if (cancelled) return
-          const rows = items ?? []
-          total = pagination?.total ?? total
-          let mapped = rows.map(mapLogItem).filter((row) => row.plate)
-          // The API groups both allowed variants under access_status=allowed;
-          // the auto/operator split can only be applied client-side.
-          if (rfidStatus === 'auto_authorized' || rfidStatus === 'operator_override') {
-            const wanted = rfidStatus === 'auto_authorized' ? 'AUTO AUTHORIZED' : 'OPERATOR OVERRIDE'
-            mapped = mapped.filter((row) => row.statusMasuk === wanted || row.statusKeluar === wanted)
-          }
-          visible.push(...mapped)
-          if (rows.length < CHUNK_SIZE || visible.length >= needed) break
-          serverPage += 1
+        const { items, pagination, timezone } = await getActivityReports(accessToken, {
+          ...buildLogParams(), page: currentPage, limit: PAGE_SIZE,
+        })
+        if (cancelled) return
+        const total = pagination?.total ?? items.length
+        const lastPage = Math.max(1, Math.ceil(total / PAGE_SIZE))
+        if (currentPage > lastPage) {
+          setCurrentPage(lastPage)
+          return
         }
+        const visible = items.map((item) => ({ ...mapActivityReport(item, API_BASE_URL, timezone), report: item }))
         activityLogsCache.logs = visible
-        activityLogsCache.totalItems = total ?? visible.length
+        activityLogsCache.queryKey = queryKey
+        activityLogsCache.totalItems = total
         setLogs(visible)
         setTotalItems(activityLogsCache.totalItems)
       } catch {
@@ -290,7 +233,7 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
   const handleExport = async (format) => {
     setExportError(null)
     try {
-      const { blob, filename } = await exportLogs(accessToken, format, {
+      const { blob, filename } = await exportActivityReports(accessToken, format, {
         ...buildLogParams(),
         page: undefined,
         limit: undefined,

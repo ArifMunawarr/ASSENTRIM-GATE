@@ -8,6 +8,7 @@ import Profile from './pages/Profile'
 import ViolationPopup from './components/ViolationPopup'
 import { getMe, logout as apiLogout, refreshToken, subscribeRealtime } from './services/api'
 import { OPERATOR_HELP_DESK_ENABLED } from './features'
+import { reportFromLocation, reportDetailPath } from './utils/reportRouting'
 
 const PAGE_PATHS = {
   login: '/login',
@@ -39,7 +40,7 @@ const saveAuth = (auth) => sessionStorage.setItem(AUTH_KEY, JSON.stringify(auth)
 function App() {
   const [auth, setAuth] = useState(getStoredAuth)
   const [currentPage, setCurrentPage] = useState(() => getPageFromPath(window.location.pathname) || 'dashboard')
-  const [selectedLog, setSelectedLog] = useState(() => window.history.state?.logData || null)
+  const [selectedLog, setSelectedLog] = useState(() => reportFromLocation(window.location, window.history.state))
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark')
 
   const isLoggedIn = !!auth?.accessToken
@@ -68,8 +69,15 @@ function App() {
         return
       }
 
+      const logData = pageFromUrl === 'detaillog' ? reportFromLocation(window.location, window.history.state) : null
+      if (pageFromUrl === 'detaillog' && !logData) {
+        window.history.replaceState({}, '', PAGE_PATHS.activitylogs)
+        setCurrentPage('activitylogs')
+        setSelectedLog(null)
+        return
+      }
       setCurrentPage(pageFromUrl)
-      setSelectedLog(window.history.state?.logData || null)
+      setSelectedLog(logData)
     }
 
     syncPageFromUrl()
@@ -204,7 +212,8 @@ function App() {
   const updateRoute = (page, { replace = false, logData = null } = {}) => {
     const nextPage = PAGE_PATHS[page] && (page !== 'helpdesk' || OPERATOR_HELP_DESK_ENABLED) ? page : 'dashboard'
     const historyMethod = replace ? 'replaceState' : 'pushState'
-    window.history[historyMethod](logData ? { logData } : {}, '', PAGE_PATHS[nextPage])
+    const path = nextPage === 'detaillog' ? reportDetailPath(PAGE_PATHS[nextPage], logData) : PAGE_PATHS[nextPage]
+    window.history[historyMethod](logData ? { logData } : {}, '', path)
     setCurrentPage(nextPage)
     setSelectedLog(logData)
   }
@@ -229,8 +238,8 @@ function App() {
     setAuth(next)
   }
 
-  const handleNavigate = (page, logData) => {
-    updateRoute(page, { logData })
+  const handleNavigate = (page, logData, options = {}) => {
+    updateRoute(page, { ...options, logData })
   }
 
   const pageProps = { user: auth?.user, accessToken: auth?.accessToken, onUserUpdate: handleUserUpdate, onNavigate: handleNavigate, theme, onToggleTheme: toggleTheme, onLogout: handleLogout }

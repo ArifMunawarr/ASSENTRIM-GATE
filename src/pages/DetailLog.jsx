@@ -1,111 +1,76 @@
 import React, { useEffect, useState } from 'react'
 import Header from '../components/Header'
-import { Car, Shield, FileEdit, History, ChevronRight, CameraOff, Pencil, Check, X, ArrowLeft } from 'lucide-react'
+import { Car, Shield, FileEdit, History, ChevronRight, CameraOff, Pencil, Check, X, ArrowLeft, ZoomIn } from 'lucide-react'
 
-import { getLogDetail, updateLogNotes } from '../services/api'
-import { evidencePhotoUrl } from '../utils/evidence'
+import { API_BASE_URL, getActivityReportDetail, updateLogNotes } from '../services/api'
+import { mapActivityReportDetail } from '../utils/activityReports'
 import AuthImage from '../components/AuthImage'
 
-const formatDetailTime = (value) => {
-  if (!value) return '—'
-  const parsed = new Date(value)
-  if (Number.isNaN(parsed.getTime())) return String(value)
-  return `${parsed.toISOString().slice(0, 10)} ${parsed.toLocaleTimeString('en-GB', { hour12: false })}`
-}
-
-const formatDuration = (seconds) => {
-  const total = Number(seconds)
-  if (!Number.isFinite(total) || total < 0) return null
-  const hours = Math.floor(total / 3600)
-  const minutes = Math.floor((total % 3600) / 60)
-  if (hours === 0) return `${minutes} minutes`
-  return `${hours} hours ${minutes} minutes`
-}
-
-const durationBetween = (start, end) => {
-  const a = new Date(start).getTime()
-  const b = new Date(end).getTime()
-  if (Number.isNaN(a) || Number.isNaN(b) || b < a) return null
-  return formatDuration((b - a) / 1000)
-}
-
-const normGate = (value) => String(value || '').replace(/-/g, ' ').toUpperCase() || '—'
-
-const mapAccessStatus = (raw) => {
-  const value = String(raw || '').toLowerCase()
-  if (value === 'denied' || value === 'violation' || value === 'unreadable') return 'DENIED'
-  if (value === 'pending') return 'PENDING'
-  return 'AUTHORIZED'
-}
-
-const mapHistoryItem = (item) => ({
-  waktu: item.waktu ?? formatDetailTime(item.occurred_at ?? item.time ?? item.created_at),
-  gate: normGate(item.gate ?? item.gate_code ?? item.gate_label),
-  status: String(item.status ?? item.access_status ?? '—').toUpperCase(),
-})
-
-// Keeps fetched details per event so reopening a log renders instantly.
+// Report IDs identify visits or attempts; event IDs are used only for notes.
 const detailCache = { token: null, byId: {} }
 
 export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, onLogout, accessToken }) {
   const isLight = theme === 'light'
+  const reportId = logData?.reportId ?? logData?.id
+  if (detailCache.token !== accessToken) {
+    detailCache.token = accessToken
+    detailCache.byId = {}
+  }
   const [detail, setDetail] = useState(() => (
-    detailCache.token === accessToken ? (detailCache.byId[logData?.id] ?? null) : null
+    detailCache.byId[reportId] ?? null
   ))
   const [editingNotes, setEditingNotes] = useState(false)
   const [notesDraft, setNotesDraft] = useState('')
   const [savingNotes, setSavingNotes] = useState(false)
+  const [enlargedPhoto, setEnlargedPhoto] = useState(null)
 
   useEffect(() => {
-    if (!accessToken || !logData?.id) return
+    if (!accessToken || !reportId) return
     let cancelled = false
-    detailCache.token = accessToken
-    getLogDetail(accessToken, logData.id)
-      .then((data) => {
+    let inFlight = false
+    let queued = false
+    setDetail(detailCache.byId[reportId] ?? null)
+    setEditingNotes(false)
+    const load = async () => {
+      if (inFlight) { queued = true; return }
+      inFlight = true
+      try {
+        const result = await getActivityReportDetail(accessToken, reportId)
         if (cancelled) return
-        detailCache.byId[logData.id] = data
-        setDetail(data)
-      })
-      .catch(() => {})
-    return () => { cancelled = true }
-  }, [accessToken, logData?.id])
+        detailCache.byId[result.id] = result
+        setDetail(result)
+        if (result.id !== reportId) {
+          onNavigate?.('detaillog', { id: result.id, reportId: result.id, report: result }, { replace: true })
+        }
+      } catch {
+        // Preserve the table snapshot if a transient error prevents refresh.
+      } finally {
+        inFlight = false
+        if (queued && !cancelled) { queued = false; load() }
+      }
+    }
+    load()
+    window.addEventListener('asentrim-realtime', load)
+    return () => {
+      cancelled = true
+      window.removeEventListener('asentrim-realtime', load)
+    }
+  }, [accessToken, reportId])
 
-  const entryTime = detail?.entry_time ?? detail?.entered_at ?? detail?.occurred_at ?? null
-  const exitTime = detail?.exit_time ?? detail?.exited_at ?? null
-
-  const data = {
-    id: detail?.event_id ?? logData?.id ?? '—',
-    status: mapAccessStatus(detail?.access_status ?? detail?.verification_status ?? logData?.status),
-    plate: detail?.plate_number ?? logData?.plate ?? '—',
-    type: String(detail?.vehicle_type ?? logData?.type ?? '—').toUpperCase(),
-    color: detail?.color ?? '—',
-    brand: detail?.brand ?? detail?.model ?? '—',
-    year: detail?.year ?? '—',
-    rfidTag: detail?.rfid_tag ?? '—',
-    rfidStatus: detail?.rfid_status ?? logData?.rfidStatus ?? '—',
-    rfidOk: detail?.rfid_ok ?? logData?.rfidOk ?? String(detail?.rfid_status ?? 'VERIFIED').toUpperCase() === 'VERIFIED',
-    driver: detail?.driver_name ?? logData?.driver ?? 'Unknown',
-    gateMasuk: normGate(detail?.entry_gate ?? detail?.entry_gate_code ?? detail?.gate_code ?? logData?.gateMasuk),
-    gateKeluar: normGate(detail?.exit_gate ?? detail?.exit_gate_code ?? logData?.gateKeluar),
-    waktuMasuk: entryTime ? formatDetailTime(entryTime) : (logData?.waktuMasuk && logData?.date ? `${logData.date} ${logData.waktuMasuk}` : logData?.waktuMasuk || '—'),
-    waktuKeluar: exitTime ? formatDetailTime(exitTime) : (logData?.waktuKeluar && logData?.date ? `${logData.date} ${logData.waktuKeluar}` : logData?.waktuKeluar || '—'),
-    durasi: formatDuration(detail?.duration_seconds ?? detail?.duration) ?? durationBetween(entryTime, exitTime) ?? '—',
-    operator: detail?.operator_name ?? detail?.operator ?? '—',
-    fotoMasuk: (detail?.direction === 'exit' ? null : evidencePhotoUrl(detail)) ?? logData?.fotoMasuk ?? null,
-    fotoKeluar: (detail?.direction === 'exit' ? evidencePhotoUrl(detail) : null) ?? logData?.fotoKeluar ?? null,
-    catatan: detail?.notes ?? detail?.operator_notes ?? 'No operator notes.',
-    riwayat: (detail?.access_history ?? detail?.recent_events ?? logData?.riwayat ?? []).map(mapHistoryItem)
-  }
+  const activeDetail = detail?.id === reportId ? detail : null
+  const data = mapActivityReportDetail(activeDetail ?? logData?.report ?? { id: reportId }, API_BASE_URL)
+  const notesEventId = activeDetail?.detail_event_id ?? logData?.detailEventId ?? logData?.report?.detail_event_id
 
   const handleSaveNotes = async () => {
-    if (!accessToken || !logData?.id) return
+    if (!accessToken || !notesEventId) return
     setSavingNotes(true)
     try {
-      const updated = await updateLogNotes(accessToken, logData.id, notesDraft.trim())
-      const merged = { ...(detailCache.byId[logData.id] || {}), notes: updated?.notes ?? notesDraft.trim() }
-      detailCache.byId[logData.id] = merged
-      setDetail((prev) => ({ ...(prev || merged), notes: merged.notes }))
+      const updated = await updateLogNotes(accessToken, notesEventId, notesDraft.trim())
+      const merged = { ...(activeDetail ?? logData?.report), notes: updated?.notes ?? notesDraft.trim() }
+      detailCache.byId[reportId] = merged
+      setDetail(merged)
       setEditingNotes(false)
+      window.dispatchEvent(new CustomEvent('asentrim-realtime', { detail: { event: 'event.updated' } }))
     } catch {
       // Keep edit mode open so the operator can retry
     } finally {
@@ -150,6 +115,8 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
         .dl-cam-icon { width: calc(30.5 * var(--u)); height: calc(30.5 * var(--u)); }
         .dl-cam-text { font-size: calc(12.5 * var(--u)); }
         .dl-ov-tl { top: calc(10 * var(--u)); left: calc(10 * var(--u)); padding: calc(5 * var(--u)) calc(12.5 * var(--u)); }
+        .dl-zoom-btn { top: calc(10 * var(--u)); right: calc(10 * var(--u)); padding: calc(6 * var(--u)); border-radius: calc(4 * var(--u)); }
+        .dl-zoom-icon { width: calc(15 * var(--u)); height: calc(15 * var(--u)); }
         .dl-ov-br { bottom: calc(10 * var(--u)); right: calc(10 * var(--u)); padding: calc(5 * var(--u)) calc(15 * var(--u)); }
         .dl-ov-text { font-size: calc(11 * var(--u)); }
 
@@ -216,7 +183,7 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
           {/* Card 1: Vehicle Entry Photo */}
           <div className={`dl-photo-card relative border rounded-sm overflow-hidden group bg-[#000000] ${isLight ? 'border-[#D8D8D8]' : 'border-[#444841]'}`}>
             {data.fotoMasuk ? (
-              <AuthImage src={data.fotoMasuk} token={accessToken} alt="Vehicle entry photo" className="w-full h-full object-cover" fallbackSize={40} />
+              <AuthImage src={data.fotoMasuk} token={accessToken} alt="Vehicle entry photo" className="h-full w-full object-cover object-center" fallbackSize={40} />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 gap-1 bg-[#121416]">
                 <CameraOff className="dl-cam-icon" />
@@ -232,12 +199,21 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
             <div className={`dl-ov-br absolute rounded-sm backdrop-blur-xs ${isLight ? 'bg-[#FFFFFFE5] border border-[#0066CC]' : 'bg-[#0B1326E6] border border-[#2EAFF9]'}`}>
               <span className={`dl-ov-text font-black tracking-widest uppercase ${isLight ? 'text-[#1F2937]' : 'text-white'}`}>VEHICLE ENTRY PHOTO</span>
             </div>
+            {data.fotoMasuk && (
+              <button
+                onClick={() => setEnlargedPhoto({ src: data.fotoMasuk, label: 'VEHICLE ENTRY PHOTO' })}
+                aria-label="Zoom entry photo"
+                className="dl-zoom-btn absolute bg-[#00000066] backdrop-blur-xs text-white transition-colors hover:bg-[#00000099]"
+              >
+                <ZoomIn className="dl-zoom-icon" />
+              </button>
+            )}
           </div>
 
           {/* Card 2: Vehicle Exit Photo */}
           <div className={`dl-photo-card relative border rounded-sm overflow-hidden group bg-[#000000] ${isLight ? 'border-[#D8D8D8]' : 'border-[#444841]'}`}>
             {data.fotoKeluar ? (
-              <AuthImage src={data.fotoKeluar} token={accessToken} alt="Vehicle exit photo" className="w-full h-full object-cover" fallbackSize={40} />
+              <AuthImage src={data.fotoKeluar} token={accessToken} alt="Vehicle exit photo" className="h-full w-full object-cover object-center" fallbackSize={40} />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 gap-1 bg-[#121416]">
                 <CameraOff className="dl-cam-icon" />
@@ -255,6 +231,15 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
             <div className={`dl-ov-br absolute rounded-sm backdrop-blur-xs ${isLight ? 'bg-[#FFFFFFE5] border border-[#0066CC]' : 'bg-[#0B1326E6] border border-[#2EAFF9]'}`}>
               <span className={`dl-ov-text font-black tracking-widest uppercase ${isLight ? 'text-[#1F2937]' : 'text-white'}`}>VEHICLE EXIT PHOTO</span>
             </div>
+            {data.fotoKeluar && (
+              <button
+                onClick={() => setEnlargedPhoto({ src: data.fotoKeluar, label: 'VEHICLE EXIT PHOTO' })}
+                aria-label="Zoom exit photo"
+                className="dl-zoom-btn absolute bg-[#00000066] backdrop-blur-xs text-white transition-colors hover:bg-[#00000099]"
+              >
+                <ZoomIn className="dl-zoom-icon" />
+              </button>
+            )}
           </div>
 
 
@@ -498,6 +483,32 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
           </div>
         </div>
       </div>
+
+      {/* Fullscreen Photo Popup */}
+      {enlargedPhoto && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-6"
+          onClick={() => setEnlargedPhoto(null)}
+        >
+          <span className="absolute top-4 left-6 text-sm font-black tracking-widest uppercase text-white/80">
+            {enlargedPhoto.label}
+          </span>
+          <button
+            onClick={() => setEnlargedPhoto(null)}
+            aria-label="Close photo preview"
+            className="absolute top-4 right-4 rounded-sm bg-white/10 p-2 text-white transition-colors hover:bg-white/25"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <AuthImage
+            src={enlargedPhoto.src}
+            token={accessToken}
+            alt={enlargedPhoto.label}
+            className="max-h-full max-w-full object-contain"
+            fallbackSize={64}
+          />
+        </div>
+      )}
     </div>
   )
 }

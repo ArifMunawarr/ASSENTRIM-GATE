@@ -56,8 +56,6 @@ function CameraFeed({ camera, gateName, theme, onExpand, onStream, onStatusChang
         </div>
       )}
 
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgb(0_0_0_/_35%),rgb(0_0_0_/_30%)_70%,rgb(0_0_0_/_60%))]" />
-
       <div className="pointer-events-none absolute left-[calc(10*var(--dashboard-unit))] top-[calc(9*var(--dashboard-unit))]">
         <CameraStatus status={status} compact />
       </div>
@@ -94,18 +92,30 @@ const mapActivityItem = (item) => ({
   id: (() => { const v = item.plate_number ?? item.plate ?? item.observation?.normalized_license_plate ?? item.observation?.raw_ocr_text ?? item.log_number; return v == null ? null : String(v); })(),
   gate: String(item.gate_code ?? item.gate ?? '').replace(/-/g, ' ').toUpperCase(),
   time: formatActivityTime(item.occurred_at ?? item.captured_at ?? item.created_at ?? item.timestamp ?? item.time),
-  rfid: String(item.rfid_tag ?? item.rfid ?? item.rfidTag ?? item.vehicle?.rfid_tag ?? (item.observation?.observed_rfid_tags?.join(', ') || 'N/A')),
+  rfid: item.verification_status === 'verified' && mapActivityStatus(item) !== 'DENIED'
+    ? (item.vehicle?.rfid_tag ?? item.rfid_tag ?? null)
+    : null,
   driver: String(item.driver_name ?? item.vehicle?.personnel_name ?? item.driver ?? 'Unknown').toUpperCase(),
   type: String(item.vehicle_type ?? item.vehicle?.vehicle_type ?? item.type ?? '—').toUpperCase(),
   status: mapActivityStatus(item),
+  reason: ({
+    plate_unregistered: 'Plat tidak terdaftar',
+    low_ocr_confidence: 'Hasil baca plat belum meyakinkan',
+    registered_vehicle_without_rfid: 'Kendaraan belum memiliki RFID terdaftar',
+    rfid_reader_unavailable: 'Reader RFID tidak tersedia',
+    command_center_unavailable: 'Layanan verifikasi belum tersedia',
+    expected_rfid_not_found: 'RFID tidak cocok dengan plat',
+    no_rfid_detected: 'RFID tidak terbaca',
+  })[item.result_reason] ?? item.result_reason ?? 'Akses ditolak',
 })
 
 const mapCommandItem = (item) => {
   const at = item.created_at ?? item.executed_at ?? item.timestamp
   const parsed = at ? new Date(at) : null
   const valid = parsed && !Number.isNaN(parsed.getTime())
+  const pad = (n) => String(n).padStart(2, '0')
   return {
-    date: valid ? parsed.toISOString().slice(0, 10) : '—',
+    date: valid ? `${parsed.getFullYear()}-${pad(parsed.getMonth() + 1)}-${pad(parsed.getDate())}` : '—',
     time: valid ? parsed.toLocaleTimeString('en-GB', { hour12: false }) : '—',
     reason: item.reason ?? item.note ?? item.description ?? '—',
   }
@@ -396,11 +406,14 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout, 
                   <div className="mb-[calc(3*var(--dashboard-unit))] mt-[calc(4*var(--dashboard-unit))] text-[length:calc(13*var(--dashboard-unit))] font-bold leading-none text-[color:var(--entry-number)] max-md:my-1.5 max-md:text-[18px]">{act.id}</div>
                 )}
                 <div className="flex items-baseline gap-[calc(3*var(--dashboard-unit))] whitespace-nowrap text-[length:calc(6.5*var(--dashboard-unit))] font-normal leading-[calc(10*var(--dashboard-unit))] max-md:text-[9px] max-md:leading-[14px]">
-                  <span className="shrink-0 font-bold">RFID: {act.rfid}</span>
-                  <span aria-hidden="true" className="text-[color:var(--dashboard-muted)]">&bull;</span>
+                  {act.rfid && <>
+                    <span className="shrink-0 font-bold">RFID: {act.rfid}</span>
+                    <span aria-hidden="true" className="text-[color:var(--dashboard-muted)]">&bull;</span>
+                  </>}
                   <span className="min-w-0 truncate" title={act.driver}>DRIVER: {act.driver}</span>
                 </div>
                 <div className="whitespace-nowrap text-[length:calc(6.5*var(--dashboard-unit))] font-normal leading-[calc(10*var(--dashboard-unit))] text-[#c5c8be] max-md:text-[9px] max-md:leading-[14px]">TYPE: {act.type}</div>
+                {['DENIED', 'PENDING'].includes(act.status) && <div className="text-[length:calc(6.5*var(--dashboard-unit))] text-[color:var(--entry-accent)] max-md:text-[9px]">{act.reason}</div>}
                 <div className="mt-[calc(1*var(--dashboard-unit))] flex items-center justify-between text-[length:calc(6.5*var(--dashboard-unit))] font-bold leading-[calc(9*var(--dashboard-unit))] text-[color:var(--entry-accent)] max-md:mt-1 max-md:text-[9px]">
                   <span>{act.status}</span>
                   {act.status === 'DENIED' && (
@@ -708,8 +721,6 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout, 
               <p className="mt-3 text-xs font-normal tracking-normal sm:text-sm">{expandedCamera.offlineReason || (getCameraStatus(expandedCamera, cameraStatuses) === 'offline' ? 'Stream disconnected' : 'Waiting for camera stream')}</p>
             </div>
           )}
-
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0d12] via-transparent to-[#0a0d12]/40 pointer-events-none" />
 
           {/* Top Left Status */}
           <CameraStatus
