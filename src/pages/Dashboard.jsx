@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import Header from '../components/Header'
 import { getVisualRect } from '../utils/viewport'
 import { buildGateTiles, getCameraStatus, retainCameraStatuses } from '../utils/gates'
-import { AlertTriangle, ChevronDown, ChevronRight, ChevronsRight, ChevronLeft, FileText, X } from 'lucide-react'
+import { ChevronDown, ChevronRight, ChevronsRight, ChevronLeft, FileText, X } from 'lucide-react'
 import historymangate from '../assets/historymangate.svg'
 import historymangateLight from '../assets/historymangate(1).svg'
 import progressVisuals from '../assets/Progress_Visuals.svg'
@@ -11,6 +11,7 @@ import opnreasonLight from '../assets/opnreason(1).svg'
 import WebRtcPlayer from '../components/WebRtcPlayer'
 import { getGates, getActivity, getCommands } from '../services/api'
 import { MANUAL_GATE_ENABLED } from '../features'
+import { accessStatusLabel } from '../utils/activityReports'
 
 function CameraStatus({ status, className = '', compact = false }) {
   return (
@@ -92,21 +93,10 @@ const mapActivityItem = (item) => ({
   id: (() => { const v = item.plate_number ?? item.plate ?? item.observation?.normalized_license_plate ?? item.observation?.raw_ocr_text ?? item.log_number; return v == null ? null : String(v); })(),
   gate: String(item.gate_code ?? item.gate ?? '').replace(/-/g, ' ').toUpperCase(),
   time: formatActivityTime(item.occurred_at ?? item.captured_at ?? item.created_at ?? item.timestamp ?? item.time),
-  rfid: item.verification_status === 'verified' && mapActivityStatus(item) !== 'DENIED'
-    ? (item.vehicle?.rfid_tag ?? item.rfid_tag ?? null)
-    : null,
+  rfid: item.vehicle?.rfid_tag ?? item.rfid_tag ?? 'N/A',
   driver: String(item.driver_name ?? item.vehicle?.personnel_name ?? item.driver ?? 'Unknown').toUpperCase(),
   type: String(item.vehicle_type ?? item.vehicle?.vehicle_type ?? item.type ?? '—').toUpperCase(),
   status: mapActivityStatus(item),
-  reason: ({
-    plate_unregistered: 'Plat tidak terdaftar',
-    low_ocr_confidence: 'Hasil baca plat belum meyakinkan',
-    registered_vehicle_without_rfid: 'Kendaraan belum memiliki RFID terdaftar',
-    rfid_reader_unavailable: 'Reader RFID tidak tersedia',
-    command_center_unavailable: 'Layanan verifikasi belum tersedia',
-    expected_rfid_not_found: 'RFID tidak cocok dengan plat',
-    no_rfid_detected: 'RFID tidak terbaca',
-  })[item.result_reason] ?? item.result_reason ?? 'Akses ditolak',
 })
 
 const mapCommandItem = (item) => {
@@ -340,7 +330,7 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout, 
       [--dashboard-unit:calc(var(--layout-width)/1024)]
       max-md:h-auto max-md:min-h-[100dvh] max-md:overflow-visible max-md:[--dashboard-unit:1px]
       ${theme === 'light'
-        ? '[--dashboard-bg:#f4f7fb] [--dashboard-border:#cbd5e1] [--dashboard-accent:#0c5f9a] [--dashboard-muted:#64748b] [--activity-bg:#fff] [--activity-denied-bg:#fff0ef] [--activity-text:#172033] [--activity-warning:#a3262e] [--activity-authorized:#0c5f9a] [--activity-number:#0c5f9a] [--activity-pending:#b45309] [--activity-pending-bg:#fef3c7] [--activity-override:#9a5700] [--activity-override-number:#9a5700] [--activity-override-bg:#fff4df]'
+        ? '[--dashboard-bg:#f4f7fb] [--dashboard-border:#cbd5e1] [--dashboard-accent:#0c5f9a] [--dashboard-muted:#64748b] [--activity-bg:#fff] [--activity-denied-bg:#fff0ef] [--activity-text:#172033] [--activity-warning:#a3262e] [--activity-authorized:#0c5f9a] [--activity-number:#0c5f9a] [--activity-pending:#b45309] [--activity-pending-bg:#fef3c7] [--activity-override:#f6b51e] [--activity-override-number:#f6b51e] [--activity-override-bg:#624c18]'
         : '[--dashboard-bg:#121416] [--dashboard-border:#47483c] [--dashboard-accent:#2eaff9] [--dashboard-muted:#888a86] [--activity-bg:#282a2c] [--activity-denied-bg:#391c1e] [--activity-text:#dfe2eb] [--activity-warning:#ffb4ab] [--activity-authorized:#2eaff9] [--activity-number:#66bfff] [--activity-pending:#ffa741] [--activity-pending-bg:#ffa7411a] [--activity-override:#ffa741] [--activity-override-number:#ffb662] [--activity-override-bg:#352a1b]'}
     `}>
       {/* Header */}
@@ -390,13 +380,11 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout, 
               </div>
             ) : liveActivities.map((act, idx) => (
               <article key={act.eventId ?? idx} className={`min-h-[calc(79.5*var(--dashboard-unit))] border-b p-[calc(8*var(--dashboard-unit))] text-[color:var(--activity-text)] max-md:min-h-[104px] max-md:px-3 max-md:py-2.5 ${
-                act.status === 'OPERATOR OVERRIDE'
-                  ? 'border-[color:var(--activity-override)] bg-[var(--activity-override-bg)] [--entry-accent:var(--activity-override)] [--entry-number:var(--activity-override-number)] [--entry-badge-bg:rgb(197_200_190_/_10%)]'
-                  : act.status === 'DENIED'
-                    ? 'border-[color:var(--dashboard-border)] bg-[var(--activity-denied-bg)] [--entry-accent:var(--activity-warning)] [--entry-number:var(--activity-warning)] [--entry-badge-bg:rgb(255_180_171_/_10%)]'
-                    : act.status === 'PENDING'
-                      ? 'border-[color:var(--dashboard-border)] bg-[var(--activity-bg)] [--entry-accent:var(--activity-pending)] [--entry-number:var(--activity-pending)] [--entry-badge-bg:var(--activity-pending-bg)]'
-                      : 'border-[color:var(--dashboard-border)] bg-[var(--activity-bg)] [--entry-accent:var(--activity-authorized)] [--entry-number:var(--activity-number)] [--entry-badge-bg:rgb(197_200_190_/_10%)]'
+                accessStatusLabel(act.status) === 'OPERATOR OVERRIDE'
+                  ? 'border-[color:var(--activity-override)] bg-[var(--activity-override-bg)] [--activity-text:#dfe2eb] [--entry-accent:var(--activity-override)] [--entry-number:var(--activity-override-number)] [--entry-badge-bg:rgb(197_200_190_/_10%)]'
+                  : act.status === 'PENDING'
+                    ? 'border-[color:var(--dashboard-border)] bg-[var(--activity-bg)] [--entry-accent:var(--activity-pending)] [--entry-number:var(--activity-pending)] [--entry-badge-bg:var(--activity-pending-bg)]'
+                    : 'border-[color:var(--dashboard-border)] bg-[var(--activity-bg)] [--entry-accent:var(--activity-authorized)] [--entry-number:var(--activity-number)] [--entry-badge-bg:rgb(197_200_190_/_10%)]'
               }`}>
                 <div className="flex items-center justify-between">
                   <span className="border border-[color:var(--dashboard-border)] bg-[var(--entry-badge-bg)] px-[calc(3*var(--dashboard-unit))] py-[calc(1*var(--dashboard-unit))] text-[length:calc(6*var(--dashboard-unit))] font-bold leading-[calc(8*var(--dashboard-unit))] text-[color:var(--entry-accent)] max-md:text-[9px]">{act.gate}</span>
@@ -413,12 +401,8 @@ export default function Dashboard({ onNavigate, theme, onToggleTheme, onLogout, 
                   <span className="min-w-0 truncate" title={act.driver}>DRIVER: {act.driver}</span>
                 </div>
                 <div className="whitespace-nowrap text-[length:calc(6.5*var(--dashboard-unit))] font-normal leading-[calc(10*var(--dashboard-unit))] text-[#c5c8be] max-md:text-[9px] max-md:leading-[14px]">TYPE: {act.type}</div>
-                {['DENIED', 'PENDING'].includes(act.status) && <div className="text-[length:calc(6.5*var(--dashboard-unit))] text-[color:var(--entry-accent)] max-md:text-[9px]">{act.reason}</div>}
                 <div className="mt-[calc(1*var(--dashboard-unit))] flex items-center justify-between text-[length:calc(6.5*var(--dashboard-unit))] font-bold leading-[calc(9*var(--dashboard-unit))] text-[color:var(--entry-accent)] max-md:mt-1 max-md:text-[9px]">
-                  <span>{act.status}</span>
-                  {act.status === 'DENIED' && (
-                    <span className="flex items-center gap-[calc(2*var(--dashboard-unit))]">WARNING <AlertTriangle aria-hidden="true" className="h-[calc(7*var(--dashboard-unit))] w-[calc(7*var(--dashboard-unit))]" /></span>
-                  )}
+                  <span>{accessStatusLabel(act.status)}</span>
                 </div>
               </article>
             ))}

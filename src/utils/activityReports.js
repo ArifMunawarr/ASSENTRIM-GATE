@@ -7,15 +7,18 @@ export function apiPhotoUrl(value, baseUrl) {
   return `${baseUrl.replace(/\/$/, '')}/${value.replace(/^\//, '')}`
 }
 
+// A display label only: denied access must never become permission to open a gate.
+export const accessStatusLabel = (status) => status === 'DENIED' ? 'OPERATOR OVERRIDE' : status
+
 export function reportStatus(item) {
   if (item?.access_status === 'allowed') {
     return item.operator_name ? 'OPERATOR OVERRIDE' : 'AUTO AUTHORIZED'
   }
-  return item?.access_status === 'denied' ? 'DENIED' : 'PENDING'
+  return item?.access_status === 'denied' ? accessStatusLabel('DENIED') : 'PENDING'
 }
 
 export function rfidLabel(value) {
-  return ({ verified: 'VERIFIED', no_rfid: 'NO RFID', mismatch: 'MISMATCH', pending: 'PENDING', unreadable: 'UNREADABLE' })[value] ?? EMPTY
+  return value === 'verified' ? 'VERIFIED' : 'NO RFID'
 }
 
 export function reportTime(value, timezone = REPORT_TIMEZONE, withDate = false) {
@@ -83,6 +86,7 @@ export function mapActivityReport(item, baseUrl, timezone = REPORT_TIMEZONE) {
     rfidStatus: rfidLabel(item.rfid_status),
     rfidOk: item.rfid_status === 'verified',
     status: reportStatus(item),
+    accessStatus: item.access_status,
   }
 }
 
@@ -96,7 +100,7 @@ export function mapActivityReportDetail(item, baseUrl) {
     ...row,
     plate: row.plate ?? EMPTY,
     type: String(item.vehicle_type ?? vehicle.vehicle_type ?? EMPTY).toUpperCase(),
-    status: item.access_status === 'allowed' ? 'AUTHORIZED' : item.access_status === 'denied' ? 'DENIED' : 'PENDING',
+    status: item.access_status === 'allowed' ? 'AUTHORIZED' : item.access_status === 'denied' ? accessStatusLabel('DENIED') : 'PENDING',
     color: vehicle.vehicle_color ?? EMPTY,
     brand: [vehicle.brand, vehicle.vehicle_model].filter(Boolean).filter((v, i, all) => all.indexOf(v) === i).join(' ') || EMPTY,
     year: vehicle.year ?? EMPTY,
@@ -112,7 +116,7 @@ export function mapActivityReportDetail(item, baseUrl) {
     riwayat: (item.vehicle_history ?? []).map((event) => ({
       waktu: reportTime(event.captured_at, timezone, true),
       gate: gateLabel(event, true),
-      status: event.access_status === 'allowed' ? 'AUTHORIZED' : event.access_status === 'denied' ? 'DENIED' : 'PENDING',
+      status: event.access_status === 'allowed' ? 'AUTHORIZED' : event.access_status === 'denied' ? accessStatusLabel('DENIED') : 'PENDING',
     })),
   }
 }

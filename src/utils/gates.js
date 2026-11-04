@@ -43,7 +43,7 @@ export function buildGateTiles(gateList) {
         location: apiCamera?.location || null,
         coords: apiCamera?.coords || null,
         sourceKey: JSON.stringify([id, camId, streamUrl, offline]),
-      },
+      }
     }
   })
 }

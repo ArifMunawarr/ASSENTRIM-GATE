@@ -425,7 +425,7 @@ export default function DetailLog({ logData, onNavigate, theme, onToggleTheme, o
                 <div className="dl-row flex items-center justify-between">
                   <span className={`font-bold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-[#C5C8BE]'}`}>STATUS</span>
                   <span className={`dl-status-badge font-black tracking-widest uppercase ${
-                    data.status === 'DENIED' 
+                    data.accessStatus === 'denied'
                       ? (isLight ? 'bg-[#FF1B001A] text-[#EF4444] border-[#EF4444]' : 'bg-[#FFB4AB1A] text-[#FFB4AB] border-[#FFB4AB]')
                       : (isLight ? 'bg-[#E6F4EA] text-[#137333] border-[#34A853]' : 'bg-[#BCCBB11A] text-[#2EAFF9] border-[#2EAFF9]')
                   }`}>

@@ -4,8 +4,10 @@ import DateRangePicker from '../components/DateRangePicker'
 import CustomSelect from '../components/CustomSelect'
 import CheckboxSelect from '../components/CheckboxSelect'
 import AuthImage from '../components/AuthImage'
-import { LayoutDashboard, History, HeadphonesIcon, Settings, Car, Grid3X3, ShieldAlert, Search, ChevronDown, ChevronLeft, ChevronRight, Eye, FileText, FileSpreadsheet, RotateCcw, CameraOff } from 'lucide-react'
+import { LayoutDashboard, History, HeadphonesIcon, Settings, Car, Grid3X3, ShieldAlert, Search, ChevronDown, ChevronLeft, ChevronRight, Eye, RotateCcw, CameraOff } from 'lucide-react'
 
+import exportPdfIcon from '../assets/export-pdf.png'
+import exportExcelIcon from '../assets/export-excel.png'
 import bgTotalToday from '../assets/total_today.png'
 import bgActiveGate from '../assets/active_gate_today.png'
 import bgTodayDenied from '../assets/today_denied_accses.png'
@@ -21,6 +23,7 @@ import deniedIconLight from '../assets/deniedicon(1).svg'
 import { API_BASE_URL, getDashboardSummary, getActivityReports, getGates, exportActivityReports } from '../services/api'
 import { mapActivityReport } from '../utils/activityReports'
 import { buildGateTiles } from '../utils/gates'
+import { hasReportRange, normalizeReportRange, reportRangeParams } from '../utils/reportDate'
 
 const PAGE_SIZE = 4
 
@@ -40,9 +43,7 @@ function LogNumberBadge({ value, status, theme, alternative = false }) {
         ? 'border-[#AECBFA] bg-[#E8F0FE] text-[#1A73E8]'
         : status === 'AUTO AUTHORIZED'
           ? 'border-[#444841] bg-[#24292C] text-[#2EAFF9]'
-          : status === 'OPERATOR OVERRIDE'
-            ? 'border-[#444841] bg-transparent text-[#FFB662]'
-            : 'border-[#444841] bg-transparent text-[#DFE2EB]'
+          : 'border-[#444841] bg-transparent text-[#DFE2EB]'
     }`}>
       {value || '-'}
     </span>
@@ -54,7 +55,7 @@ function StatusBadge({ status, theme }) {
   return (
     <span
       className={`inline-flex items-center text-[8.5px] 2xl:text-[10px] font-black tracking-widest px-2 py-0.5 uppercase ${
-        status === 'DENIED'
+        status === 'DENIED' || status === 'OPERATOR OVERRIDE'
           ? (theme === 'light'
               ? 'bg-[#FF1B001A] text-[#EF4444] border-l-[4px] border-[#EF4444]'
               : 'bg-[#FFB4AB1A] text-[#FFB4AB] border-l-[4px] border-[#FFB4AB]')
@@ -62,10 +63,6 @@ function StatusBadge({ status, theme }) {
             ? (theme === 'light'
                 ? 'bg-[#FEF3C7] text-[#B45309] border-l-[4px] border-[#F59E0B]'
                 : 'bg-[#FFA7411A] text-[#FFA741] border-l-[4px] border-[#FFA741]')
-            : status === 'OPERATOR OVERRIDE'
-              ? (theme === 'light'
-                  ? 'bg-[#FFF4DF] text-[#9A5700] border-l-[4px] border-[#F59E0B]'
-                  : 'bg-[#352A1B] text-[#FFB662] border-l-[4px] border-[#F59E0B]')
               : (theme === 'light'
                   ? 'bg-[#E6F4EA] text-[#137333] border-l-[4px] border-[#34A853]'
                   : 'bg-[#BCCBB11A] text-[#2EAFF9] border-l-[4px] border-[#2EAFF9]')
@@ -132,13 +129,13 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
   }, [accessToken])
 
   // Draft (pending) filter state
-  const [pendingDateRange, setPendingDateRange] = useState(() => cachedView?.dateRange ?? { startDate: null, endDate: null })
+  const [pendingDateRange, setPendingDateRange] = useState(() => normalizeReportRange(cachedView?.dateRange))
   const [pendingVehicleType, setPendingVehicleType] = useState(() => cachedView?.vehicleType ?? 'all')
   const [pendingGateSelection, setPendingGateSelection] = useState(() => cachedView?.gateSelection ?? [])
   const [pendingRfidStatus, setPendingRfidStatus] = useState(() => cachedView?.rfidStatus ?? 'all')
 
   // Applied state - used to actually filter the table
-  const [dateRange, setDateRange] = useState(() => cachedView?.dateRange ?? { startDate: null, endDate: null })
+  const [dateRange, setDateRange] = useState(() => normalizeReportRange(cachedView?.dateRange))
   const [vehicleType, setVehicleType] = useState(() => cachedView?.vehicleType ?? 'all')
   const [gateSelection, setGateSelection] = useState(() => cachedView?.gateSelection ?? [])
   const [rfidStatus, setRfidStatus] = useState(() => cachedView?.rfidStatus ?? 'all')
@@ -147,6 +144,7 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
   const [totalItems, setTotalItems] = useState(() => cached?.totalItems ?? 0)
   const [logsLoading, setLogsLoading] = useState(() => cached?.logs == null)
   const [exportError, setExportError] = useState(null)
+  const [exporting, setExporting] = useState(null)
   const [debouncedQuery, setDebouncedQuery] = useState(() => cachedView?.debouncedQuery ?? '')
   const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE))
   const visibleLogs = logs
@@ -156,21 +154,13 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
     return () => clearTimeout(timer)
   }, [searchQuery])
 
-  const dayBoundaryIso = (d, endOfDay) => {
-    if (!d) return undefined
-    return endOfDay
-      ? new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999).toISOString()
-      : new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0).toISOString()
-  }
-
   const buildLogParams = () => ({
     search: debouncedQuery || undefined,
     gate_code: gateSelection.length === 1 ? gateApiCode(gateSelection[0]) : undefined,
     vehicle_type: vehicleType !== 'all' ? vehicleType : undefined,
-    access_status: rfidStatus === 'all' ? undefined : (rfidStatus === 'auto_authorized' || rfidStatus === 'operator_override' ? 'allowed' : rfidStatus),
+    access_status: ['all', 'operator_override'].includes(rfidStatus) ? undefined : (rfidStatus === 'auto_authorized' ? 'allowed' : rfidStatus),
     authorization_mode: ['auto_authorized', 'operator_override'].includes(rfidStatus) ? rfidStatus : undefined,
-    start_date: dayBoundaryIso(dateRange.startDate, false),
-    end_date: dayBoundaryIso(dateRange.endDate || dateRange.startDate, true),
+    ...reportRangeParams(dateRange),
   })
 
   useEffect(() => {
@@ -230,7 +220,12 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
     }
   }, [accessToken, currentPage, debouncedQuery, dateRange, vehicleType, gateSelection, rfidStatus])
 
+  const exportDisabled = !hasReportRange(dateRange) || Boolean(exporting)
+    || !accessToken || debouncedQuery !== searchQuery.trim()
+
   const handleExport = async (format) => {
+    if (exportDisabled) return
+    setExporting(format)
     setExportError(null)
     try {
       const { blob, filename } = await exportActivityReports(accessToken, format, {
@@ -249,11 +244,13 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
     } catch (err) {
       setExportError(err.message)
       setTimeout(() => setExportError(null), 5000)
+    } finally {
+      setExporting(null)
     }
   }
 
   const handleApplyFilters = () => {
-    setDateRange(pendingDateRange)
+    setDateRange(normalizeReportRange(pendingDateRange))
     setVehicleType(pendingVehicleType)
     setGateSelection(pendingGateSelection)
     setRfidStatus(pendingRfidStatus)
@@ -296,17 +293,21 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
           <div className="flex items-center gap-2 2xl:gap-4">
             <button 
               onClick={() => handleExport('pdf')}
-              className={`flex items-center gap-1.5 2xl:gap-2.5 text-[9px] 2xl:text-[12px] font-black px-3 py-2 2xl:px-5 2xl:py-3 rounded tracking-widest uppercase transition-colors ${theme === 'light' ? 'bg-[#0C5F9A] hover:bg-[#094d7d] text-[#FAFAFA]' : 'bg-[#2EAFF9] hover:bg-[#1f9beb] text-[#0a0d14]'}`}
+              disabled={exportDisabled}
+              title={!hasReportRange(dateRange) ? 'Select a date range then Apply Filters to export' : 'Export all rows matching the table filters'}
+              className={`flex items-center gap-1.5 2xl:gap-2.5 text-[9px] 2xl:text-[12px] font-black px-3 py-2 2xl:px-5 2xl:py-3 rounded tracking-widest uppercase transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${theme === 'light' ? 'bg-[#0C5F9A] hover:bg-[#094d7d] text-[#FAFAFA]' : 'bg-[#2EAFF9] hover:bg-[#1f9beb] text-[#0a0d14]'}`}
             >
-              <FileText className="w-3 h-3 2xl:w-4 2xl:h-4" strokeWidth={2.5} />
-              Print PDF
+              <img src={exportPdfIcon} alt="" aria-hidden="true" className="w-3 h-3 2xl:w-4 2xl:h-4 shrink-0 object-contain" />
+              {exporting === 'pdf' ? 'Preparing PDF...' : 'Print PDF'}
             </button>
             <button 
               onClick={() => handleExport('xlsx')}
-              className={`flex items-center gap-1.5 2xl:gap-2.5 text-[9px] 2xl:text-[12px] font-black px-3 py-2 2xl:px-5 2xl:py-3 rounded tracking-widest uppercase transition-colors ${theme === 'light' ? 'bg-[#0C5F9A] hover:bg-[#094d7d] text-[#FAFAFA]' : 'bg-[#2EAFF9] hover:bg-[#1f9beb] text-[#0a0d14]'}`}
+              disabled={exportDisabled}
+              title={!hasReportRange(dateRange) ? 'Select a date range then Apply Filters to export' : 'Export all rows matching the table filters'}
+              className={`flex items-center gap-1.5 2xl:gap-2.5 text-[9px] 2xl:text-[12px] font-black px-3 py-2 2xl:px-5 2xl:py-3 rounded tracking-widest uppercase transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${theme === 'light' ? 'bg-[#0C5F9A] hover:bg-[#094d7d] text-[#FAFAFA]' : 'bg-[#2EAFF9] hover:bg-[#1f9beb] text-[#0a0d14]'}`}
             >
-              <FileSpreadsheet className="w-3 h-3 2xl:w-4 2xl:h-4" strokeWidth={2.5} />
-              Print Excel
+              <img src={exportExcelIcon} alt="" aria-hidden="true" className="w-3 h-3 2xl:w-4 2xl:h-4 shrink-0 object-contain" />
+              {exporting === 'xlsx' ? 'Preparing Excel...' : 'Print Excel'}
             </button>
           </div>
         </div>
@@ -358,12 +359,12 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
             </div>
           </div>
 
-          {/* Today Denied */}
+          {/* Today Operator Overide */}
           <div className={`border bg-[length:100%_100%] bg-no-repeat p-3 2xl:p-4 flex flex-col justify-between min-h-[86px] 2xl:min-h-[110px] ${theme === 'light' ? 'bg-[#FAFAFA] border-[#D8D8D8]' : 'bg-[#0F1115] border-[#444841]'}`} style={{ backgroundImage: `url("${theme === 'light' ? bgTodayDeniedLight : bgTodayDenied}")` }}>
             <div className="flex justify-between items-start">
-              <img src={theme === 'light' ? deniedIconLight : deniedIcon} alt="Today Denied" className="w-5 h-5 2xl:w-8 2xl:h-8 object-contain" />
+              <img src={theme === 'light' ? deniedIconLight : deniedIcon} alt="Today Operator Override" className="w-5 h-5 2xl:w-8 2xl:h-8 object-contain" />
               <div className={`text-[8px] 2xl:text-[11px] font-bold tracking-widest uppercase mt-0.5 2xl:mt-1 ${theme === 'light' ? 'text-slate-800' : 'text-slate-300'}`}>
-                TODAY DENIED ACCESS
+                TODAY OPERATOR OVERRIDE
               </div>
             </div>
             <div className="mt-3 2xl:mt-5">
@@ -380,9 +381,9 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
             <div className="flex flex-wrap gap-3 2xl:gap-4 items-end">
               {/* Date Range */}
               <div className="flex flex-col gap-1 z-50">
-                <label className="text-[8px] 2xl:text-[11px] font-black tracking-[0.15em] text-[#C5C8BE] uppercase">DATE RANGE</label>
+                <label className="text-[8px] 2xl:text-[11px] font-black tracking-[0.15em] text-[#C5C8BE] uppercase">DATE</label>
                 <div>
-                  <DateRangePicker theme={theme} value={pendingDateRange} onChange={setPendingDateRange} />
+                  <DateRangePicker singleDay minYear={2026} maxYear={new Date().getFullYear()} theme={theme} value={pendingDateRange} onChange={setPendingDateRange} />
                 </div>
               </div>
               {/* Vehicle Type */}
@@ -455,6 +456,8 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
                 </button>
                 <button 
                   onClick={handleResetFilters}
+                  aria-label="Reset filters"
+                  title="Reset filters"
                   className={`flex items-center justify-center px-3 py-2 2xl:px-4 2xl:py-3 border transition-colors ${theme === 'light' ? 'bg-[#313131] border-[#A9A9A9] hover:opacity-90' : 'bg-[#4A4E42] border-[#4A4E42] hover:text-white'}`}
                   style={{ color: theme === 'light' ? '#A9A9A9' : '#cbd5e1' }}
                 >
@@ -473,7 +476,7 @@ export default function ActivityLogs({ onNavigate, theme, onToggleTheme, onLogou
                 setSearchQuery(e.target.value)
                 setCurrentPage(1)
               }}
-              placeholder="Search plate, alternative number, driver, RFID..."
+              placeholder="Search"
               className={`text-slate-300 text-[11px] 2xl:text-[14px] pl-3 pr-9 py-2 2xl:pl-4 2xl:pr-12 2xl:py-3 w-full lg:w-80 2xl:w-96 outline-none placeholder-slate-300 tracking-wider transition-colors ${theme === 'light' ? 'bg-[#FAFAFA] border border-[#D8D8D8] focus:border-[#D8D8D8]' : 'bg-[#1C2026] border border-[#444841] focus:border-[#2EAFF9]'}`}
             />
             <Search className={`absolute right-3 2xl:right-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 2xl:w-5 2xl:h-5 pointer-events-none transition-colors ${theme === 'light' ? 'text-[#8A8F98]' : 'text-slate-400'}`} strokeWidth={1.5} />

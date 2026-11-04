@@ -19,7 +19,7 @@ function pad(n) {
   return String(n).padStart(2, '0')
 }
 
-export default function DateRangePicker({ value, onChange, widthClass = "w-48", theme = 'dark' }) {
+export default function DateRangePicker({ value, onChange, widthClass = "w-48", theme = 'dark', singleDay = false, minYear = null, maxYear = null }) {
   const today = new Date()
   const [isOpen, setIsOpen] = useState(false)
   const [viewMode, setViewMode] = useState('date')
@@ -36,6 +36,15 @@ export default function DateRangePicker({ value, onChange, widthClass = "w-48", 
 
   const handleSelectDate = (day) => {
     const selected = new Date(currentYear, currentMonth, day)
+    if (minYear != null && selected.getFullYear() < minYear) return
+    if (maxYear != null && selected.getFullYear() > maxYear) return
+    if (singleDay) {
+      setStartDate(selected)
+      setEndDate(selected)
+      onChange?.({ startDate: selected, endDate: selected })
+      setIsOpen(false)
+      return
+    }
     let newStart = startDate
     let newEnd = endDate
 
@@ -61,7 +70,11 @@ export default function DateRangePicker({ value, onChange, widthClass = "w-48", 
   const daysInMonth = getDaysInMonth(currentYear, currentMonth)
   const firstDay = getFirstDayOfMonth(currentYear, currentMonth)
 
+  const canPrevMonth = minYear == null || currentYear > minYear || currentMonth > 0
+  const canNextMonth = maxYear == null || currentYear < maxYear || currentMonth < 11
+
   function prevMonth() {
+    if (!canPrevMonth) return
     if (currentMonth === 0) {
       setCurrentMonth(11)
       setCurrentYear(y => y - 1)
@@ -71,6 +84,7 @@ export default function DateRangePicker({ value, onChange, widthClass = "w-48", 
   }
 
   function nextMonth() {
+    if (!canNextMonth) return
     if (currentMonth === 11) {
       setCurrentMonth(0)
       setCurrentYear(y => y + 1)
@@ -80,6 +94,8 @@ export default function DateRangePicker({ value, onChange, widthClass = "w-48", 
   }
 
   function selectYear(year) {
+    if (minYear != null && year < minYear) return
+    if (maxYear != null && year > maxYear) return
     setCurrentYear(year)
     setViewMode('date')
   }
@@ -123,7 +139,7 @@ export default function DateRangePicker({ value, onChange, widthClass = "w-48", 
   }
 
   const displayLabel = startDate
-    ? `${formatDate(startDate)}${endDate ? ' - ' + formatDate(endDate) : ''}`
+    ? `${formatDate(startDate)}${endDate && !singleDay ? ' - ' + formatDate(endDate) : ''}`
     : 'mm/dd/yyyy'
 
   // Generate year range (±5 from current)
@@ -159,13 +175,17 @@ export default function DateRangePicker({ value, onChange, widthClass = "w-48", 
               <ChevronLeft
                 size={14}
                 strokeWidth={3}
-                className={`cursor-pointer ${theme === 'light' ? 'text-[#FAFAFA] hover:text-white' : 'text-white hover:text-slate-300'}`}
+                className={canPrevMonth
+                  ? `cursor-pointer ${theme === 'light' ? 'text-[#FAFAFA] hover:text-white' : 'text-white hover:text-slate-300'}`
+                  : 'opacity-30 cursor-not-allowed text-slate-500'}
                 onClick={prevMonth}
               />
               <ChevronRight
                 size={14}
                 strokeWidth={3}
-                className={`cursor-pointer ${theme === 'light' ? 'text-[#FAFAFA] hover:text-white' : 'text-white hover:text-slate-300'}`}
+                className={canNextMonth
+                  ? `cursor-pointer ${theme === 'light' ? 'text-[#FAFAFA] hover:text-white' : 'text-white hover:text-slate-300'}`
+                  : 'opacity-30 cursor-not-allowed text-slate-500'}
                 onClick={nextMonth}
               />
             </div>
@@ -226,12 +246,16 @@ export default function DateRangePicker({ value, onChange, widthClass = "w-48", 
                 <div className="grid grid-cols-3 gap-y-5 gap-x-1">
                   {years.map(year => {
                     const isSelected = year === currentYear
-                    let classes = "w-[56px] h-8 mx-auto flex items-center justify-center text-[13px] font-medium cursor-pointer transition-colors tracking-wide "
+                    const isDisabled = (minYear != null && year < minYear) || (maxYear != null && year > maxYear)
+                    let classes = "w-[56px] h-8 mx-auto flex items-center justify-center text-[13px] font-medium transition-colors tracking-wide "
 
-                    if (isSelected) {
-                      classes += theme === 'light' ? "rounded-full bg-[#0C5F9A] text-[#FAFAFA] font-bold" : "rounded-full bg-[#2EAFF9] text-[#0a0d14] font-bold"
+                    if (isDisabled) {
+                      classes += "rounded-full text-slate-600 opacity-40 cursor-not-allowed"
                     } else {
-                      classes += theme === 'light' ? "text-[#0C5F9A] hover:opacity-80" : "text-[#2EAFF9] hover:text-white"
+                      classes += "cursor-pointer "
+                      classes += isSelected
+                        ? (theme === 'light' ? "rounded-full bg-[#0C5F9A] text-[#FAFAFA] font-bold" : "rounded-full bg-[#2EAFF9] text-[#0a0d14] font-bold")
+                        : (theme === 'light' ? "text-[#0C5F9A] hover:opacity-80" : "text-[#2EAFF9] hover:text-white")
                     }
 
                     return (
